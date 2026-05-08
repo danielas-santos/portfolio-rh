@@ -762,8 +762,8 @@ document.addEventListener('click', function(e){
 // ── SUPABASE INIT ─────────────────────────────────────────
 // Configuração corporativa: preencha com os dados do projeto Supabase corporativo.
 // Nunca use service_role, secret keys, senha do banco ou connection string no HTML.
-const SUPA_URL = 'COLE_AQUI_A_URL_DO_SUPABASE_CORPORATIVO';
-const SUPA_KEY = 'COLE_AQUI_A_CHAVE_PUBLISHABLE_OU_ANON';
+const SUPA_URL = 'https://duhciwjfftmzqugrktft.supabase.co/rest/v1/';
+const SUPA_KEY = 'sb_publishable_BMNPMnq4iZQJWMDIGQK9dg_OBvzFMtg';
 const EXECUTIVE_PPTX_URL = './onepage_executivo.pptx';
 const SUPABASE_CONFIGURED = SUPA_URL.startsWith('https://') && !SUPA_URL.includes('COLE_AQUI') && !SUPA_KEY.includes('COLE_AQUI');
 const supa = SUPABASE_CONFIGURED ? window.supabase.createClient(SUPA_URL, SUPA_KEY) : null;
