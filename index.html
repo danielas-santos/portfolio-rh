@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Portfólio RH · Soluções & Inovação · 2026 · v24.0</title>
+<title>Portfólio RH · Soluções & Inovação · 2026 · v24.2</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -268,7 +268,7 @@ tr:hover td{background:#fdf5f8;}
 <header>
   <div class="logo">
     <div class="logo-mark">RH</div>
-    <span class="logo-text">Portfólio RH <span class="logo-sub">· Soluções & Inovação · 2026 · v24.0</span></span>
+    <span class="logo-text">Portfólio RH <span class="logo-sub">· Soluções & Inovação · 2026 · v24.2</span></span>
   </div>
   <span class="hright" id="last-update"></span>
 </header>
@@ -276,7 +276,6 @@ tr:hover td{background:#fdf5f8;}
   <button class="ntab active" onclick="showTab('projetos',this)">Projetos</button>
   <button class="ntab" onclick="showTab('quarters',this)">Por Quarter</button>
   <button class="ntab" onclick="showTab('visao',this)">Capacidade & Demanda</button>
-  <button class="ntab" onclick="showTab('saude',this)">Saúde do Portfólio</button>
   <button class="ntab" onclick="showTab('basico',this)">Pipeline BASIC</button>
   <button class="ntab" onclick="showTab('priorizacao',this)">Priorização</button>
 </nav>
@@ -449,50 +448,6 @@ tr:hover td{background:#fdf5f8;}
   </div>
 </div>
 
-<!-- ABA SAÚDE DO PORTFÓLIO -->
-<div class="sec" id="tab-saude">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-      <select id="saude-filtro-status" onchange="renderSaude()" style="padding:5px 10px;font-size:11px;border:1px solid #e0e0e0;border-radius:6px;font-family:inherit;">
-        <option value="">Todos os status</option>
-        <option value="Em andamento">Em andamento</option>
-        <option value="Não iniciado">Não iniciado</option>
-        <option value="Stand-by">Stand-by</option>
-        <option value="Concluído">Concluído</option>
-      </select>
-      <select id="saude-filtro-farol" onchange="renderSaude()" style="padding:5px 10px;font-size:11px;border:1px solid #e0e0e0;border-radius:6px;font-family:inherit;">
-        <option value="">Todos os farois</option>
-        <option value="Atrasado">🔴 Atrasado</option>
-        <option value="Em risco">🟠 Em risco</option>
-        <option value="No prazo">🟢 No prazo</option>
-        <option value="Concluído">✅ Concluído</option>
-        <option value="Sem prazo">⚪ Sem prazo</option>
-      </select>
-      <select id="saude-filtro-area" onchange="renderSaude()" style="padding:5px 10px;font-size:11px;border:1px solid #e0e0e0;border-radius:6px;font-family:inherit;">
-        <option value="">Todas as áreas</option>
-      </select>
-    </div>
-    <div style="display:flex;gap:16px;font-size:11px;color:#666;" id="saude-alertas"></div>
-  </div>
-  <div style="overflow-x:auto;">
-    <table id="tbs" style="width:100%;border-collapse:collapse;font-size:12px;">
-      <thead>
-        <tr style="background:var(--bordo);color:#fff;">
-          <th style="padding:10px 12px;text-align:left;font-weight:600;width:28%;">Iniciativa / Projeto</th>
-          <th style="padding:10px 8px;text-align:left;font-weight:600;width:11%;">Categoria</th>
-          <th style="padding:10px 8px;text-align:center;font-weight:600;width:7%;">Farol</th>
-          <th style="padding:10px 8px;text-align:center;font-weight:600;width:9%;">Status</th>
-          <th style="padding:10px 8px;text-align:center;font-weight:600;width:7%;">Início</th>
-          <th style="padding:10px 8px;text-align:center;font-weight:600;width:7%;">Término</th>
-          <th style="padding:10px 8px;text-align:left;font-weight:600;">Histórico / Últimas atualizações</th>
-          <th style="padding:10px 8px;width:32px;"></th>
-        </tr>
-      </thead>
-      <tbody id="tbody-saude"></tbody>
-    </table>
-  </div>
-</div>
-
 <!-- ABA PIPELINE BASIC -->
 <div class="sec" id="tab-basico">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
@@ -541,10 +496,10 @@ tr:hover td{background:#fdf5f8;}
       A classificação usa a <strong>mediana do grupo</strong> como referência dinâmica:
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;">
-      <div style="display:flex;align-items:center;gap:8px;font-size:11px;"><span class="qb i" style="white-space:nowrap;">I – Crítico</span> Negócio <strong>acima</strong> da mediana + TI <strong>viável</strong> → fazer agora</div>
-      <div style="display:flex;align-items:center;gap:8px;font-size:11px;"><span class="qb ii" style="white-space:nowrap;">II – Importante</span> Negócio alto, mas TI <strong>complexo</strong> → planejar com TI</div>
-      <div style="display:flex;align-items:center;gap:8px;font-size:11px;"><span class="qb iii" style="white-space:nowrap;">III – Postergável</span> Negócio abaixo da mediana, TI viável → aguardar prioridade</div>
-      <div style="display:flex;align-items:center;gap:8px;font-size:11px;"><span class="qb iv" style="white-space:nowrap;">IV – Diferir</span> Negócio baixo <strong>e</strong> TI complexo → não priorizar agora</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:11px;"><span class="qb i" style="white-space:nowrap;">Crítico</span> Negócio <strong>acima</strong> da mediana + TI <strong>viável</strong> → fazer agora</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:11px;"><span class="qb ii" style="white-space:nowrap;">Importante</span> Negócio alto, mas TI <strong>complexo</strong> → planejar com TI</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:11px;"><span class="qb iii" style="white-space:nowrap;">Postergável</span> Negócio abaixo da mediana, TI viável → aguardar prioridade</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:11px;"><span class="qb iv" style="white-space:nowrap;">Diferir</span> Negócio baixo <strong>e</strong> TI complexo → não priorizar agora</div>
     </div>
     <div style="font-size:10px;color:var(--text3);margin-top:6px;">Os limiares são recalculados automaticamente conforme novas iniciativas entram no pipeline.</div>
   </div>
@@ -714,7 +669,7 @@ function renderSaude(){
       <td style="padding:10px 8px;color:#666;">${p.tipo||'—'}</td>
       <td style="padding:10px 8px;text-align:center;">
         <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:12px;font-size:10px;font-weight:600;background:${f.cor}20;color:${f.cor};">
-          ${f.icon} ${f.label}
+          ${f.label}
         </span>
       </td>
       <td style="padding:10px 8px;text-align:center;">
@@ -803,7 +758,7 @@ function calcTIScore(s){
 
 // ── CLASSIFICATION (I / II / III / IV) ───────────────────
 // Regra: mediana do Score Negócio e P40 do Score TI como limiares
-// - I–Crítico:      Negócio acima da mediana E TI acima do P40 (viável)
+// - Crítico:      Negócio acima da mediana E TI acima do P40 (viável)
 // - II–Importante:  Negócio acima da mediana MAS TI abaixo do P40 (complexo)
 // - III–Postergável:Negócio abaixo da mediana, TI viável — planejar para mais tarde
 // - IV–Diferir:     Negócio baixo E TI complexo — não priorizar agora
@@ -831,10 +786,10 @@ function classifyI_II_III(items){
     if(i.ti==null) return {...i, cls:'IV', clsLabel:'Aguarda TI', bizT, tiT};
     const bizHigh = i.biz >= bizT;
     const tiEasy  = i.ti  >= tiT;
-    if( bizHigh &&  tiEasy) return {...i, cls:'I',   clsLabel:'I – Crítico',       bizT, tiT};
-    if( bizHigh && !tiEasy) return {...i, cls:'II',  clsLabel:'II – Importante',   bizT, tiT};
-    if(!bizHigh &&  tiEasy) return {...i, cls:'III', clsLabel:'III – Postergável',  bizT, tiT};
-    return                         {...i, cls:'IV',  clsLabel:'IV – Diferir',       bizT, tiT};
+    if( bizHigh &&  tiEasy) return {...i, cls:'I',   clsLabel:'Crítico',       bizT, tiT};
+    if( bizHigh && !tiEasy) return {...i, cls:'II',  clsLabel:'Importante',   bizT, tiT};
+    if(!bizHigh &&  tiEasy) return {...i, cls:'III', clsLabel:'Postergável',  bizT, tiT};
+    return                         {...i, cls:'IV',  clsLabel:'Diferir',       bizT, tiT};
   });
 }
 function calcTotal(biz,ti,wB){return ti!=null?Math.round(biz*(wB/100)+ti*((100-wB)/100)):null;}
@@ -1285,7 +1240,7 @@ function renderBasic(){
     const biz=calcBizScore(b.bizScores);
     const ti=calcTIScore(b.tiScores);
     const tot=calcTotal(biz,ti,wB);
-    const c=clsMap[b.id]||{cls:'iii',clsLabel:'III – Postergável'};
+    const c=clsMap[b.id]||{cls:'III',clsLabel:'Postergável'};
     const pc=b.prio==='Alta'?'color:var(--magenta);font-weight:500':b.prio==='Média'?'color:var(--bordo)':'color:var(--text3)';
     const frl=farolPrazo(b);
     const farolHtml=b.end&&b.end!=='TBD'
@@ -1374,10 +1329,10 @@ function renderPrioMatrix(items){
     c2.beginPath();c2.moveTo(left,yLine);c2.lineTo(right,yLine);c2.stroke();
     c2.setLineDash([]);
     c2.font='bold 10px sans-serif';c2.fillStyle='rgba(45,16,30,0.45)';c2.textAlign='center';
-    c2.fillText('II – Importante',  left+(xLine-left)/2,    top+14);
-    c2.fillText('I – Crítico',      xLine+(right-xLine)/2,  top+14);
-    c2.fillText('IV – Diferir',     left+(xLine-left)/2,    bottom-6);
-    c2.fillText('III – Postergável',xLine+(right-xLine)/2,  bottom-6);
+    c2.fillText('Importante',  left+(xLine-left)/2,    top+14);
+    c2.fillText('Crítico',      xLine+(right-xLine)/2,  top+14);
+    c2.fillText('Diferir',     left+(xLine-left)/2,    bottom-6);
+    c2.fillText('Postergável',xLine+(right-xLine)/2,  bottom-6);
     c2.restore();
   }};
   scatterChart=new Chart(ctx,{
@@ -1744,7 +1699,6 @@ function showTab(id,btn){
   document.getElementById('tab-'+id).classList.add('active');
   btn.classList.add('active');
   if(id==='visao')renderCarga();
-  if(id==='saude')renderSaude();
   if(id==='priorizacao')renderPrio();
   if(id==='basico'){
     buildAreaChecks('barea-checks',areaSets.b,allBasicAreas(),"'barea-checks'");
@@ -2058,7 +2012,7 @@ async function seedBasicData(){
 }
 
 async function saveProjetoToDB(data, id){
-  if(!supa) return null;
+  if(!supa) throw new Error('Supabase não configurado. Confira SUPA_URL e SUPA_KEY no index.html.');
   const row = {
     nome:data.nome, descricao:data.desc, beneficio:data.benef,
     tipo:data.tipo, area:data.area, prio:data.prio,
@@ -2066,46 +2020,57 @@ async function saveProjetoToDB(data, id){
     origem:data.origem, avanco:data.avanco||0, historico:data.historico||'', updated_at:new Date().toISOString()
   };
   if(id){
-    await supa.from('projetos').update(row).eq('id',id);
+    const { error } = await supa.from('projetos').update(row).eq('id',id);
+    if(error) throw new Error('Erro ao atualizar projetos: '+error.message);
+    return id;
   } else {
-    const {data:ins}=await supa.from('projetos').insert(row).select().single();
+    const {data:ins, error}=await supa.from('projetos').insert(row).select().single();
+    if(error) throw new Error('Erro ao inserir em projetos: '+error.message);
     return ins?.id;
   }
 }
 
 async function deleteProjetoDB(id){
-  if(!supa) return;
-  await supa.from('projetos').delete().eq('id',id);
+  if(!supa) throw new Error('Supabase não configurado.');
+  const { error } = await supa.from('projetos').delete().eq('id',id);
+  if(error) throw new Error('Erro ao excluir projeto: '+error.message);
 }
 
 async function saveBasicToDB(data, id){
-  if(!supa) return null;
+  if(!supa) throw new Error('Supabase não configurado. Confira SUPA_URL e SUPA_KEY no index.html.');
   const row = {
     nome:data.nome, descricao:data.desc, beneficio:data.benef,
     area:data.area, prio:data.prio,
     biz_scores:data.bizScores||{}, ti_scores:data.tiScores||{},
+    quarter_override:data._q||data.quarter_override||null,
     updated_at:new Date().toISOString()
   };
   if(id){
-    await supa.from('basic_items').update(row).eq('id',id);
+    const { error } = await supa.from('basic_items').update(row).eq('id',id);
+    if(error) throw new Error('Erro ao atualizar basic_items: '+error.message);
+    return id;
   } else {
-    const {data:ins}=await supa.from('basic_items').insert(row).select().single();
+    const {data:ins, error}=await supa.from('basic_items').insert(row).select().single();
+    if(error) throw new Error('Erro ao inserir em basic_items: '+error.message);
     return ins?.id;
   }
 }
 
 async function deleteBasicDB(id){
-  if(!supa) return;
-  await supa.from('basic_items').delete().eq('id',id);
+  if(!supa) throw new Error('Supabase não configurado.');
+  const { error } = await supa.from('basic_items').delete().eq('id',id);
+  if(error) throw new Error('Erro ao excluir BASIC: '+error.message);
 }
 
 async function updateQuarterDB(id, origem, quarter){
-  if(!supa) return;
+  if(!supa) throw new Error('Supabase não configurado.');
+  let result;
   if(origem==='basic'){
-    await supa.from('basic_items').update({quarter_override:quarter}).eq('id',id);
+    result = await supa.from('basic_items').update({quarter_override:quarter}).eq('id',id);
   } else {
-    await supa.from('projetos').update({quarter:quarter}).eq('id',id);
+    result = await supa.from('projetos').update({quarter:quarter}).eq('id',id);
   }
+  if(result.error) throw new Error('Erro ao atualizar quarter: '+result.error.message);
 }
 
 // ── EXPORT / IMPORT ───────────────────────────────────────
@@ -2400,16 +2365,20 @@ async function executeImport(){
         if(item.existing){Object.assign(item.existing,data);await saveProjetoToDB(data,item.existing.id);updated++;}
         else{const nid=await saveProjetoToDB(data,null);projects.push({id:nid||nextId++,...data});added++;}
       }
-    }catch(err){console.error('Import err:',err);errors++;}
+    }catch(err){
+      console.error('Import err:',err);
+      errors++;
+      toast('Erro na importação: '+(err.message||err));
+    }
   }
   closeImportModal();
-  renderAll();
+  await loadAllData();
   toast(`✅ ${added} adicionados · ${updated} atualizados${errors>0?' · ⚠️ '+errors+' erros':''}`);
 }
 
 async function importCSV(event){showImportPreview(event);}
 
-function renderAll(){renderMetrics();renderProjetos();renderKanban();renderCarga();renderBasic();renderSaude();renderPrio();document.getElementById('last-update').textContent='Atualizado em '+new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
+function renderAll(){renderMetrics();renderProjetos();renderKanban();renderCarga();renderBasic();renderPrio();document.getElementById('last-update').textContent='Atualizado em '+new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
 }
 loadAllData();
 
