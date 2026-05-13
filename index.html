@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Portfólio RH · Soluções & Inovação · 2026 · v24.2</title>
+<title>Portfólio RH · Soluções & Inovação · 2026 · v24.3 UX</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -46,6 +46,18 @@ main{max-width:1380px;margin:0 auto;padding:16px 14px 80px;}
 .toolbar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:10px 12px;}
 .tsep{width:1px;height:20px;background:var(--border2);margin:0 2px;flex-shrink:0;}
 @media(max-width:640px){.tsep{display:none;}.toolbar{gap:6px;}}
+/* UX: filtros em lista para evitar poluição visual */
+.filter-wrap{position:relative;display:inline-block;}
+.filter-pop{display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:320;background:var(--branco);border:1px solid var(--border2);border-radius:var(--rl);box-shadow:0 8px 28px rgba(0,0,0,.14);width:min(720px,calc(100vw - 32px));padding:12px;}
+.filter-pop.open{display:block;}
+.filter-grid{display:grid;grid-template-columns:repeat(2,minmax(220px,1fr));gap:12px 16px;}
+.filter-group{border-bottom:1px solid var(--border);padding-bottom:10px;}
+.filter-group:nth-last-child(-n+2){border-bottom:none;padding-bottom:0;}
+.filter-title{display:block;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
+.filter-options{display:flex;gap:5px;flex-wrap:wrap;}
+.filter-summary{min-width:86px;text-align:center;}
+@media(max-width:720px){.filter-pop{left:auto;right:0;width:calc(100vw - 28px);}.filter-grid{grid-template-columns:1fr;}.filter-group{border-bottom:1px solid var(--border)!important;padding-bottom:10px!important;}}
+
 .flbl{font-size:11px;font-weight:500;color:var(--text3);white-space:nowrap;}
 /* ── SEARCH ── */
 .sw{position:relative;flex:1;min-width:160px;}
@@ -181,18 +193,6 @@ tr:hover td{background:#fdf5f8;}
 .fi input:focus,.fi select:focus,.fi textarea:focus{border-color:var(--bordo-luz);background:var(--branco);}
 .fi input.err,.fi select.err,.fi textarea.err{border-color:var(--magenta);}
 .fi input:disabled,.fi select:disabled,.fi textarea:disabled{opacity:.55;cursor:not-allowed;background:var(--bg);}
-/* AI assist button */
-.ai-wrap{position:relative;}
-.ai-wrap textarea{padding-right:36px;}
-.ai-btn{position:absolute;bottom:8px;right:8px;width:26px;height:26px;border-radius:6px;border:none;background:var(--rosa);color:var(--bordo);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:background .15s;}
-.ai-btn:hover{background:var(--magenta);color:var(--branco);}
-.ai-btn.loading{animation:pulse .8s ease-in-out infinite;}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-.ai-suggestion{background:#fdf5f8;border:1px solid var(--rosa);border-radius:var(--r);padding:10px 12px;margin-top:6px;font-size:12px;color:var(--text2);display:none;line-height:1.5;}
-.ai-suggestion.show{display:block;}
-.ai-actions{display:flex;gap:6px;margin-top:6px;}
-.ai-use{padding:5px 12px;font-size:11px;font-weight:500;font-family:var(--font);background:var(--bordo);color:var(--branco);border:none;border-radius:var(--r);cursor:pointer;}
-.ai-disc{padding:5px 12px;font-size:11px;font-family:var(--font);background:transparent;color:var(--text3);border:1px solid var(--border2);border-radius:var(--r);cursor:pointer;}
 /* score grid */
 .fsec{grid-column:1/-1;font-size:11px;font-weight:600;color:var(--bordo);text-transform:uppercase;letter-spacing:.06em;padding-top:8px;border-top:1px solid var(--border);margin-top:2px;}
 .fsec-note{grid-column:1/-1;font-size:11px;color:var(--text3);background:var(--bg);border-radius:var(--r);padding:8px 10px;border-left:3px solid var(--cinza);}
@@ -262,13 +262,21 @@ tr:hover td{background:#fdf5f8;}
 .qb.iii{background:rgba(190,19,73,0.08);color:#BE1349;border:1px solid rgba(190,19,73,0.20);}
 .qb.iv{background:rgba(100,100,100,0.08);color:#666;border:1px solid rgba(100,100,100,0.20);}
 
+/* UX ajustes — priorizacao e formulários */
+#tab-priorizacao .prio-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:stretch;}
+#tab-priorizacao .prio-panel{display:flex;flex-direction:column;min-height:420px;}
+#tab-priorizacao .matrix-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:12px;min-height:420px;display:flex;align-items:stretch;}
+#tab-priorizacao #scatter{width:100% !important;height:420px !important;display:block;}
+@media(max-width:900px){#tab-priorizacao .prio-grid{grid-template-columns:1fr;}#tab-priorizacao .matrix-wrap{min-height:360px;}#tab-priorizacao #scatter{height:360px !important;}}
+.fi textarea::placeholder{color:#9a9a9a;}
+
 </style>
   </head>
 <body>
 <header>
   <div class="logo">
     <div class="logo-mark">RH</div>
-    <span class="logo-text">Portfólio RH <span class="logo-sub">· Soluções & Inovação · 2026 · v24.2</span></span>
+    <span class="logo-text">Portfólio RH <span class="logo-sub">· Soluções & Inovação · 2026 · v24.3</span></span>
   </div>
   <span class="hright" id="last-update"></span>
 </header>
@@ -291,34 +299,57 @@ tr:hover td{background:#fdf5f8;}
       <div class="acl" id="acp"></div>
     </div>
     <div class="tsep"></div>
-    <span class="flbl">Quarter</span>
-    <div id="fq-btns" style="display:flex;gap:4px;flex-wrap:wrap;">
-      <button class="fbtn" data-fq="Q1" onclick="toggleF('q','Q1',this)">Q1</button>
-      <button class="fbtn" data-fq="Q2" onclick="toggleF('q','Q2',this)">Q2</button>
-      <button class="fbtn" data-fq="Q3" onclick="toggleF('q','Q3',this)">Q3</button>
-      <button class="fbtn" data-fq="Q4" onclick="toggleF('q','Q4',this)">Q4</button>
-      <button class="fbtn" data-fq="TBD" onclick="toggleF('q','TBD',this)">Não def.</button>
-    </div>
-    <div class="tsep"></div>
-    <span class="flbl">Área</span>
-    <div class="mdd-wrap">
-      <button class="fbtn mdd-btn" id="mdd-btn-p" onclick="openMDD('p')">Todas ▾</button>
-      <div class="mdd" id="mdd-p">
-        <div class="mdd-hdr"><span>Selecionar áreas</span><button onclick="clearAreaSet('p');event.stopPropagation()">Limpar</button></div>
-        <div class="mdd-list"></div>
+    <div class="filter-wrap">
+      <button class="fbtn filter-summary" id="filter-toggle" onclick="toggleProjectFilters(event)">Filtros ▾</button>
+      <div class="filter-pop" id="project-filter-pop">
+        <div class="filter-grid">
+          <div class="filter-group">
+            <span class="filter-title">Quarter</span>
+            <div class="filter-options" id="fq-btns">
+              <button class="fbtn" data-fq="Q1" onclick="toggleF('q','Q1',this)">Q1</button>
+              <button class="fbtn" data-fq="Q2" onclick="toggleF('q','Q2',this)">Q2</button>
+              <button class="fbtn" data-fq="Q3" onclick="toggleF('q','Q3',this)">Q3</button>
+              <button class="fbtn" data-fq="Q4" onclick="toggleF('q','Q4',this)">Q4</button>
+              <button class="fbtn" data-fq="TBD" onclick="toggleF('q','TBD',this)">Não def.</button>
+            </div>
+          </div>
+          <div class="filter-group">
+            <span class="filter-title">Status</span>
+            <div class="filter-options">
+              <button class="fbtn" data-fs="Não iniciado" onclick="toggleF('s','Não iniciado',this)">Não iniciado</button>
+              <button class="fbtn" data-fs="Em andamento" onclick="toggleF('s','Em andamento',this)">Em andamento</button>
+              <button class="fbtn" data-fs="Em risco" onclick="toggleF('s','Em risco',this)">Em risco</button>
+              <button class="fbtn" data-fs="Atrasado" onclick="toggleF('s','Atrasado',this)">Atrasado</button>
+              <button class="fbtn" data-fs="Stand-by" onclick="toggleF('s','Stand-by',this)">Stand-by</button>
+              <button class="fbtn" data-fs="Concluído" onclick="toggleF('s','Concluído',this)">Concluído</button>
+            </div>
+          </div>
+          <div class="filter-group">
+            <span class="filter-title">Área</span>
+            <div class="mdd-wrap">
+              <button class="fbtn mdd-btn" id="mdd-btn-p" onclick="openMDD('p')">Todas ▾</button>
+              <div class="mdd" id="mdd-p">
+                <div class="mdd-hdr"><span>Selecionar áreas</span><button onclick="clearAreaSet('p');event.stopPropagation()">Limpar</button></div>
+                <div class="mdd-list"></div>
+              </div>
+            </div>
+          </div>
+          <div class="filter-group">
+            <span class="filter-title">Tipo</span>
+            <div class="filter-options">
+              <button class="fbtn" data-ft="Estruturante" onclick="toggleF('t','Estruturante',this)">Estruturante</button>
+              <button class="fbtn" data-ft="Melhoria" onclick="toggleF('t','Melhoria',this)">Melhoria</button>
+            </div>
+          </div>
+          <div class="filter-group">
+            <span class="filter-title">Origem</span>
+            <div class="filter-options">
+              <button class="fbtn" data-fo="priorizado" onclick="toggleF('o','priorizado',this)">Priorizados</button>
+              <button class="fbtn" data-fo="basic" onclick="toggleF('o','basic',this)">BASIC</button>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="tsep"></div>
-    <span class="flbl">Tipo</span>
-    <div style="display:flex;gap:4px;">
-      <button class="fbtn" data-ft="Estruturante" onclick="toggleF('t','Estruturante',this)">Estruturante</button>
-      <button class="fbtn" data-ft="Melhoria" onclick="toggleF('t','Melhoria',this)">Melhoria</button>
-    </div>
-    <div class="tsep"></div>
-    <span class="flbl">Origem</span>
-    <div style="display:flex;gap:4px;">
-      <button class="fbtn" data-fo="priorizado" onclick="toggleF('o','priorizado',this)">Priorizados</button>
-      <button class="fbtn" data-fo="basic" onclick="toggleF('o','basic',this)">BASIC</button>
     </div>
     <div class="tsep"></div>
     <button class="fbtn clr" onclick="clearFilters()">✕ Limpar</button>
@@ -503,14 +534,14 @@ tr:hover td{background:#fdf5f8;}
     </div>
     <div style="font-size:10px;color:var(--text3);margin-top:6px;">Os limiares são recalculados automaticamente conforme novas iniciativas entram no pipeline.</div>
   </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;">
-    <div>
+  <div class="prio-grid">
+    <div class="prio-panel">
       <h3 style="font-size:13px;font-weight:600;color:var(--bordo);margin-bottom:12px;">Ranking de Iniciativas</h3>
       <div id="prank"></div>
     </div>
-    <div>
+    <div class="prio-panel">
       <h3 style="font-size:13px;font-weight:600;color:var(--bordo);margin-bottom:12px;">Matriz de Priorização</h3>
-      <canvas id="scatter" width="400" height="320"></canvas>
+      <div class="matrix-wrap"><canvas id="scatter"></canvas></div>
     </div>
   </div>
 </div>
@@ -568,7 +599,7 @@ tr:hover td{background:#fdf5f8;}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
 // ==================================================
-// ARQUITETURA TÉCNICA — PORTFÓLIO RH (v21)
+// ARQUITETURA TÉCNICA — PORTFÓLIO RH (v24.3)
 // Blocos lógicos (ordem conceitual):
 // 1. Business Rules (Governança)
 // 2. State Manager
@@ -717,8 +748,8 @@ document.addEventListener('click', function(e){
 // ── SUPABASE INIT ─────────────────────────────────────────
 // Configuração corporativa: preencha com os dados do projeto Supabase corporativo.
 // Nunca use service_role, secret keys, senha do banco ou connection string no HTML.
-const SUPA_URL = 'https://duhciwjfftmzqugrktft.supabase.co';
-const SUPA_KEY = 'sb_publishable_BMNPMnq4iZQJWMDIGQK9dg_OBvzFMtg';
+const SUPA_URL = 'COLE_AQUI_A_URL_DO_SUPABASE_CORPORATIVO';
+const SUPA_KEY = 'COLE_AQUI_A_CHAVE_PUBLISHABLE_OU_ANON';
 const EXECUTIVE_PPTX_URL = './onepage_executivo.pptx';
 const SUPABASE_CONFIGURED = SUPA_URL.startsWith('https://') && !SUPA_URL.includes('COLE_AQUI') && !SUPA_KEY.includes('COLE_AQUI');
 const supa = SUPABASE_CONFIGURED ? window.supabase.createClient(SUPA_URL, SUPA_KEY) : null;
@@ -860,7 +891,7 @@ const STATUS_COLOR = {
 
 const statusSet = new Set();
 // multi-select filter sets
-const fSets={q:new Set(),t:new Set(),o:new Set()};
+const fSets={q:new Set(),s:new Set(),t:new Set(),o:new Set()};
 
 const kSets={t:new Set(),o:new Set()};
 const vSets={q:new Set()};
@@ -875,9 +906,26 @@ let scatterChart=null;
 let confirmCb=null;
 
 // ── MULTI-SELECT TOGGLE FILTERS ───────────────────────────
+function toggleProjectFilters(e){
+  e.stopPropagation();
+  const pop=document.getElementById('project-filter-pop');
+  if(pop) pop.classList.toggle('open');
+}
+function updateProjectFilterButton(){
+  const btn=document.getElementById('filter-toggle');
+  if(!btn)return;
+  const active=fSets.q.size+fSets.s.size+fSets.t.size+fSets.o.size+areaSets.p.size;
+  btn.textContent=active?`Filtros (${active}) ▾`:'Filtros ▾';
+  btn.classList.toggle('sel',active>0);
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.filter-wrap')) document.getElementById('project-filter-pop')?.classList.remove('open');
+});
+
 function toggleF(dim,val,btn){
   if(fSets[dim].has(val)){fSets[dim].delete(val);btn.classList.remove('sel');}
   else{fSets[dim].add(val);btn.classList.add('sel');}
+  updateProjectFilterButton();
   renderProjetos();
 }
 function toggleKF(dim,val,btn){
@@ -892,11 +940,12 @@ function toggleVF(dim,val,btn){
 }
 function clearFilters(){
   // Clear all filter sets
-  fSets.q.clear();fSets.t.clear();fSets.o.clear();
+  fSets.q.clear();fSets.s.clear();fSets.t.clear();fSets.o.clear();
   kSets.t.clear();kSets.o.clear();
   Object.keys(areaSets).forEach(k=>areaSets[k].clear());
   // Reset all filter buttons
-  document.querySelectorAll('[data-fq],[data-ft],[data-fo],[data-kt],[data-ko]').forEach(b=>b.classList.remove('sel'));
+  document.querySelectorAll('[data-fq],[data-fs],[data-ft],[data-fo],[data-kt],[data-ko]').forEach(b=>b.classList.remove('sel'));
+  updateProjectFilterButton();
   // Reset search
   const sp=document.getElementById('sp');if(sp)sp.value='';
   const sb=document.getElementById('sb');if(sb)sb.value='';
@@ -930,6 +979,7 @@ function clearBasicFilters(){
 
 function matchesF(p){
   if(fSets.q.size&&!fSets.q.has(p.q))return false;
+  if(fSets.s.size&&!fSets.s.has(p.status))return false;
   if(fSets.t.size&&![...fSets.t].some(v=>p.tipo.toLowerCase().includes(v.toLowerCase())))return false;
   if(fSets.o.size&&!fSets.o.has(p.origem))return false;
   if(areaSets.p.size&&!areaSets.p.has(p.area))return false;
@@ -1098,8 +1148,6 @@ function renderKanban(){
       </div>
     </div>`).join('');
   
-  initTouchDrag();
-
   initTouch();
 }
 
@@ -1324,6 +1372,10 @@ function renderPrioMatrix(items){
     const xLine=x.getPixelForValue(tiT);
     const yLine=y.getPixelForValue(bizT);
     c2.save();
+    c2.fillStyle='rgba(45,16,30,0.025)';c2.fillRect(xLine,top,right-xLine,yLine-top);
+    c2.fillStyle='rgba(102,31,70,0.018)';c2.fillRect(left,top,xLine-left,yLine-top);
+    c2.fillStyle='rgba(190,19,73,0.018)';c2.fillRect(xLine,yLine,right-xLine,bottom-yLine);
+    c2.fillStyle='rgba(100,100,100,0.014)';c2.fillRect(left,yLine,xLine-left,bottom-yLine);
     c2.strokeStyle='rgba(45,16,30,0.5)';c2.lineWidth=2.5;c2.setLineDash([7,4]);
     c2.beginPath();c2.moveTo(xLine,top);c2.lineTo(xLine,bottom);c2.stroke();
     c2.beginPath();c2.moveTo(left,yLine);c2.lineTo(right,yLine);c2.stroke();
@@ -1343,13 +1395,16 @@ function renderPrioMatrix(items){
       backgroundColor:CLS_COLOR[cls],
       pointRadius:7,pointHoverRadius:9}))},
     options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      layout:{padding:{top:8,right:8,bottom:4,left:4}},
       plugins:{
         legend:{display:false},
         tooltip:{callbacks:{label:c=>{const d=c.raw;return `${d.label} — N:${d.y} TI:${d.x}`;}}}
       },
       scales:{
-        x:{min:0,max:50,title:{display:true,text:'Score TI (viabilidade — maior = mais fácil)'},grid:{color:'rgba(0,0,0,0.05)'}},
-        y:{min:0,max:50,title:{display:true,text:'Score de Negócio'},grid:{color:'rgba(0,0,0,0.05)'}}
+        x:{min:0,max:50,ticks:{stepSize:10},title:{display:true,text:'Score TI (viabilidade — maior = mais fácil)'},grid:{color:'rgba(0,0,0,0.05)'}},
+        y:{min:0,max:50,ticks:{stepSize:10},title:{display:true,text:'Score de Negócio'},grid:{color:'rgba(0,0,0,0.05)'}}
       }
     },
     plugins:[quadrantPlugin]
@@ -1367,15 +1422,11 @@ function buildFormFields(type,data){
   const isEdit=!!data;
   let h=`
     <div class="fi full"><label>Nome da iniciativa <span class="req">*</span></label><input type="text" id="f-nome" value="${esc(d.nome||'')}"></div>
-    <div class="fi full ai-wrap"><label>Descrição <span class="req">*</span></label>
-      <textarea id="f-desc" rows="3">${esc(d.desc||'')}</textarea>
-      <button class="ai-btn" id="ai-desc-btn" type="button" title="Melhorar com IA" onclick="aiImprove('desc')">✦</button>
-      <div class="ai-suggestion" id="ai-desc-sug"></div>
+    <div class="fi full"><label>Descrição <span class="req">*</span></label>
+      <textarea id="f-desc" rows="3" placeholder="Descreva o problema, o processo atual e o que será melhorado">${esc(d.desc||'')}</textarea>
     </div>
-    <div class="fi full ai-wrap"><label>Benefício Econômico ou Operacional Esperado <span class="req">*</span></label>
-      <textarea id="f-benef" rows="3">${esc(d.benef||'')}</textarea>
-      <button class="ai-btn" id="ai-benef-btn" type="button" title="Gerar sugestão com IA" onclick="aiImprove('benef')">✦</button>
-      <div class="ai-suggestion" id="ai-benef-sug"></div>
+    <div class="fi full"><label>Benefício Econômico ou Operacional Esperado <span class="req">*</span></label>
+      <textarea id="f-benef" rows="3" placeholder="Ex.: redução de tempo, ganho de eficiência, padronização, qualidade dos dados ou melhoria da experiência">${esc(d.benef||'')}</textarea>
     </div>
     <div class="fi"><label>Área Solicitante <span class="req">*</span></label><select id="f-area">${AREAS_OPT}</select></div>
     <div class="fi"><label>Prioridade <span class="req">*</span></label><select id="f-prio"><option>Alta</option><option>Média</option><option>Baixa</option></select></div>`;
@@ -1432,76 +1483,6 @@ function autoFillQ(){
   if(sel)sel.value=q;
 }
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-
-// ── AI ASSIST via Google Gemini (gratuito) ───────────────
-
-async function aiH(field, inputId, btnId, sugId, nomeId){
-  const text=(document.getElementById(inputId)?.value||'').trim();
-  if(!text){toast('Escreva algo primeiro.');return;}
-  const btn=btnId?document.getElementById(btnId):event?.currentTarget;
-  if(btn){btn.classList.add('loading');btn.textContent='…';}
-  const sug=document.getElementById(sugId);
-  sug.classList.remove('show');sug.innerHTML='';
-  const nome=(document.getElementById(nomeId)?.value||'').trim();
-  const descText=field==='benef'
-    ?(document.getElementById('f-desc')?.value||document.getElementById('bf-desc')?.value||'')
-    :text;
-  const prompt=field==='desc'
-    ?`Você é especialista em gestão de projetos de RH. Reescreva a descrição abaixo de forma mais clara e completa para um painel de portfólio. Máximo 3 frases. Responda APENAS com a descrição melhorada.
-
-Projeto: ${nome}
-Descrição: ${text}`
-    :`Você é especialista em gestão de projetos de RH. Sugira um benefício econômico ou operacional esperado com base na descrição. Máximo 2 frases. Responda APENAS com o benefício.
-
-Projeto: ${nome}
-Descrição: ${descText}
-Benefício atual: ${text}`;
-  // IA via Worker proxy
-
-  try{
-    const res=await fetch(
-      `https://portfolio-rh-proxy.danielasilva-santos.workers.dev`,
-      {method:'POST',headers:{'Content-Type':'application/json'},
-       body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:300,temperature:0.7}})}
-    );
-    if(!res.ok)throw new Error(res.status);
-    const data=await res.json();
-    const improved=(data.candidates?.[0]?.content?.parts?.[0]?.text||'').trim();
-    if(improved){
-      sug.innerHTML=`<div style="margin-bottom:5px;line-height:1.55">${esc(improved)}</div>
-        <div class="ai-acts">
-          <button class="ai-use" onclick="useAI('${inputId}','${sugId}')">Usar</button>
-          <button class="ai-disc" onclick="document.getElementById('${sugId}').classList.remove('show')">Descartar</button>
-        </div>`;
-      sug.classList.add('show');
-    } else {
-      const errMsg=data.error?.message||JSON.stringify(data).slice(0,120);
-      sug.innerHTML=`<div style="color:var(--text3);font-size:11px">Resposta inesperada da IA: ${esc(errMsg)}</div>`;
-      sug.classList.add('show');
-    }
-  }catch(e){
-    sug.innerHTML=`<div style="color:var(--text3)">Erro ao conectar com a IA (${e.message}). Tente novamente.</div>`;
-    sug.classList.add('show');
-  }
-  if(btn){btn.classList.remove('loading');btn.textContent='✦';}
-}
-
-// alias usado pelos botões do modal basic
-async function aiImprove(field){ 
-  const isDesc=field==='desc';
-  await aiH(field, isDesc?'f-desc':'f-benef', isDesc?'ai-desc-btn':'ai-benef-btn', isDesc?'ai-desc-sug':'ai-benef-sug', 'f-nome');
-}
-async function aiImproveB(field){
-  const isDesc=field==='desc';
-  await aiH(field, isDesc?'bf-desc':'bf-benef', isDesc?'ai-bd-btn':'ai-bb-btn', isDesc?'ai-bds':'ai-bbs', 'bf-nome');
-}
-
-function useAI(inputId,sugId){
-  const s=document.getElementById(sugId);
-  document.getElementById(inputId).value=s.querySelector('div')?.textContent||'';
-  s.classList.remove('show');
-}
-
 
 // ── MODAL PROJETO ─────────────────────────────────────────
 function openModal(id){
@@ -1586,15 +1567,11 @@ function openModalBasic(data){
   const isTIMode=data?._tiMode||false;
   document.getElementById('basic-form-fields').innerHTML=`
     <div class="fi full"><label>Nome da iniciativa <span class="req">*</span></label><input type="text" id="bf-nome" value="${esc(d.nome||'')}"></div>
-    <div class="fi full ai-wrap"><label>Descrição <span class="req">*</span></label>
-      <textarea id="bf-desc" rows="3">${esc(d.desc||'')}</textarea>
-      <button class="ai-btn" type="button" title="Melhorar com IA" onclick="aiImproveB('desc')">✦</button>
-      <div class="ai-suggestion" id="bai-desc-sug"></div>
+    <div class="fi full"><label>Descrição <span class="req">*</span></label>
+      <textarea id="bf-desc" rows="3" placeholder="Descreva o problema, o processo atual e o que será melhorado">${esc(d.desc||'')}</textarea>
     </div>
-    <div class="fi full ai-wrap"><label>Benefício Econômico ou Operacional Esperado <span class="req">*</span></label>
-      <textarea id="bf-benef" rows="3">${esc(d.benef||'')}</textarea>
-      <button class="ai-btn" type="button" title="Gerar sugestão com IA" onclick="aiImproveB('benef')">✦</button>
-      <div class="ai-suggestion" id="bai-benef-sug"></div>
+    <div class="fi full"><label>Benefício Econômico ou Operacional Esperado <span class="req">*</span></label>
+      <textarea id="bf-benef" rows="3" placeholder="Ex.: redução de tempo, ganho de eficiência, padronização, qualidade dos dados ou melhoria da experiência">${esc(d.benef||'')}</textarea>
     </div>
     <div class="fi"><label>Área Solicitante <span class="req">*</span></label><select id="bf-area">${AREAS_OPT}</select></div>
     <div class="fi"><label>Prioridade <span class="req">*</span></label><select id="bf-prio"><option>Alta</option><option>Média</option><option>Baixa</option></select></div>
@@ -1622,20 +1599,6 @@ function openModalBasic(data){
     document.getElementById('bf-prio').value=d.prio||'Média';
   }
   document.getElementById('mob').classList.add('open');
-}
-async function aiImproveB(field){
-  const isDesc=field==='desc';
-  const inputId=isDesc?'bf-desc':'bf-benef';
-  const sugId=isDesc?'bai-desc-sug':'bai-benef-sug';
-  const btn=event?.currentTarget;
-  await aiH(field, inputId, btn?.id || '', sugId, 'bf-nome');
-}
-
-function useAIB(inputId,sugId){
-  const sug=document.getElementById(sugId);
-  const text=sug.querySelector('div')?.textContent||'';
-  document.getElementById(inputId).value=text;
-  sug.classList.remove('show');
 }
 async function saveBasicItem(){
   if(!validateFields(['bf-nome','bf-desc','bf-benef','bf-area','bf-prio'])){toast('Preencha todos os campos obrigatórios.');return;}
@@ -1810,6 +1773,7 @@ function rebuildMDD(key){
 function toggleArea(key,area,checked){
   checked?areaSets[key].add(area):areaSets[key].delete(area);
   updMDDBtn(key);
+  if(key==='p') updateProjectFilterButton();
   areaConfigs[key].renderFn();
 }
 function updMDDBtn(key){
@@ -1819,7 +1783,7 @@ function updMDDBtn(key){
   else if(set.size===1){btn.textContent=[...set][0].slice(0,12)+(([...set][0].length>12)?'…':'')+' ▾';btn.classList.add('sel');}
   else{btn.textContent=set.size+' áreas ▾';btn.classList.add('sel');}
 }
-function clearAreaSet(key){areaSets[key].clear();updMDDBtn(key);rebuildMDD(key);areaConfigs[key].renderFn();}
+function clearAreaSet(key){areaSets[key].clear();updMDDBtn(key);if(key==='p') updateProjectFilterButton();rebuildMDD(key);areaConfigs[key].renderFn();}
 document.addEventListener('click',e=>{
   if(!e.target.closest('.mdd-wrap')){
     document.querySelectorAll('.mdd').forEach(d=>d.classList.remove('open'));
