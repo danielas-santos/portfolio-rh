@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Portfólio RH · Soluções & Inovação · 2026 · v24.2 UX</title>
+<title>Portfólio RH · Soluções & Inovação · 2026 · v27 UX</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -270,13 +270,27 @@ tr:hover td{background:#fdf5f8;}
 @media(max-width:900px){#tab-priorizacao .prio-grid{grid-template-columns:1fr;}#tab-priorizacao .matrix-wrap{min-height:360px;}#tab-priorizacao #scatter{height:360px !important;}}
 .fi textarea::placeholder{color:#9a9a9a;}
 
+
+/* Ajustes estruturais v27 - BASIC unico, kanban utilizavel e sinalizacao */
+#tab-quarters .kwrap{overflow-x:auto;padding-bottom:12px;}
+#tab-quarters .kanban{grid-template-columns:repeat(5,minmax(245px,1fr));align-items:stretch;min-width:1260px;}
+#tab-quarters .kcol{height:calc(100vh - 190px);min-height:460px;display:flex;flex-direction:column;}
+#tab-quarters .kch{position:sticky;top:0;background:var(--bg);z-index:2;}
+#tab-quarters .kdz{flex:1;overflow-y:auto;padding:6px;}
+.kclass{display:inline-flex;align-items:center;border-radius:100px;font-size:9px;font-weight:700;padding:2px 6px;margin-left:4px;}
+.kclass.i{background:rgba(45,16,30,.12);color:#2D101E;border:1px solid rgba(45,16,30,.25);}
+.kclass.ii{background:rgba(102,31,70,.10);color:#661F46;border:1px solid rgba(102,31,70,.22);}
+.kclass.iii{background:rgba(190,19,73,.08);color:#BE1349;border:1px solid rgba(190,19,73,.20);}
+.kclass.iv{background:rgba(100,100,100,.08);color:#666;border:1px solid rgba(100,100,100,.20);}
+.unified-note{grid-column:1/-1;background:#fff8fb;border:1px solid rgba(255,125,175,.45);border-left:3px solid var(--rosa);border-radius:var(--r);padding:8px 10px;font-size:11px;color:var(--text2);line-height:1.45;}
+
 </style>
   </head>
 <body>
 <header>
   <div class="logo">
     <div class="logo-mark">RH</div>
-    <span class="logo-text">Portfólio RH <span class="logo-sub">· Soluções & Inovação · 2026 · v24.2</span></span>
+    <span class="logo-text">Portfólio RH <span class="logo-sub">· Soluções & Inovação · 2026 · v27</span></span>
   </div>
   <span class="hright" id="last-update"></span>
 </header>
@@ -417,6 +431,15 @@ tr:hover td{background:#fdf5f8;}
       <button class="fbtn" data-ko="priorizado" onclick="toggleKF('o','priorizado',this)">Priorizados</button>
       <button class="fbtn" data-ko="basic" onclick="toggleKF('o','basic',this)">BASIC</button>
     </div>
+    <div class="tsep"></div>
+    <span class="flbl">Classificação</span>
+    <select id="k-filtro-cls" onchange="renderKanban()" style="padding:5px 10px;font-size:11px;border:1px solid #ddd;border-radius:8px;font-family:inherit;background:var(--surface);">
+      <option value="">Todas</option>
+      <option value="I">Crítico</option>
+      <option value="II">Importante</option>
+      <option value="III">Postergável</option>
+      <option value="IV">Diferir / Aguarda TI</option>
+    </select>
     <div class="tsep"></div>
     <button class="fbtn clr" onclick="clearKFilters()">✕ Limpar</button>
   </div>
@@ -599,7 +622,7 @@ tr:hover td{background:#fdf5f8;}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
 // ==================================================
-// ARQUITETURA TÉCNICA — PORTFÓLIO RH (v21)
+// ARQUITETURA TÉCNICA — PORTFÓLIO RH (v27)
 // Blocos lógicos (ordem conceitual):
 // 1. Business Rules (Governança)
 // 2. State Manager
@@ -844,6 +867,38 @@ function autoQ(end){
   return'Q4';
 }
 
+function quarterEnd(q){
+  const year='26';
+  const map={Q1:'mar/'+year,Q2:'jun/'+year,Q3:'set/'+year,Q4:'dez/'+year};
+  return map[q]||'TBD';
+}
+function isBlankEnd(v){
+  const x=String(v||'').trim().toUpperCase();
+  return !x || x==='TBD' || x==='NAO DEFINIDO' || x==='NÃO DEFINIDO' || x==='—' || x==='-';
+}
+function normalizeQuarterFromEnd(end,currentQ){
+  const q=autoQ(end);
+  return q && q!=='TBD' ? q : (currentQ||'TBD');
+}
+function syncEndQuarter(endId,qId,source){
+  const endEl=document.getElementById(endId), qEl=document.getElementById(qId);
+  if(!endEl||!qEl) return;
+  if(source==='end'){
+    const q=autoQ(endEl.value);
+    if(q&&q!=='TBD') qEl.value=q;
+    return;
+  }
+  if(source==='quarter' && qEl.value!=='TBD' && isBlankEnd(endEl.value)){
+    endEl.value=quarterEnd(qEl.value);
+  }
+}
+function applyQuarterMove(item,newQ){
+  if(!item) return;
+  item.q=newQ;
+  item._q=newQ;
+  if(newQ!=='TBD' && isBlankEnd(item.end)) item.end=quarterEnd(newQ);
+}
+
 // ── DATA ──────────────────────────────────────────────────
 let projects=[
   {id:1,nome:'Local e Modalidade de Trabalho',desc:'',benef:'',tipo:'Melhoria contínua',area:'Admissão e Cadastro',prio:'Alta',status:'Em andamento',end:'abr/26',q:'Q2',origem:'priorizado'},
@@ -958,6 +1013,7 @@ function clearFilters(){
 function clearKFilters(){
   kSets.t.clear();kSets.o.clear();
   areaSets.k.clear();
+  const kCls=document.getElementById('k-filtro-cls');if(kCls)kCls.value='';
   document.querySelectorAll('[data-kt],[data-ko]').forEach(b=>b.classList.remove('sel'));
   updMDDBtn('k');rebuildMDD('k');
   renderKanban();
@@ -1073,7 +1129,11 @@ function refreshCurrentTab(){
 function allProjectRows(){
   return[
     ...projects.map(p=>({...p})),
-    ...basicItems.map(b=>({id:b.id,nome:b.nome,tipo:'Melhoria contínua',area:b.area,prio:b.prio||'—',status:'Não iniciado',end:'TBD',q:b._q||'TBD',origem:'basic'}))
+    ...basicItems.map(b=>({
+      id:b.id,nome:b.nome,tipo:b.tipo||'Melhoria contínua',area:b.area,prio:b.prio||'—',
+      status:b.status||'Não iniciado',inicio:b.inicio||'',end:b.end||'TBD',q:b._q||b.q||'TBD',
+      origem:'basic',avanco:b.avanco||0,historico:b.historico||'',desc:b.desc||'',benef:b.benef||''
+    }))
   ];
 }
 
@@ -1126,11 +1186,19 @@ function renderTable(rows,groupByArea){
 // ── KANBAN with touch drag ────────────────────────────────
 function renderKanban(){
   const sk=(document.getElementById('sk')?.value||'').toLowerCase();
+  const clsFilter=(document.getElementById('k-filtro-cls')?.value||'');
+  const allBasicScores=basicItems.map(b=>({...b,biz:calcBizScore(b.bizScores),ti:calcTIScore(b.tiScores)}));
+  const clsMap=Object.fromEntries(classifyI_II_III(allBasicScores).map(b=>[b.id,{cls:b.cls,clsLabel:b.clsLabel}]));
   const all=allProjectRows().filter(p=>{
     if(sk&&!p.nome.toLowerCase().includes(sk))return false;
     if(areaSets.k.size&&!areaSets.k.has(p.area))return false;
-    if(kSets.t.size&&![...kSets.t].some(v=>p.tipo.toLowerCase().includes(v.toLowerCase())))return false;
+    if(kSets.t.size&&![...kSets.t].some(v=>(p.tipo||'').toLowerCase().includes(v.toLowerCase())))return false;
     if(kSets.o.size&&!kSets.o.has(p.origem))return false;
+    if(clsFilter){
+      if(p.origem!=='basic') return false;
+      const c=clsMap[p.id]?.cls||'IV';
+      if(c!==clsFilter) return false;
+    }
     return true;
   });
   const cols={Q1:{label:'Q1',cls:'kq1',color:Q_COLORS.Q1},Q2:{label:'Q2',cls:'kq2',color:Q_COLORS.Q2},Q3:{label:'Q3',cls:'kq3',color:Q_COLORS.Q3},Q4:{label:'Q4',cls:'kq4',color:Q_COLORS.Q4},TBD:{label:'Não definido',cls:'ktbd',color:Q_COLORS.TBD}};
@@ -1140,14 +1208,16 @@ function renderKanban(){
     <div class="kcol" id="kcol-${qk}">
       <div class="kch ${cd.cls}"><h3 style="color:${cd.color}">${cd.label}</h3><span class="kcount">${groups[qk].length}</span></div>
       <div class="kdz" id="kdz-${qk}" ondragover="event.preventDefault();this.classList.add('da')" ondragleave="this.classList.remove('da')" ondrop="dropCard(event,'${qk}')">
-        ${groups[qk].map(p=>`
-        <div class="kcard" draggable="true" data-id="${p.id}" data-orig="${p.origem}" ondragstart="dragStart(event)" ondragend="dragEnd(event)" ondblclick="${p.origem==='basic'?`openModalBasic(basicItems.find(x=>x.id===${p.id}))`:`openModal(${p.id})`}" title="Clique duplo para editar">
+        ${groups[qk].map(p=>{
+          const c=p.origem==='basic'?(clsMap[p.id]||{cls:'IV',clsLabel:'Aguarda TI'}):null;
+          const clsTag=c?`<span class="kclass ${String(c.cls).toLowerCase()}" title="Classificação BASIC">${c.clsLabel}</span>`:'';
+          return `<div class="kcard" draggable="true" data-id="${p.id}" data-orig="${p.origem}" ondragstart="dragStart(event)" ondragend="dragEnd(event)" ondblclick="${p.origem==='basic'?`openModalBasic(basicItems.find(x=>x.id===${p.id}))`:`openModal(${p.id})`}" title="Clique duplo para editar">
           <div class="kt">${p.nome}</div>
-          <div class="km">${tipoBadge(p)}<span>·</span>${p.area}${p.origem==='basic'?'<span class="badge b-b" style="font-size:9px;padding:2px 5px">BASIC</span>':''}</div>
-        </div>`).join('')}
+          <div class="km">${tipoBadge(p)}<span>·</span>${p.area}${p.origem==='basic'?'<span class="badge b-b" style="font-size:9px;padding:2px 5px">BASIC</span>':''}${clsTag}</div>
+        </div>`}).join('')}
       </div>
     </div>`).join('');
-  
+  initTouchDrag();
   initTouch();
 }
 
@@ -1157,10 +1227,12 @@ function dragEnd(e){e.currentTarget.classList.remove('dragging');document.queryS
 function dropCard(e,newQ){
   e.preventDefault();document.querySelectorAll('.kdz').forEach(d=>d.classList.remove('da'));
   if(!dragId)return;
-  if(dragOrig==='basic'){const b=basicItems.find(x=>x.id===dragId);if(b)b._q=newQ;}
-  else{const p=projects.find(x=>x.id===dragId);if(p)p.q=newQ;}
-  updateQuarterDB(dragId,dragOrig,newQ);
-  dragId=null;renderKanban();renderCarga();toast('Quarter atualizado.');
+  let movedItem=null;
+  if(dragOrig==='basic') movedItem=basicItems.find(x=>x.id===dragId);
+  else movedItem=projects.find(x=>x.id===dragId);
+  applyQuarterMove(movedItem,newQ);
+  updateQuarterDB(dragId,dragOrig,newQ,movedItem?.end);
+  dragId=null;renderKanban();renderCarga();renderPrio();toast('Quarter e término atualizados.');
 }
 
 // Touch drag support for mobile
@@ -1198,9 +1270,11 @@ function initTouch(){
         const r=dz.getBoundingClientRect();
         if(t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom){
           const newQ=dz.id.replace('kdz-','');
-          if(touchOrig==='basic'){const b=basicItems.find(x=>x.id===touchId);if(b)b._q=newQ;}
-          else{const p=projects.find(x=>x.id===touchId);if(p)p.q=newQ;}
-          updateQuarterDB(touchId,touchOrig,newQ);dropped=true;
+          let movedItem=null;
+          if(touchOrig==='basic') movedItem=basicItems.find(x=>x.id===touchId);
+          else movedItem=projects.find(x=>x.id===touchId);
+          applyQuarterMove(movedItem,newQ);
+          updateQuarterDB(touchId,touchOrig,newQ,movedItem?.end);dropped=true;
         }
       });
       ghost.remove();ghost=null;card.style.opacity='';
@@ -1442,11 +1516,12 @@ function buildFormFields(type,data){
       <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:2px;"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
     </div>
     <div class="fi"><label>Início</label><input type="text" id="f-inicio" value="${esc(d.inicio||'')}" placeholder="ex: jan/26"></div>
-    <div class="fi"><label>Término previsto <span class="req">*</span></label><input type="text" id="f-end" value="${esc(d.end||'')}" placeholder="ex: jun/26" oninput="autoFillQ()"></div>
-    <div class="fi"><label>Quarter</label><select id="f-q"><option value="Q1">Q1</option><option value="Q2">Q2</option><option value="Q3">Q3</option><option value="Q4">Q4</option><option value="TBD">Não definido</option></select></div>
+    <div class="fi"><label>Término previsto <span class="req">*</span></label><input type="text" id="f-end" value="${esc(d.end||'')}" placeholder="ex: jun/26" oninput="syncEndQuarter('f-end','f-q','end')"></div>
+    <div class="fi"><label>Quarter</label><select id="f-q" onchange="syncEndQuarter('f-end','f-q','quarter')"><option value="Q1">Q1</option><option value="Q2">Q2</option><option value="Q3">Q3</option><option value="Q4">Q4</option><option value="TBD">Não definido</option></select></div>
     <div class="fi full"><label>📋 Histórico / Últimas atualizações <span style="font-size:10px;font-weight:400;text-transform:none;color:var(--text3)">(opcional — aparece no preview e na aba Projetos)</span></label><textarea id="f-historico" rows="3" placeholder="Ex: abr/26 — Reunião de alinhamento com TI realizada. Próximo passo: validação com área de negócio.">${esc(d.historico||'')}</textarea></div>`;
   } else {
     h+=`
+    <div class="fi full" id="origin-help"><div class="fsec-note" style="border-left-color:var(--rosa);margin-top:4px">Use <strong>Pipeline BASIC</strong> quando a iniciativa ainda está em análise. Use <strong>Priorizado / Em andamento</strong> quando ela virar projeto do portfólio. Os campos preenchidos serão migrados automaticamente.</div></div>
     <div class="fsec">Critérios de Negócio <span style="font-weight:400;text-transform:none;font-size:11px;color:var(--text3)">— notas: 0, 1, 3 ou 5</span></div>
     <div class="fi full"><div class="score-grid">
     ${BIZ_CRITERIA.map(c=>`<div class="score-row">
@@ -1476,12 +1551,7 @@ function buildFormFields(type,data){
     if(document.getElementById('f-q')) document.getElementById('f-q').value=d.q||'TBD';
   }
 }
-function autoFillQ(){
-  const v=document.getElementById('f-end')?.value||'';
-  const q=autoQ(v);
-  const sel=document.getElementById('f-q');
-  if(sel)sel.value=q;
-}
+function autoFillQ(){syncEndQuarter('f-end','f-q','end');}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 // ── MODAL PROJETO ─────────────────────────────────────────
@@ -1525,6 +1595,7 @@ async function saveProjeto(){
   benef:document.getElementById('f-benef').value,
   area:document.getElementById('f-area').value,
   prio:document.getElementById('f-prio').value,
+  tipo:'Melhoria contínua',status:'Não iniciado',inicio:'',end:'TBD',q:'TBD',avanco:0,historico:'',
   bizScores:bizSc,
   tiScores:{}
  };
@@ -1533,12 +1604,13 @@ async function saveProjeto(){
  toast('Iniciativa adicionada ao BASIC.');
 } else {
     const endVal=document.getElementById('f-end').value;
+    const qVal=normalizeQuarterFromEnd(endVal, document.getElementById('f-q')?.value||'TBD');
     const data={nome:document.getElementById('f-nome').value.trim(),
       desc:document.getElementById('f-desc').value,benef:document.getElementById('f-benef').value,
       area:document.getElementById('f-area').value,prio:document.getElementById('f-prio').value,
       tipo:document.getElementById('f-tipo').value,status:document.getElementById('f-status').value,
       inicio:document.getElementById('f-inicio')?.value||'',
-      end:endVal,q:document.getElementById('f-q')?.value||autoQ(endVal),origem:'priorizado',
+      end:endVal,q:qVal,origem:'priorizado',
       avanco:parseInt(document.getElementById('f-avanco')?.value||0),
       historico:document.getElementById('f-historico')?.value||''};
     if(editId){
@@ -1557,15 +1629,14 @@ async function saveProjeto(){
 // ── MODAL BASIC ───────────────────────────────────────────
 function openModalBasic(data){
   editBasicId=data?.id||null;
-  document.getElementById('mob-title').textContent=data?'Editar iniciativa BASIC':'Nova iniciativa BASIC';
-  document.getElementById('mob-sub').innerHTML=data
-    ?`Edite as informações. <button onclick="toggleTIMode()" style="background:none;border:none;color:var(--bordo-luz);font-size:12px;cursor:pointer;text-decoration:underline;font-family:var(--font)" id="ti-toggle-btn">Acessar campos de TI</button>`
-    :'Preencha as informações. Os critérios de TI serão adicionados pela equipe de TI após o cadastro.';
+  document.getElementById('mob-title').textContent=data?'Editar iniciativa':'Nova iniciativa';
+  document.getElementById('mob-sub').innerHTML='Cadastro único: edite origem, status, quarter, avanço, histórico e scores no mesmo lugar — sem trocar de aba.';
   document.getElementById('btn-del-basic').style.display=data?'block':'none';
   const d=data||{};
-  const isEdit=!!data;
   const isTIMode=data?._tiMode||false;
   document.getElementById('basic-form-fields').innerHTML=`
+    <div class="fi"><label>Origem <span class="req">*</span></label><select id="bf-origem" onchange="toggleOriginFields()"><option value="basic">Pipeline BASIC</option><option value="priorizado">Priorizado / Em andamento</option></select></div>
+    <div class="fi"><label>Quarter</label><select id="bf-q" onchange="syncEndQuarter('bf-end','bf-q','quarter')"><option value="Q1">Q1</option><option value="Q2">Q2</option><option value="Q3">Q3</option><option value="Q4">Q4</option><option value="TBD">Não definido</option></select></div>
     <div class="fi full"><label>Nome da iniciativa <span class="req">*</span></label><input type="text" id="bf-nome" value="${esc(d.nome||'')}"></div>
     <div class="fi full"><label>Descrição <span class="req">*</span></label>
       <textarea id="bf-desc" rows="3" placeholder="Descreva o problema, o processo atual e o que será melhorado">${esc(d.desc||'')}</textarea>
@@ -1575,6 +1646,18 @@ function openModalBasic(data){
     </div>
     <div class="fi"><label>Área Solicitante <span class="req">*</span></label><select id="bf-area">${AREAS_OPT}</select></div>
     <div class="fi"><label>Prioridade <span class="req">*</span></label><select id="bf-prio"><option>Alta</option><option>Média</option><option>Baixa</option></select></div>
+    <div class="fi"><label>Tipo</label><select id="bf-tipo"><option>Projeto Estruturante</option><option>Melhoria contínua</option></select></div>
+    <div class="fi"><label>Status</label><select id="bf-status"><option>Não iniciado</option><option>Em andamento</option><option>Em risco</option><option>Atrasado</option><option>Stand-by</option><option>Concluído</option></select></div>
+    <div class="fi full"><label>% de Avanço</label>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
+        <input type="range" id="bf-avanco" min="0" max="100" step="5" value="${d.avanco||0}" oninput="document.getElementById('bf-avanco-val').textContent=this.value+'%'" style="flex:1;accent-color:var(--magenta);cursor:pointer;">
+        <span id="bf-avanco-val" style="font-size:13px;font-weight:600;color:var(--magenta);min-width:38px;text-align:right;">${d.avanco||0}%</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:2px;"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
+    </div>
+    <div class="fi"><label>Início</label><input type="text" id="bf-inicio" value="${esc(d.inicio||'')}" placeholder="ex: jan/26"></div>
+    <div class="fi"><label>Término previsto</label><input type="text" id="bf-end" value="${esc(d.end||'')}" placeholder="ex: jun/26" oninput="syncEndQuarter('bf-end','bf-q','end')"></div>
+    <div class="fi full"><label>📋 Histórico / Comentários / Últimas atualizações</label><textarea id="bf-historico" rows="3" placeholder="Ex: mai/26 — Discutido em reunião. Decisão: reavaliar na próxima agenda.">${esc(d.historico||'')}</textarea></div>
     <div class="fsec">Critérios de Negócio <span style="font-weight:400;text-transform:none;font-size:11px;color:var(--text3)">— notas: 0, 1, 3 ou 5</span></div>
     <div class="fi full"><div class="score-grid">
     ${BIZ_CRITERIA.map(c=>`<div class="score-row">
@@ -1582,47 +1665,92 @@ function openModalBasic(data){
       <select class="sc-sel" id="bbz-${c.id}">${NOTAS.map(n=>`<option value="${n}" ${(d.bizScores?.[c.id]??'')===n?'selected':''}>${n}</option>`).join('')}</select>
     </div>`).join('')}
     </div></div>
-    <div id="ti-section" style="${isTIMode?'':'display:none'}">
-      <div class="fsec">Critérios de TI <span style="font-weight:400;text-transform:none;font-size:11px;color:var(--text3)">— preenchido por TI</span></div>
+    <div class="fsec">Critérios de TI <span style="font-weight:400;text-transform:none;font-size:11px;color:var(--text3)">— preservados ao editar, mesmo se ocultos</span></div>
+    <div class="fi full"><button type="button" onclick="toggleTIMode()" style="width:max-content;background:none;border:1px solid var(--border2);border-radius:var(--r);padding:6px 10px;color:var(--bordo-luz);font-size:12px;cursor:pointer;font-family:var(--font)" id="ti-toggle-btn">${isTIMode?'Ocultar campos de TI':'Editar campos de TI'}</button></div>
+    <div id="ti-section" style="${isTIMode?'':'display:none'};grid-column:1/-1;">
       <div class="fi full"><div class="score-grid">
       ${TI_CRITERIA.map(c=>`<div class="score-row">
         <div class="sc-label">${c.label}<span class="peso-badge">peso ${c.peso}</span></div>
         <select class="sc-sel" id="bti-${c.id}">${c.opts.map(o=>`<option value="${o.v}" ${(d.tiScores?.[c.id]||'')===o.v?'selected':''}>${o.l}</option>`).join('')}</select>
       </div>`).join('')}
       </div></div>
-    </div>
-    <div id="ti-note" style="${isTIMode?'display:none':''}">
-      <div class="fi full"><div class="fsec-note" style="border-left-color:var(--rosa);margin-top:4px">Os critérios de TI serão preenchidos pela equipe de TI após o cadastro.</div></div>
     </div>`;
   if(data){
+    document.getElementById('bf-origem').value=d.origem||'basic';
     document.getElementById('bf-area').value=d.area||AREAS[0];
     document.getElementById('bf-prio').value=d.prio||'Média';
+    document.getElementById('bf-tipo').value=d.tipo||'Melhoria contínua';
+    document.getElementById('bf-status').value=d.status||'Não iniciado';
+    document.getElementById('bf-q').value=d._q||d.q||'TBD';
+    toggleOriginFields();
+  } else {
+    document.getElementById('bf-origem').value='basic';
+    document.getElementById('bf-q').value='TBD';
+    toggleOriginFields();
   }
   document.getElementById('mob').classList.add('open');
 }
+function toggleOriginFields(){
+  const origem=document.getElementById('bf-origem')?.value||'basic';
+  const help=document.getElementById('origin-help');
+  if(help){
+    help.innerHTML = origem==='basic'
+      ? '<div class="fsec-note" style="border-left-color:var(--rosa);margin-top:4px">Esta iniciativa permanece no Pipeline BASIC e continua aparecendo na Priorização, mesmo se estiver atribuída a um quarter.</div>'
+      : '<div class="fsec-note" style="border-left-color:#1D9E75;margin-top:4px">Ao salvar, esta iniciativa será migrada para Projetos Priorizados mantendo descrição, benefício, status, quarter, avanço e histórico.</div>';
+  }
+}
+
+function autoFillQB(){syncEndQuarter('bf-end','bf-q','end');}
 async function saveBasicItem(){
   if(!validateFields(['bf-nome','bf-desc','bf-benef','bf-area','bf-prio'])){toast('Preencha todos os campos obrigatórios.');return;}
-  const bizSc={},tiSc={};
+  const existing=editBasicId?basicItems.find(x=>x.id===editBasicId):null;
+  const bizSc={},tiSc={...(existing?.tiScores||{})};
   BIZ_CRITERIA.forEach(c=>{bizSc[c.id]=+(document.getElementById(`bbz-${c.id}`)?.value||0);});
-  if(editBasicId){
-    const tiVisible=document.getElementById('ti-section')?.style.display!=='none';
+  const tiVisible=document.getElementById('ti-section')?.style.display!=='none';
+  if(tiVisible){
     TI_CRITERIA.forEach(c=>{
       const el=document.getElementById(`bti-${c.id}`);
-      tiSc[c.id]=(el&&tiVisible)?+(el.value||5):null;
+      if(el) tiSc[c.id]=+(el.value||5);
     });
   }
-  const item={nome:document.getElementById('bf-nome').value.trim(),
+  const endVal=document.getElementById('bf-end')?.value||'TBD';
+  const qVal=normalizeQuarterFromEnd(endVal, document.getElementById('bf-q')?.value||'TBD');
+  const origemVal=document.getElementById('bf-origem')?.value||'basic';
+  const base={nome:document.getElementById('bf-nome').value.trim(),
     desc:document.getElementById('bf-desc').value,benef:document.getElementById('bf-benef').value,
     area:document.getElementById('bf-area').value,prio:document.getElementById('bf-prio').value,
-    bizScores:bizSc,tiScores:editBasicId?tiSc:{}};
-  if(editBasicId){
-    Object.assign(basicItems.find(x=>x.id===editBasicId),item);
-    await saveBasicToDB(item,editBasicId);
-    toast('Atualizado e salvo.');
+    tipo:document.getElementById('bf-tipo')?.value||'Melhoria contínua',
+    status:document.getElementById('bf-status')?.value||'Não iniciado',
+    inicio:document.getElementById('bf-inicio')?.value||'',
+    end:endVal,
+    q:qVal,_q:qVal,
+    avanco:parseInt(document.getElementById('bf-avanco')?.value||0),
+    historico:document.getElementById('bf-historico')?.value||''};
+
+  if(origemVal==='priorizado'){
+    const projData={...base,origem:'priorizado'};
+    if(editBasicId){
+      const newId=await saveProjetoToDB(projData,null);
+      projects.push({id:newId||nextId++,...projData});
+      basicItems=basicItems.filter(x=>x.id!==editBasicId);
+      await deleteBasicDB(editBasicId);
+      toast('Iniciativa migrada para Projetos Priorizados.');
+    } else {
+      const newId=await saveProjetoToDB(projData,null);
+      projects.push({id:newId||nextId++,...projData});
+      toast('Projeto priorizado criado.');
+    }
   } else {
-    const newId=await saveBasicToDB(item,null);
-    basicItems.push({id:newId||nextId++,...item});
-    toast('Iniciativa adicionada ao BASIC.');
+    const item={...base,bizScores:bizSc,tiScores:tiSc,origem:'basic'};
+    if(editBasicId){
+      Object.assign(existing,item);
+      await saveBasicToDB(item,editBasicId);
+      toast('Atualizado e salvo sem perder os scores.');
+    } else {
+      const newId=await saveBasicToDB(item,null);
+      basicItems.push({id:newId||nextId++,...item});
+      toast('Iniciativa adicionada ao BASIC.');
+    }
   }
   closeMo('mob');renderAll();
 }
@@ -1679,7 +1807,7 @@ function toggleTIMode(){
   const showing=tiSec.style.display!=='none';
   tiSec.style.display=showing?'none':'block';
   if(tiNote)tiNote.style.display=showing?'block':'none';
-  if(btn)btn.textContent=showing?'Acessar campos de TI':'Ocultar campos de TI';
+  if(btn)btn.textContent=showing?'Editar campos de TI':'Ocultar campos de TI';
 }
 
 // ── MULTI-SELECT AREA DROPDOWN ────────────────────────────
@@ -1809,7 +1937,10 @@ function showPreview(id, isBasic, event){
       <div class="preview-row"><div class="preview-label">Status</div><div class="preview-val">${esc(p.status||'—')}</div></div>
       <div class="preview-row"><div class="preview-label">Quarter</div><div class="preview-val">${esc(p.q||'—')}</div></div>`;
   } else {
-    content += `<div class="preview-row"><div class="preview-label">Prioridade</div><div class="preview-val">${esc(p.prio||'—')}</div></div>`;
+    content += `<div class="preview-row"><div class="preview-label">Prioridade</div><div class="preview-val">${esc(p.prio||'—')}</div></div>
+      <div class="preview-row"><div class="preview-label">Status</div><div class="preview-val">${esc(p.status||'Não iniciado')}</div></div>
+      <div class="preview-row"><div class="preview-label">Quarter</div><div class="preview-val">${esc(p._q||p.q||'TBD')}</div></div>`;
+    if(p.historico) content += `<div class="preview-row"><div class="preview-label">📋 Histórico</div><div class="preview-val" style="white-space:pre-wrap;">${esc(p.historico)}</div></div>`;
   }
   if(!isBasic){
     const f=farolPrazo(p);
@@ -1929,8 +2060,10 @@ async function loadAllData(){
       basicItems = bData.map(r=>({
         id:r.id, nome:r.nome, desc:r.descricao||'', benef:r.beneficio||'',
         area:r.area||'', prio:r.prio||'Média',
+        tipo:r.tipo||'Melhoria contínua',status:r.status||'Não iniciado',inicio:r.inicio||'',end:r.termino||r.end||'TBD',
+        avanco:r.avanco||0,historico:r.historico||'',
         bizScores:r.biz_scores||{}, tiScores:r.ti_scores||{},
-        _q:r.quarter_override||null
+        q:r.quarter_override||r.quarter||'TBD', _q:r.quarter_override||r.quarter||'TBD'
       }));
     } else if(!pData || pData.length === 0){
       await seedBasicData();
@@ -2006,7 +2139,8 @@ async function saveBasicToDB(data, id){
     nome:data.nome, descricao:data.desc, beneficio:data.benef,
     area:data.area, prio:data.prio,
     biz_scores:data.bizScores||{}, ti_scores:data.tiScores||{},
-    quarter_override:data._q||data.quarter_override||null,
+    quarter_override:data._q||data.q||data.quarter_override||null,
+    termino:data.end||data.termino||'TBD', inicio:data.inicio||'', status:data.status||'Não iniciado', tipo:data.tipo||'Melhoria contínua', avanco:data.avanco||0, historico:data.historico||'',
     updated_at:new Date().toISOString()
   };
   if(id){
@@ -2026,13 +2160,19 @@ async function deleteBasicDB(id){
   if(error) throw new Error('Erro ao excluir BASIC: '+error.message);
 }
 
-async function updateQuarterDB(id, origem, quarter){
-  if(!supa) throw new Error('Supabase não configurado.');
+async function updateQuarterDB(id, origem, quarter, endDate){
+  if(!supa) return;
+  const payloadBasic={quarter_override:quarter};
+  const payloadProj={quarter:quarter};
+  if(endDate && !isBlankEnd(endDate)){
+    payloadBasic.termino=endDate;
+    payloadProj.termino=endDate;
+  }
   let result;
   if(origem==='basic'){
-    result = await supa.from('basic_items').update({quarter_override:quarter}).eq('id',id);
+    result = await supa.from('basic_items').update(payloadBasic).eq('id',id);
   } else {
-    result = await supa.from('projetos').update({quarter:quarter}).eq('id',id);
+    result = await supa.from('projetos').update(payloadProj).eq('id',id);
   }
   if(result.error) throw new Error('Erro ao atualizar quarter: '+result.error.message);
 }
@@ -2167,8 +2307,8 @@ function exportCSV(){
     ...basicItems.map(b=>({
       tipo:'BASIC', id:b.id, nome:b.nome, descricao:b.desc||'',
       beneficio:b.benef||'', tipo_projeto:'Melhoria contínua', area:b.area,
-      prioridade:b.prio, status:'Não iniciado', inicio:'',
-      termino:'TBD', quarter:b._q||'TBD', avanco:0, historico:'',
+      prioridade:b.prio, status:b.status||'Não iniciado', inicio:b.inicio||'',
+      termino:b.end||'TBD', quarter:b._q||b.q||autoQ(b.end)||'TBD', avanco:b.avanco||0, historico:b.historico||'',
       score_negocio:calcBizScore(b.bizScores)||'',
       score_ti:calcTIScore(b.tiScores)||'Aguarda TI'
     }))
