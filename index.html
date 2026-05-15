@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Portfólio RH · Soluções & Inovação · 2026 · v28 UX</title>
+<title>Portfólio RH · Soluções & Inovação · 2026 · v29 UX</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -271,7 +271,7 @@ tr:hover td{background:#fdf5f8;}
 .fi textarea::placeholder{color:#9a9a9a;}
 
 
-/* Ajustes estruturais v28 - BASIC unico, kanban utilizavel e sinalizacao */
+/* Ajustes estruturais v29 - BASIC unico, kanban utilizavel e sinalizacao */
 #tab-quarters .kwrap{overflow-x:auto;padding-bottom:12px;}
 #tab-quarters .kanban{grid-template-columns:repeat(5,minmax(245px,1fr));align-items:stretch;min-width:1260px;}
 #tab-quarters .kcol{height:calc(100vh - 190px);min-height:460px;display:flex;flex-direction:column;}
@@ -290,7 +290,7 @@ tr:hover td{background:#fdf5f8;}
 <header>
   <div class="logo">
     <div class="logo-mark">RH</div>
-    <span class="logo-text">Portfólio RH <span class="logo-sub">· Soluções & Inovação · 2026 · v28</span></span>
+    <span class="logo-text">Portfólio RH <span class="logo-sub">· Soluções & Inovação · 2026 · v29</span></span>
   </div>
   <span class="hright" id="last-update"></span>
 </header>
@@ -622,7 +622,7 @@ tr:hover td{background:#fdf5f8;}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
 // ==================================================
-// ARQUITETURA TÉCNICA — PORTFÓLIO RH (v28)
+// ARQUITETURA TÉCNICA — PORTFÓLIO RH (v29)
 // Blocos lógicos (ordem conceitual):
 // 1. Business Rules (Governança)
 // 2. State Manager
@@ -1103,10 +1103,16 @@ function tipoBadge(p){
   return `<span style="font-size:11px;color:var(--text2)">${isE?'Estruturante':'Melhoria'}</span>`;
 }
 function qBadge(q){return `<span style="font-size:11px;color:var(--text2)">${q==='TBD'?'Não def.':q||'—'}</span>`;}
+function matchesMetricMode(p){
+  if(mMode==='andamento') return (p.status||'')==='Em andamento';
+  if(mMode==='priorizado') return p.origem==='priorizado';
+  if(mMode==='basic') return p.origem==='basic';
+  return true;
+}
 
 // ── METRICS ───────────────────────────────────────────────
 function renderMetrics(){
-  const and=projects.filter(p=>p.status==='Em andamento').length;
+  const and=allProjectRows().filter(p=>(p.status||'')==='Em andamento').length;
   document.getElementById('metrics').innerHTML=`
     <div class="metric" id="m-total" onclick="mFilter('priorizado')"><span class="hint">filtrar ↓</span>
       <div class="val">${projects.length}</div><div class="lbl">Projetos priorizados</div><div class="sub">Q1 → Q4/2026</div></div>
@@ -1147,8 +1153,8 @@ function mFilter(mode){
 function refreshCurrentTab(){
   const activeId=document.querySelector('.sec.active')?.id?.replace('tab-','')||'projetos';
   if(activeId==='projetos'){
-    if(mMode==='andamento') renderTable(allProjectRows().filter(p => p.status !== 'Não iniciado' && p.status !== 'Concluído'));
-    else if(mMode==='area') renderTable([...allProjectRows()].sort((a,b)=>a.area.localeCompare(b.area,'pt-BR')),true);
+    if(mMode==='andamento') renderTable(allProjectRows().filter(p => (p.status||'')==='Em andamento'));
+    else if(mMode==='area') renderTable([...allProjectRows()].filter(p=>matchesMetricMode(p)).sort((a,b)=>a.area.localeCompare(b.area,'pt-BR')),true);
     else renderProjetos();
   } else if(activeId==='quarters') renderKanban();
   else if(activeId==='visao') renderCarga();
@@ -1169,7 +1175,7 @@ function allProjectRows(){
 
 // ── RENDER PROJECTS ───────────────────────────────────────
 function renderProjetos(){
-  const rows=allProjectRows().filter(p=>matchesF(p));
+  const rows=allProjectRows().filter(p=>matchesF(p)&&matchesMetricMode(p));
   renderTable(rows, mMode==='area');
   updateAreaFilter();
 }
@@ -1220,6 +1226,7 @@ function renderKanban(){
   const allBasicScores=basicItems.map(b=>({...b,biz:calcBizScore(b.bizScores),ti:calcTIScore(b.tiScores)}));
   const clsMap=Object.fromEntries(classifyI_II_III(allBasicScores).map(b=>[b.id,{cls:b.cls,clsLabel:b.clsLabel}]));
   const all=allProjectRows().filter(p=>{
+    if(!matchesMetricMode(p))return false;
     if(sk&&!p.nome.toLowerCase().includes(sk))return false;
     if(areaSets.k.size&&!areaSets.k.has(p.area))return false;
     if(kSets.t.size&&![...kSets.t].some(v=>(p.tipo||'').toLowerCase().includes(v.toLowerCase())))return false;
@@ -1322,6 +1329,7 @@ function renderCarga(){
     ...projects.map(p=>({...p})),
     ...basicItems.map(b=>({id:b.id,nome:b.nome,tipo:b.tipo||'Melhoria contínua',area:b.area,q:b._q||b.q||'TBD',status:b.status||'Não iniciado',origem:'basic'}))
   ].filter(p=>{
+    if(!matchesMetricMode(p))return false;
     if(vStatusSet.size&&!vStatusSet.has(p.status))return false;
     if(filtroOrigem&&p.origem!==filtroOrigem)return false;
     if(vSets.q.size&&!vSets.q.has(p.q))return false;
@@ -1374,6 +1382,7 @@ function renderBasic(){
     if(cur) areaEl.value=cur;
   }
   const rows=basicItems.filter(b=>{
+    if(!matchesMetricMode({...b, origem:'basic', status:b.status||'Não iniciado'}))return false;
     if(s&&!b.nome.toLowerCase().includes(s))return false;
     if(filtroArea&&b.area!==filtroArea)return false;
     if(filtroPrio&&b.prio!==filtroPrio)return false;
