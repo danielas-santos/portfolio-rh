@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Portfólio RH · Soluções & Inovação · 2026 · v30 UX</title>
+<title>Portfólio RH · Soluções & Inovação · 2026 · v31 UX</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -271,7 +271,7 @@ tr:hover td{background:#fdf5f8;}
 .fi textarea::placeholder{color:#9a9a9a;}
 
 
-/* Ajustes estruturais v30 - BASIC unico, kanban utilizavel e sinalizacao */
+/* Ajustes estruturais v31 - BASIC unico, kanban utilizavel e sinalizacao */
 #tab-quarters .kwrap{overflow-x:auto;padding-bottom:12px;}
 #tab-quarters .kanban{grid-template-columns:repeat(5,minmax(245px,1fr));align-items:stretch;min-width:1260px;}
 #tab-quarters .kcol{height:calc(100vh - 190px);min-height:460px;display:flex;flex-direction:column;}
@@ -284,13 +284,36 @@ tr:hover td{background:#fdf5f8;}
 .kclass.iv{background:rgba(100,100,100,.08);color:#666;border:1px solid rgba(100,100,100,.20);}
 .unified-note{grid-column:1/-1;background:#fff8fb;border:1px solid rgba(255,125,175,.45);border-left:3px solid var(--rosa);border-radius:var(--r);padding:8px 10px;font-size:11px;color:var(--text2);line-height:1.45;}
 
+/* ── STATUS MULTISELECT / TASKS ── */
+.task-section{grid-column:1/-1;border:1px solid var(--border);border-radius:var(--r);background:#fff;padding:10px 12px;margin-top:4px;}
+.task-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;}
+.task-title{font-size:11px;font-weight:700;color:var(--bordo);text-transform:uppercase;letter-spacing:.06em;}
+.task-add{padding:5px 10px;border:1px solid var(--bordo-luz);border-radius:var(--r);background:transparent;color:var(--bordo-luz);font-size:11px;font-family:var(--font);cursor:pointer;}
+.task-row{display:grid;grid-template-columns:26px 1.5fr .9fr 90px 32px;gap:6px;align-items:center;margin-bottom:6px;}
+.task-row input,.task-row select{padding:7px 8px;border:1px solid var(--border2);border-radius:var(--r);font-size:12px;font-family:var(--font);background:var(--bg);}
+.task-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--bordo);justify-self:center;}
+.task-del{border:1px solid var(--border2);background:transparent;border-radius:var(--r);height:30px;cursor:pointer;color:#a00;}
+.task-badge{display:inline-flex;align-items:center;gap:3px;border-radius:100px;padding:2px 6px;font-size:9px;font-weight:600;margin-left:4px;}
+.task-badge.overdue{background:#fff0f0;color:#b00020;border:1px solid #ffc4c4;}
+.task-badge.due{background:#fff8e1;color:#7a4e00;border:1px solid #ffe3a3;}
+.task-badge.ok{background:#e8f4ee;color:#1E7A4A;border:1px solid #bde3cf;}
+.task-summary{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px;}
+.preview-task{border-top:1px solid var(--border);padding-top:6px;margin-top:6px;}
+.kstatus-wrap{position:relative;display:inline-block;}
+.kstatus-dd{display:none;position:absolute;top:calc(100% + 4px);left:0;z-index:320;background:var(--branco);border:1px solid var(--border2);border-radius:var(--r);box-shadow:0 4px 16px rgba(0,0,0,.14);min-width:190px;max-height:230px;overflow-y:auto;}
+.kstatus-dd.open{display:block;}
+.kstatus-item{display:flex;align-items:center;gap:8px;padding:7px 12px;cursor:pointer;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border);}
+.kstatus-item:hover{background:#fdf5f8;}
+.kstatus-item input{accent-color:var(--bordo);}
+@media(max-width:640px){.task-row{grid-template-columns:24px 1fr;}.task-row input,.task-row select,.task-del{grid-column:2;}.task-row input[type=checkbox]{grid-column:1;grid-row:1;}}
+
 </style>
   </head>
 <body>
 <header>
   <div class="logo">
     <div class="logo-mark">RH</div>
-    <span class="logo-text">Portfólio RH <span class="logo-sub">· Soluções & Inovação · 2026 · v30</span></span>
+    <span class="logo-text">Portfólio RH <span class="logo-sub">· Soluções & Inovação · 2026 · v31</span></span>
   </div>
   <span class="hright" id="last-update"></span>
 </header>
@@ -424,6 +447,19 @@ tr:hover td{background:#fdf5f8;}
     <div style="display:flex;gap:4px;">
       <button class="fbtn" data-kt="Estruturante" onclick="toggleKF('t','Estruturante',this)">Estruturante</button>
       <button class="fbtn" data-kt="Melhoria" onclick="toggleKF('t','Melhoria',this)">Melhoria</button>
+    </div>
+    <div class="tsep"></div>
+    <span class="flbl">Status</span>
+    <div class="kstatus-wrap">
+      <button class="fbtn mdd-btn" id="kstatus-btn" onclick="openKStatusDD()">Todos ▾</button>
+      <div class="kstatus-dd" id="kstatus-dd">
+        <label class="kstatus-item"><input type="checkbox" value="Não iniciado" onchange="toggleKStatus(this.value,this.checked)">Não iniciado</label>
+        <label class="kstatus-item"><input type="checkbox" value="Em andamento" onchange="toggleKStatus(this.value,this.checked)">Em andamento</label>
+        <label class="kstatus-item"><input type="checkbox" value="Em risco" onchange="toggleKStatus(this.value,this.checked)">Em risco</label>
+        <label class="kstatus-item"><input type="checkbox" value="Atrasado" onchange="toggleKStatus(this.value,this.checked)">Atrasado</label>
+        <label class="kstatus-item"><input type="checkbox" value="Stand-by" onchange="toggleKStatus(this.value,this.checked)">Stand-by</label>
+        <label class="kstatus-item"><input type="checkbox" value="Concluído" onchange="toggleKStatus(this.value,this.checked)">Concluído</label>
+      </div>
     </div>
     <div class="tsep"></div>
     <span class="flbl">Origem</span>
@@ -622,7 +658,7 @@ tr:hover td{background:#fdf5f8;}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
 // ==================================================
-// ARQUITETURA TÉCNICA — PORTFÓLIO RH (v30)
+// ARQUITETURA TÉCNICA — PORTFÓLIO RH (v31)
 // Blocos lógicos (ordem conceitual):
 // 1. Business Rules (Governança)
 // 2. State Manager
@@ -822,6 +858,7 @@ function basicMetaFromRow(r){
     end: meta.end || meta.termino || r.termino || r.end || 'TBD',
     avanco: Number(meta.avanco ?? r.avanco ?? 0),
     historico: meta.historico || r.historico || '',
+    tasks: normalizeTasks(meta.tasks || []),
     q: r.quarter_override || meta.q || meta.quarter || r.quarter || 'TBD'
   };
 }
@@ -834,10 +871,94 @@ function packBasicTIScores(data){
     inicio: data.inicio || '',
     end: data.end || data.termino || 'TBD',
     avanco: Number(data.avanco || 0),
-    historico: data.historico || '',
+    historico: cleanHistory(data.historico || ''),
+    tasks: normalizeTasks(data.tasks || clean._meta?.tasks || []),
     q: data._q || data.q || data.quarter_override || 'TBD'
   };
   return clean;
+}
+
+const TASK_MARKER='\n<!--PORTFOLIO_TASKS:';
+function normalizeTasks(tasks){
+  if(!Array.isArray(tasks)) return [];
+  return tasks.map(t=>({
+    id:t.id||('t'+Date.now()+Math.random().toString(16).slice(2)),
+    title:String(t.title||t.tarefa||'').trim(),
+    owner:String(t.owner||t.responsavel||'').trim(),
+    due:String(t.due||t.prazo||'').trim(),
+    done:!!(t.done||t.concluida),
+    status:t.status||''
+  })).filter(t=>t.title||t.owner||t.due);
+}
+function extractTaskPayload(text){
+  const s=String(text||'');
+  const i=s.indexOf(TASK_MARKER);
+  if(i<0) return {history:s,tasks:[]};
+  const before=s.slice(0,i).trim();
+  const rest=s.slice(i+TASK_MARKER.length);
+  const j=rest.indexOf('-->');
+  if(j<0) return {history:before,tasks:[]};
+  try{return {history:before,tasks:normalizeTasks(JSON.parse(decodeURIComponent(rest.slice(0,j))))};}
+  catch(e){return {history:before,tasks:[]};}
+}
+function cleanHistory(text){return extractTaskPayload(text).history;}
+function historyWithTasks(history,tasks){
+  const clean=cleanHistory(history||'');
+  const arr=normalizeTasks(tasks);
+  if(!arr.length) return clean;
+  return clean + TASK_MARKER + encodeURIComponent(JSON.stringify(arr)) + '-->';
+}
+function getTasks(item){
+  if(!item) return [];
+  if(Array.isArray(item.tasks)) return normalizeTasks(item.tasks);
+  if(item.tiScores?._meta?.tasks) return normalizeTasks(item.tiScores._meta.tasks);
+  return extractTaskPayload(item.historico||'').tasks;
+}
+function parseBRDate(v){
+  if(!v) return null;
+  const s=String(v).trim().toLowerCase();
+  let m=s.match(/^(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?$/);
+  if(m){const y=m[3]? (m[3].length===2?2000+Number(m[3]):Number(m[3])) : 2026; return new Date(y,Number(m[2])-1,Number(m[1]));}
+  m=s.match(/^(\d{1,2})\/(jan|fev|mar|abr|mai|jun|jul|ago|set|out|nov|dez)(?:\/(\d{2,4}))?$/);
+  if(m){const months={jan:0,fev:1,mar:2,abr:3,mai:4,jun:5,jul:6,ago:7,set:8,out:9,nov:10,dez:11};const y=m[3]? (m[3].length===2?2000+Number(m[3]):Number(m[3])) : 2026;return new Date(y,months[m[2]],Number(m[1]));}
+  return null;
+}
+function taskStats(item){
+  const tasks=getTasks(item); const today=new Date(); today.setHours(0,0,0,0);
+  let overdue=0,dueSoon=0,done=0;
+  tasks.forEach(t=>{if(t.done){done++;return;} const d=parseBRDate(t.due); if(!d)return; const diff=Math.round((d-today)/86400000); if(diff<0)overdue++; else if(diff<=3)dueSoon++;});
+  return {total:tasks.length,done,open:tasks.length-done,overdue,dueSoon};
+}
+function taskBadges(item){
+  const st=taskStats(item); if(!st.total) return '';
+  const badges=[];
+  if(st.overdue) badges.push(`<span class="task-badge overdue">⚠ ${st.overdue} atrasada${st.overdue>1?'s':''}</span>`);
+  else if(st.dueSoon) badges.push(`<span class="task-badge due">⏳ ${st.dueSoon} vence logo</span>`);
+  badges.push(`<span class="task-badge ok">📋 ${st.done}/${st.total}</span>`);
+  return `<div class="task-summary">${badges.join('')}</div>`;
+}
+function renderTaskEditor(containerId,tasks){
+  const el=document.getElementById(containerId); if(!el)return;
+  const arr=normalizeTasks(tasks);
+  el.innerHTML=`<div class="task-section"><div class="task-head"><span class="task-title">📋 Plano de ação / Próximas entregas</span><button class="task-add" type="button" onclick="addTaskRow('${containerId}')">+ Nova tarefa</button></div><div id="${containerId}-rows">${arr.map(t=>taskRowHTML(t)).join('')||taskRowHTML({})}</div><div style="font-size:10px;color:var(--text3);margin-top:4px;">Use prazo como 20/05, 20/05/26 ou 20/mai/26. Tarefas vencidas aparecem no card.</div></div>`;
+}
+function taskRowHTML(t){
+  return `<div class="task-row">
+    <input type="checkbox" class="task-done" ${t.done?'checked':''} title="Concluída">
+    <input type="text" class="task-title-input" placeholder="Tarefa" value="${esc(t.title||'')}">
+    <input type="text" class="task-owner-input" placeholder="Responsável" value="${esc(t.owner||'')}">
+    <input type="text" class="task-due-input" placeholder="Prazo" value="${esc(t.due||'')}">
+    <button type="button" class="task-del" onclick="this.closest('.task-row').remove()">×</button>
+  </div>`;
+}
+function addTaskRow(containerId){document.getElementById(containerId+'-rows')?.insertAdjacentHTML('beforeend',taskRowHTML({}));}
+function collectTasks(containerId){
+  return normalizeTasks([...document.querySelectorAll(`#${containerId}-rows .task-row`)].map(r=>({
+    done:r.querySelector('.task-done')?.checked||false,
+    title:r.querySelector('.task-title-input')?.value||'',
+    owner:r.querySelector('.task-owner-input')?.value||'',
+    due:r.querySelector('.task-due-input')?.value||''
+  })));
 }
 
 // ── CLASSIFICATION (I / II / III / IV) ───────────────────
@@ -979,6 +1100,7 @@ const statusSet = new Set();
 const fSets={q:new Set(),s:new Set(),t:new Set(),o:new Set()};
 
 const kSets={t:new Set(),o:new Set()};
+const kStatusSet=new Set();
 const vSets={q:new Set()};
 const vStatusSet=new Set();
 function toggleVStatus(val,btn){
@@ -1191,7 +1313,7 @@ function renderTable(rows,groupByArea){
     const frl=farolPrazo(p);
     return aH+`<tr class="${isB?'rb':''}">
       <td style="color:var(--text3);font-size:11px">${idx+1}</td>
-      <td style="font-weight:500;max-width:220px">${p.nome}</td>
+      <td style="font-weight:500;max-width:220px">${p.nome}${taskBadges(p)}</td>
       <td>${tipoBadge(p)}</td>
       <td style="color:var(--text2);font-size:11px">${p.area}</td>
       <td style="font-size:11px">
@@ -1231,6 +1353,7 @@ function renderKanban(){
     if(areaSets.k.size&&!areaSets.k.has(p.area))return false;
     if(kSets.t.size&&![...kSets.t].some(v=>(p.tipo||'').toLowerCase().includes(v.toLowerCase())))return false;
     if(kSets.o.size&&!kSets.o.has(p.origem))return false;
+    if(kStatusSet.size&&!kStatusSet.has(p.status||'Não iniciado'))return false;
     if(clsFilter){
       if(p.origem!=='basic') return false;
       const c=clsMap[p.id]?.cls||'IV';
@@ -1250,7 +1373,7 @@ function renderKanban(){
           const clsTag=c?`<span class="kclass ${String(c.cls).toLowerCase()}" title="Classificação BASIC">${c.clsLabel}</span>`:'';
           return `<div class="kcard" draggable="true" data-id="${p.id}" data-orig="${p.origem}" ondragstart="dragStart(event)" ondragend="dragEnd(event)" ondblclick="${p.origem==='basic'?`openModalBasic(basicItems.find(x=>x.id===${p.id}))`:`openModal(${p.id})`}" title="Clique duplo para editar">
           <div class="kt">${p.nome}</div>
-          <div class="km">${tipoBadge(p)}<span>·</span>${p.area}${p.origem==='basic'?'<span class="badge b-b" style="font-size:9px;padding:2px 5px">BASIC</span>':''}${clsTag}</div>
+          <div class="km">${tipoBadge(p)}<span>·</span>${p.area}${p.origem==='basic'?'<span class="badge b-b" style="font-size:9px;padding:2px 5px">BASIC</span>':''}${clsTag}</div>${taskBadges(p)}
         </div>`}).join('')}
       </div>
     </div>`).join('');
@@ -1557,7 +1680,8 @@ function buildFormFields(type,data){
     <div class="fi"><label>Início</label><input type="text" id="f-inicio" value="${esc(d.inicio||'')}" placeholder="ex: jan/26"></div>
     <div class="fi"><label>Término previsto <span class="req">*</span></label><input type="text" id="f-end" value="${esc(d.end||'')}" placeholder="ex: jun/26" oninput="syncEndQuarter('f-end','f-q','end')"></div>
     <div class="fi"><label>Quarter</label><select id="f-q" onchange="syncEndQuarter('f-end','f-q','quarter')"><option value="Q1">Q1</option><option value="Q2">Q2</option><option value="Q3">Q3</option><option value="Q4">Q4</option><option value="TBD">Não definido</option></select></div>
-    <div class="fi full"><label>📋 Histórico / Últimas atualizações <span style="font-size:10px;font-weight:400;text-transform:none;color:var(--text3)">(opcional — aparece no preview e na aba Projetos)</span></label><textarea id="f-historico" rows="3" placeholder="Ex: abr/26 — Reunião de alinhamento com TI realizada. Próximo passo: validação com área de negócio.">${esc(d.historico||'')}</textarea></div>`;
+    <div class="fi full"><label>📋 Histórico / Últimas atualizações <span style="font-size:10px;font-weight:400;text-transform:none;color:var(--text3)">(opcional — aparece no preview e na aba Projetos)</span></label><textarea id="f-historico" rows="3" placeholder="Ex: abr/26 — Reunião de alinhamento com TI realizada. Próximo passo: validação com área de negócio.">${esc(cleanHistory(d.historico||''))}</textarea></div>
+    <div id="f-tasks-wrap" class="fi full"></div>`;
   } else {
     h+=`
     <div class="fi full" id="origin-help"><div class="fsec-note" style="border-left-color:var(--rosa);margin-top:4px">Use <strong>Pipeline BASIC</strong> quando a iniciativa ainda está em análise. Use <strong>Priorizado / Em andamento</strong> quando ela virar projeto do portfólio. Os campos preenchidos serão migrados automaticamente.</div></div>
@@ -1582,6 +1706,7 @@ function buildFormFields(type,data){
     }
   }
   document.getElementById('form-fields').innerHTML=h;
+  renderTaskEditor('f-tasks-wrap', getTasks(d));
   if(data){
     if(document.getElementById('f-area')) document.getElementById('f-area').value=d.area||AREAS[0];
     if(document.getElementById('f-prio')) document.getElementById('f-prio').value=d.prio||'Média';
@@ -1651,7 +1776,8 @@ async function saveProjeto(){
       inicio:document.getElementById('f-inicio')?.value||'',
       end:endVal,q:qVal,origem:'priorizado',
       avanco:parseInt(document.getElementById('f-avanco')?.value||0),
-      historico:document.getElementById('f-historico')?.value||''};
+      tasks:collectTasks('f-tasks-wrap'),
+      historico:historyWithTasks(document.getElementById('f-historico')?.value||'', collectTasks('f-tasks-wrap'))};
     if(editId){
       Object.assign(projects.find(x=>x.id===editId),data);
       await saveProjetoToDB(data,editId);
@@ -1696,7 +1822,8 @@ function openModalBasic(data){
     </div>
     <div class="fi"><label>Início</label><input type="text" id="bf-inicio" value="${esc(d.inicio||'')}" placeholder="ex: jan/26"></div>
     <div class="fi"><label>Término previsto</label><input type="text" id="bf-end" value="${esc(d.end||'')}" placeholder="ex: jun/26" oninput="syncEndQuarter('bf-end','bf-q','end')"></div>
-    <div class="fi full"><label>📋 Histórico / Comentários / Últimas atualizações</label><textarea id="bf-historico" rows="3" placeholder="Ex: mai/26 — Discutido em reunião. Decisão: reavaliar na próxima agenda.">${esc(d.historico||'')}</textarea></div>
+    <div class="fi full"><label>📋 Histórico / Comentários / Últimas atualizações</label><textarea id="bf-historico" rows="3" placeholder="Ex: mai/26 — Discutido em reunião. Decisão: reavaliar na próxima agenda.">${esc(cleanHistory(d.historico||''))}</textarea></div>
+    <div id="bf-tasks-wrap" class="fi full"></div>
     <div class="fsec">Critérios de Negócio <span style="font-weight:400;text-transform:none;font-size:11px;color:var(--text3)">— notas: 0, 1, 3 ou 5</span></div>
     <div class="fi full"><div class="score-grid">
     ${BIZ_CRITERIA.map(c=>`<div class="score-row">
@@ -1727,6 +1854,7 @@ function openModalBasic(data){
     document.getElementById('bf-q').value='TBD';
     toggleOriginFields();
   }
+  renderTaskEditor('bf-tasks-wrap', getTasks(d));
   document.getElementById('mob').classList.add('open');
 }
 function toggleOriginFields(){
@@ -1764,10 +1892,11 @@ async function saveBasicItem(){
     end:endVal,
     q:qVal,_q:qVal,
     avanco:parseInt(document.getElementById('bf-avanco')?.value||0),
-    historico:document.getElementById('bf-historico')?.value||''};
+    tasks:collectTasks('bf-tasks-wrap'),
+    historico:cleanHistory(document.getElementById('bf-historico')?.value||'')};
 
   if(origemVal==='priorizado'){
-    const projData={...base,origem:'priorizado'};
+    const projData={...base,historico:historyWithTasks(base.historico,base.tasks),origem:'priorizado'};
     if(editBasicId){
       const newId=await saveProjetoToDB(projData,null);
       projects.push({id:newId||nextId++,...projData});
@@ -1995,6 +2124,14 @@ function showPreview(id, isBasic, event){
     if(p.inicio) content += `<div class="preview-row"><div class="preview-label">Início</div><div class="preview-val">${esc(p.inicio)}</div></div>`;
     content += `<div class="preview-row"><div class="preview-label">📋 Histórico</div><div class="preview-val" style="white-space:pre-wrap;color:${p.historico?'var(--text2)':'#bbb'};font-style:${p.historico?'normal':'italic'};">${p.historico?esc(p.historico):'Nenhum histórico registrado'}</div></div>`;
   }
+  const tasks=getTasks(p);
+  if(tasks.length){
+    content += `<div class="preview-task"><div class="preview-label">📋 Plano de ação</div>` + tasks.slice(0,6).map(t=>{
+      const d=parseBRDate(t.due); const today=new Date(); today.setHours(0,0,0,0);
+      const late=(!t.done&&d&&d<today);
+      return `<div class="preview-val" style="margin-top:4px;">${t.done?'✅':late?'⚠️':'☐'} ${esc(t.title||'Tarefa')}<br><span style="color:var(--text3);font-size:10px;">${esc(t.owner||'Sem responsável')} · ${esc(t.due||'Sem prazo')}</span></div>`;
+    }).join('') + `</div>`;
+  }
   pop.innerHTML = content;
   pop.style.display = 'block';
   positionPopup(pop, event);
@@ -2089,7 +2226,7 @@ async function loadAllData(){
         id:r.id, nome:r.nome, desc:r.descricao||'', benef:r.beneficio||'',
         tipo:r.tipo||'Melhoria contínua', area:r.area||'', prio:r.prio||'Média',
         status:r.status||'Não iniciado', inicio:r.inicio||'', end:r.termino||'', q:r.quarter||'TBD',
-        origem:r.origem||'priorizado', avanco:r.avanco||0, historico:r.historico||''
+        origem:r.origem||'priorizado', avanco:r.avanco||0, historico:cleanHistory(r.historico||''), tasks:extractTaskPayload(r.historico||'').tasks
       }));
     } else {
       await seedInitialData();
@@ -2131,7 +2268,7 @@ async function seedInitialData(){
     id:r.id, nome:r.nome, desc:r.descricao||'', benef:r.beneficio||'',
     tipo:r.tipo, area:r.area, prio:r.prio,
     status:r.status, inicio:r.inicio||'', end:r.termino||'', q:r.quarter||'TBD',
-    origem:r.origem, historico:r.historico||''
+    origem:r.origem, historico:cleanHistory(r.historico||''), tasks:extractTaskPayload(r.historico||'').tasks
   }));
 }
 
@@ -2146,7 +2283,7 @@ async function seedBasicData(){
   if(data) basicItems = data.map(r=>({
     id:r.id, nome:r.nome, desc:r.descricao||'', benef:r.beneficio||'',
     area:r.area, prio:r.prio,
-    bizScores:r.biz_scores||{}, tiScores:r.ti_scores||{}, _q:null
+    bizScores:r.biz_scores||{}, tiScores:r.ti_scores||{}, _q:null, tasks:basicMetaFromRow(r).tasks||[]
   }));
 }
 
@@ -2156,7 +2293,7 @@ async function saveProjetoToDB(data, id){
     nome:data.nome, descricao:data.desc, beneficio:data.benef,
     tipo:data.tipo, area:data.area, prio:data.prio,
     status:data.status, inicio:data.inicio||'', termino:data.end, quarter:data.q,
-    origem:data.origem, avanco:data.avanco||0, historico:data.historico||'', updated_at:new Date().toISOString()
+    origem:data.origem, avanco:data.avanco||0, historico:historyWithTasks(data.historico||'',data.tasks||[]), updated_at:new Date().toISOString()
   };
   if(id){
     const { error } = await supa.from('projetos').update(row).eq('id',id);
