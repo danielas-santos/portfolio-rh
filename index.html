@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Portfólio RH · Soluções & Inovação · 2026 · v31 UX</title>
+<title>Portfólio RH · Soluções & Inovação · 2026 · v32 UX</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -271,7 +271,7 @@ tr:hover td{background:#fdf5f8;}
 .fi textarea::placeholder{color:#9a9a9a;}
 
 
-/* Ajustes estruturais v31 - BASIC unico, kanban utilizavel e sinalizacao */
+/* Ajustes estruturais v32 - BASIC unico, kanban utilizavel e sinalizacao */
 #tab-quarters .kwrap{overflow-x:auto;padding-bottom:12px;}
 #tab-quarters .kanban{grid-template-columns:repeat(5,minmax(245px,1fr));align-items:stretch;min-width:1260px;}
 #tab-quarters .kcol{height:calc(100vh - 190px);min-height:460px;display:flex;flex-direction:column;}
@@ -289,7 +289,7 @@ tr:hover td{background:#fdf5f8;}
 .task-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;}
 .task-title{font-size:11px;font-weight:700;color:var(--bordo);text-transform:uppercase;letter-spacing:.06em;}
 .task-add{padding:5px 10px;border:1px solid var(--bordo-luz);border-radius:var(--r);background:transparent;color:var(--bordo-luz);font-size:11px;font-family:var(--font);cursor:pointer;}
-.task-row{display:grid;grid-template-columns:26px 1.5fr .9fr 90px 32px;gap:6px;align-items:center;margin-bottom:6px;}
+.task-row{display:grid;grid-template-columns:26px 1.4fr .85fr 90px 130px 32px;gap:6px;align-items:center;margin-bottom:6px;}
 .task-row input,.task-row select{padding:7px 8px;border:1px solid var(--border2);border-radius:var(--r);font-size:12px;font-family:var(--font);background:var(--bg);}
 .task-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--bordo);justify-self:center;}
 .task-del{border:1px solid var(--border2);background:transparent;border-radius:var(--r);height:30px;cursor:pointer;color:#a00;}
@@ -306,6 +306,16 @@ tr:hover td{background:#fdf5f8;}
 .kstatus-item:hover{background:#fdf5f8;}
 .kstatus-item input{accent-color:var(--bordo);}
 @media(max-width:640px){.task-row{grid-template-columns:24px 1fr;}.task-row input,.task-row select,.task-del{grid-column:2;}.task-row input[type=checkbox]{grid-column:1;grid-row:1;}}
+.task-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:12px;margin-bottom:12px;}
+.task-toolbar input,.task-toolbar select{padding:7px 10px;border:1px solid var(--border2);border-radius:var(--r);font-size:12px;font-family:var(--font);background:var(--bg);}
+.task-table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--rl);background:var(--surface);}
+.task-pill{display:inline-flex;align-items:center;gap:4px;border-radius:100px;padding:3px 8px;font-size:10px;font-weight:600;white-space:nowrap;}
+.task-pill.todo{background:#f5f5f5;color:#555;border:1px solid #ddd;}
+.task-pill.doing{background:#fff8e1;color:#7a4e00;border:1px solid #ffe3a3;}
+.task-pill.done{background:#e8f4ee;color:#1E7A4A;border:1px solid #bde3cf;}
+.task-pill.late{background:#fff0f0;color:#b00020;border:1px solid #ffc4c4;}
+.task-link{border:none;background:transparent;color:var(--bordo-luz);font-weight:600;cursor:pointer;font-family:var(--font);text-align:left;}
+.task-link:hover{text-decoration:underline;}
 
 </style>
   </head>
@@ -313,7 +323,7 @@ tr:hover td{background:#fdf5f8;}
 <header>
   <div class="logo">
     <div class="logo-mark">RH</div>
-    <span class="logo-text">Portfólio RH <span class="logo-sub">· Soluções & Inovação · 2026 · v31</span></span>
+    <span class="logo-text">Portfólio RH <span class="logo-sub">· Soluções & Inovação · 2026 · v32</span></span>
   </div>
   <span class="hright" id="last-update"></span>
 </header>
@@ -321,7 +331,7 @@ tr:hover td{background:#fdf5f8;}
   <button class="ntab active" onclick="showTab('projetos',this)">Projetos</button>
   <button class="ntab" onclick="showTab('quarters',this)">Por Quarter</button>
   <button class="ntab" onclick="showTab('visao',this)">Capacidade & Demanda</button>
-  <button class="ntab" onclick="showTab('basico',this)">Pipeline BASIC</button>
+  <button class="ntab" onclick="showTab('basico',this)">Tarefas</button>
   <button class="ntab" onclick="showTab('priorizacao',this)">Priorização</button>
 </nav>
 <main id="main-content">
@@ -430,7 +440,7 @@ tr:hover td{background:#fdf5f8;}
   <div class="toolbar">
     <div class="sw" style="max-width:220px">
       <svg class="si" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/></svg>
-      <input type="text" id="sk" placeholder="Buscar no kanban..." oninput="acSearch('sk','ack')" autocomplete="off" onfocus="acSearch('sk','ack')">
+      <input type="text" id="sk" placeholder="Buscar no kanban..." oninput="renderKanban()" autocomplete="off" onfocus="acSearch('sk','ack')">
       <div class="acl" id="ack"></div>
     </div>
     <div class="tsep"></div>
@@ -538,41 +548,35 @@ tr:hover td{background:#fdf5f8;}
   </div>
 </div>
 
-<!-- ABA PIPELINE BASIC -->
+<!-- ABA TAREFAS -->
 <div class="sec" id="tab-basico">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
-    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-      <input id="sb" type="text" placeholder="Buscar iniciativa..." oninput="renderBasic()" style="padding:7px 12px;font-size:12px;border:1px solid #ddd;border-radius:8px;width:200px;font-family:inherit;">
-      <select id="b-filtro-area" onchange="renderBasic()" style="padding:6px 10px;font-size:11px;border:1px solid #e0e0e0;border-radius:6px;font-family:inherit;">
-        <option value="">Todas as áreas</option>
-      </select>
-      <select id="b-filtro-prio" onchange="renderBasic()" style="padding:6px 10px;font-size:11px;border:1px solid #e0e0e0;border-radius:6px;font-family:inherit;">
-        <option value="">Todas as prioridades</option>
-        <option value="Alta">Alta</option>
-        <option value="Média">Média</option>
-        <option value="Baixa">Baixa</option>
-      </select>
-    </div>
-    <button onclick="openBasicModal(null)" style="padding:7px 16px;background:var(--magenta);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;">+ Nova Iniciativa</button>
+  <div class="task-toolbar">
+    <input id="task-search" type="text" placeholder="Buscar tarefa ou projeto..." oninput="renderTasksTab()" style="min-width:240px;flex:1;">
+    <select id="task-status-filter" onchange="renderTasksTab()">
+      <option value="">Todos os status</option>
+      <option value="Não iniciada">Não iniciada</option>
+      <option value="Em andamento">Em andamento</option>
+      <option value="Concluída">Concluída</option>
+      <option value="Atrasada">Atrasada</option>
+      <option value="Vence logo">Vence logo</option>
+    </select>
+    <select id="task-project-filter" onchange="renderTasksTab()"><option value="">Todos os projetos</option></select>
+    <input id="task-owner-filter" type="text" placeholder="Responsável" oninput="renderTasksTab()" style="width:160px;">
+    <select id="task-due-filter" onchange="renderTasksTab()">
+      <option value="">Todos os prazos</option>
+      <option value="overdue">Atrasadas</option>
+      <option value="7d">Próximos 7 dias</option>
+      <option value="30d">Próximos 30 dias</option>
+      <option value="nodue">Sem prazo</option>
+    </select>
+    <button class="fbtn clr" onclick="clearTaskFilters()">✕ Limpar</button>
   </div>
-  <div style="overflow-x:auto;">
-    <table style="width:100%;border-collapse:collapse;font-size:12px;">
-      <thead>
-        <tr style="background:var(--bordo);color:#fff;">
-          <th style="padding:10px 12px;text-align:left;font-weight:600;">#</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:600;">Iniciativa</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:600;">Área</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:600;">Prioridade</th>
-          <th style="padding:10px 8px;text-align:center;font-weight:600;">Score Negócio</th>
-          <th style="padding:10px 8px;text-align:center;font-weight:600;">Score TI</th>
-          <th style="padding:10px 8px;text-align:center;font-weight:600;">Score Total</th>
-          <th style="padding:10px 8px;text-align:center;font-weight:600;">Farol</th>
-          <th style="padding:10px 8px;text-align:center;font-weight:600;">Classificação</th>
-          <th style="padding:10px 8px;text-align:left;font-weight:600;">Origem</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody id="tbas"></tbody>
+  <div class="task-table-wrap">
+    <table>
+      <thead><tr>
+        <th>Projeto</th><th>Tarefa</th><th>Responsável</th><th>Prazo</th><th>Status</th><th>Sinalização</th><th style="width:80px"></th>
+      </tr></thead>
+      <tbody id="tasks-body"></tbody>
     </table>
   </div>
 </div>
@@ -658,7 +662,7 @@ tr:hover td{background:#fdf5f8;}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
 // ==================================================
-// ARQUITETURA TÉCNICA — PORTFÓLIO RH (v31)
+// ARQUITETURA TÉCNICA — PORTFÓLIO RH (v32)
 // Blocos lógicos (ordem conceitual):
 // 1. Business Rules (Governança)
 // 2. State Manager
@@ -879,16 +883,25 @@ function packBasicTIScores(data){
 }
 
 const TASK_MARKER='\n<!--PORTFOLIO_TASKS:';
+function normalizeTaskStatus(t){
+  const raw=String(t.status||'').trim();
+  if(t.done || raw.toLowerCase()==='concluída' || raw.toLowerCase()==='concluida') return 'Concluída';
+  if(raw==='Em andamento') return 'Em andamento';
+  return 'Não iniciada';
+}
 function normalizeTasks(tasks){
   if(!Array.isArray(tasks)) return [];
-  return tasks.map(t=>({
-    id:t.id||('t'+Date.now()+Math.random().toString(16).slice(2)),
-    title:String(t.title||t.tarefa||'').trim(),
-    owner:String(t.owner||t.responsavel||'').trim(),
-    due:String(t.due||t.prazo||'').trim(),
-    done:!!(t.done||t.concluida),
-    status:t.status||''
-  })).filter(t=>t.title||t.owner||t.due);
+  return tasks.map(t=>{
+    const status=normalizeTaskStatus(t);
+    return {
+      id:t.id||('t'+Date.now()+Math.random().toString(16).slice(2)),
+      title:String(t.title||t.tarefa||'').trim(),
+      owner:String(t.owner||t.responsavel||'').trim(),
+      due:String(t.due||t.prazo||'').trim(),
+      status,
+      done:status==='Concluída'
+    };
+  }).filter(t=>t.title||t.owner||t.due);
 }
 function extractTaskPayload(text){
   const s=String(text||'');
@@ -923,10 +936,18 @@ function parseBRDate(v){
   if(m){const months={jan:0,fev:1,mar:2,abr:3,mai:4,jun:5,jul:6,ago:7,set:8,out:9,nov:10,dez:11};const y=m[3]? (m[3].length===2?2000+Number(m[3]):Number(m[3])) : 2026;return new Date(y,months[m[2]],Number(m[1]));}
   return null;
 }
+function taskTiming(t){
+  if(t.status==='Concluída') return {key:'done',label:'Concluída'};
+  const d=parseBRDate(t.due); if(!d) return {key:'nodue',label:'Sem prazo'};
+  const today=new Date(); today.setHours(0,0,0,0);
+  const diff=Math.round((d-today)/86400000);
+  if(diff<0) return {key:'overdue',label:'Atrasada'};
+  if(diff<=3) return {key:'soon',label:'Vence logo'};
+  return {key:'ok',label:'No prazo'};
+}
 function taskStats(item){
-  const tasks=getTasks(item); const today=new Date(); today.setHours(0,0,0,0);
-  let overdue=0,dueSoon=0,done=0;
-  tasks.forEach(t=>{if(t.done){done++;return;} const d=parseBRDate(t.due); if(!d)return; const diff=Math.round((d-today)/86400000); if(diff<0)overdue++; else if(diff<=3)dueSoon++;});
+  const tasks=getTasks(item); let overdue=0,dueSoon=0,done=0;
+  tasks.forEach(t=>{const st=taskTiming(t); if(st.key==='done')done++; else if(st.key==='overdue')overdue++; else if(st.key==='soon')dueSoon++;});
   return {total:tasks.length,done,open:tasks.length-done,overdue,dueSoon};
 }
 function taskBadges(item){
@@ -940,26 +961,84 @@ function taskBadges(item){
 function renderTaskEditor(containerId,tasks){
   const el=document.getElementById(containerId); if(!el)return;
   const arr=normalizeTasks(tasks);
-  el.innerHTML=`<div class="task-section"><div class="task-head"><span class="task-title">📋 Plano de ação / Próximas entregas</span><button class="task-add" type="button" onclick="addTaskRow('${containerId}')">+ Nova tarefa</button></div><div id="${containerId}-rows">${arr.map(t=>taskRowHTML(t)).join('')||taskRowHTML({})}</div><div style="font-size:10px;color:var(--text3);margin-top:4px;">Use prazo como 20/05, 20/05/26 ou 20/mai/26. Tarefas vencidas aparecem no card.</div></div>`;
+  el.innerHTML=`<div class="task-section"><div class="task-head"><span class="task-title">📋 Plano de ação / Próximas entregas</span><button class="task-add" type="button" onclick="addTaskRow('${containerId}')">+ Nova tarefa</button></div><div id="${containerId}-rows">${arr.map(t=>taskRowHTML(t)).join('')||taskRowHTML({})}</div><div style="font-size:10px;color:var(--text3);margin-top:4px;">Use prazo como 20/05, 20/05/26 ou 20/mai/26. Status e vencimentos aparecem nos cards e na aba Tarefas.</div></div>`;
 }
 function taskRowHTML(t){
+  const status=normalizeTaskStatus(t||{});
   return `<div class="task-row">
-    <input type="checkbox" class="task-done" ${t.done?'checked':''} title="Concluída">
+    <input type="checkbox" class="task-done" ${status==='Concluída'?'checked':''} title="Concluída" onchange="syncTaskDone(this)">
     <input type="text" class="task-title-input" placeholder="Tarefa" value="${esc(t.title||'')}">
     <input type="text" class="task-owner-input" placeholder="Responsável" value="${esc(t.owner||'')}">
     <input type="text" class="task-due-input" placeholder="Prazo" value="${esc(t.due||'')}">
+    <select class="task-status-input" onchange="syncTaskStatus(this)"><option ${status==='Não iniciada'?'selected':''}>Não iniciada</option><option ${status==='Em andamento'?'selected':''}>Em andamento</option><option ${status==='Concluída'?'selected':''}>Concluída</option></select>
     <button type="button" class="task-del" onclick="this.closest('.task-row').remove()">×</button>
   </div>`;
 }
+function syncTaskDone(cb){const row=cb.closest('.task-row'); const sel=row?.querySelector('.task-status-input'); if(sel&&cb.checked)sel.value='Concluída'; else if(sel&&sel.value==='Concluída')sel.value='Em andamento';}
+function syncTaskStatus(sel){const row=sel.closest('.task-row'); const cb=row?.querySelector('.task-done'); if(cb)cb.checked=sel.value==='Concluída';}
 function addTaskRow(containerId){document.getElementById(containerId+'-rows')?.insertAdjacentHTML('beforeend',taskRowHTML({}));}
 function collectTasks(containerId){
   return normalizeTasks([...document.querySelectorAll(`#${containerId}-rows .task-row`)].map(r=>({
     done:r.querySelector('.task-done')?.checked||false,
     title:r.querySelector('.task-title-input')?.value||'',
     owner:r.querySelector('.task-owner-input')?.value||'',
-    due:r.querySelector('.task-due-input')?.value||''
+    due:r.querySelector('.task-due-input')?.value||'',
+    status:r.querySelector('.task-status-input')?.value||'Não iniciada'
   })));
 }
+function allTaskRows(){return allProjectRows().flatMap(p=>getTasks(p).map(t=>({project:p,task:t,timing:taskTiming(t)})));}
+function populateTaskProjectFilter(rows){
+  const sel=document.getElementById('task-project-filter'); if(!sel)return;
+  const cur=sel.value;
+  const projects=[...new Set(rows.map(r=>r.project.nome))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+  sel.innerHTML='<option value="">Todos os projetos</option>'+projects.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('');
+  if(projects.includes(cur)) sel.value=cur;
+}
+function renderTasksTab(){
+  const rows0=allTaskRows(); populateTaskProjectFilter(rows0);
+  const q=(document.getElementById('task-search')?.value||'').toLowerCase();
+  const st=(document.getElementById('task-status-filter')?.value||'');
+  const proj=(document.getElementById('task-project-filter')?.value||'');
+  const owner=(document.getElementById('task-owner-filter')?.value||'').toLowerCase();
+  const dueF=(document.getElementById('task-due-filter')?.value||'');
+  const today=new Date(); today.setHours(0,0,0,0);
+  const rows=rows0.filter(r=>{
+    if(q && !(r.task.title.toLowerCase().includes(q)||r.project.nome.toLowerCase().includes(q))) return false;
+    if(proj && r.project.nome!==proj) return false;
+    if(owner && !r.task.owner.toLowerCase().includes(owner)) return false;
+    if(st){
+      if(st==='Atrasada' && r.timing.key!=='overdue') return false;
+      else if(st==='Vence logo' && r.timing.key!=='soon') return false;
+      else if(!['Atrasada','Vence logo'].includes(st) && r.task.status!==st) return false;
+    }
+    if(dueF){
+      const d=parseBRDate(r.task.due);
+      if(dueF==='nodue' && d) return false;
+      if(dueF==='overdue' && r.timing.key!=='overdue') return false;
+      if(dueF==='7d'){ if(!d) return false; const diff=Math.round((d-today)/86400000); if(diff<0||diff>7)return false; }
+      if(dueF==='30d'){ if(!d) return false; const diff=Math.round((d-today)/86400000); if(diff<0||diff>30)return false; }
+    }
+    return true;
+  }).sort((a,b)=>{
+    const da=parseBRDate(a.task.due)?.getTime()||9999999999999;
+    const db=parseBRDate(b.task.due)?.getTime()||9999999999999;
+    return da-db || a.project.nome.localeCompare(b.project.nome,'pt-BR');
+  });
+  const body=document.getElementById('tasks-body'); if(!body)return;
+  if(!rows.length){body.innerHTML='<tr><td colspan="7"><div class="empty"><strong>Nenhuma tarefa encontrada</strong>Adicione tarefas dentro do cadastro dos projetos.</div></td></tr>';return;}
+  const pillStatus=s=>s==='Concluída'?'<span class="task-pill done">Concluída</span>':s==='Em andamento'?'<span class="task-pill doing">Em andamento</span>':'<span class="task-pill todo">Não iniciada</span>';
+  const pillTiming=t=>t.key==='overdue'?'<span class="task-pill late">⚠ Atrasada</span>':t.key==='soon'?'<span class="task-pill doing">⏳ Vence logo</span>':t.key==='done'?'<span class="task-pill done">✓ Concluída</span>':'<span class="task-pill todo">No prazo</span>';
+  body.innerHTML=rows.map(r=>`<tr>
+    <td><button class="task-link" onclick="${r.project.origem==='basic'?`openModalBasic(basicItems.find(x=>x.id===${r.project.id}))`:`openModal(${r.project.id})`}">${esc(r.project.nome)}</button><div style="font-size:10px;color:var(--text3);">${esc(r.project.area||'')} · ${r.project.q||'TBD'}</div></td>
+    <td style="font-weight:500;">${esc(r.task.title)}</td>
+    <td>${esc(r.task.owner||'—')}</td>
+    <td>${esc(r.task.due||'—')}</td>
+    <td>${pillStatus(r.task.status)}</td>
+    <td>${pillTiming(r.timing)}</td>
+    <td><button class="ibtn" onclick="${r.project.origem==='basic'?`openModalBasic(basicItems.find(x=>x.id===${r.project.id}))`:`openModal(${r.project.id})`}" title="Editar projeto">✎</button></td>
+  </tr>`).join('');
+}
+function clearTaskFilters(){['task-search','task-owner-filter'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});['task-status-filter','task-project-filter','task-due-filter'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});renderTasksTab();}
 
 // ── CLASSIFICATION (I / II / III / IV) ───────────────────
 // Regra: mediana do Score Negócio e P40 do Score TI como limiares
@@ -1201,16 +1280,16 @@ function acSearch(inputId,listId,isBasic){
   const v=(document.getElementById(inputId)?.value||'').trim().toLowerCase();
   const el=document.getElementById(listId);
   const names=isBasic?basicItems.map(b=>b.nome):[...projects.map(p=>p.nome),...basicItems.map(b=>b.nome)];
-  if(!v){el.classList.remove('open');el.innerHTML='';if(isBasic)renderBasic();else renderProjetos();return;}
+  if(!v){el.classList.remove('open');el.innerHTML='';if(inputId==='sk')renderKanban();else if(isBasic)renderBasic();else renderProjetos();return;}
   const esc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
   const hits=names.filter(n=>n.toLowerCase().includes(v)).slice(0,10);
-  if(!hits.length){el.classList.remove('open');if(isBasic)renderBasic();else renderProjetos();return;}
+  if(!hits.length){el.classList.remove('open');if(inputId==='sk')renderKanban();else if(isBasic)renderBasic();else renderProjetos();return;}
   el.innerHTML=hits.map(n=>{
     const hi=n.replace(new RegExp(esc(v),'gi'),m=>`<mark>${m}</mark>`);
     return `<div class="aci" ontouchstart="" onclick="selectAC('${inputId}','${listId}','${n.replace(/'/g,"\\'")}',${!!isBasic})">${hi}</div>`;
   }).join('');
   el.classList.add('open');
-  if(isBasic)renderBasic();else renderProjetos();
+  if(inputId==='sk')renderKanban();else if(iId==='sk')renderKanban();else if(isBasic)renderBasic();else renderProjetos();
 }
 function selectAC(iId,lId,val,isBasic){
   document.getElementById(iId).value=val;
@@ -1290,7 +1369,7 @@ function allProjectRows(){
     ...basicItems.map(b=>({
       id:b.id,nome:b.nome,tipo:b.tipo||'Melhoria contínua',area:b.area,prio:b.prio||'—',
       status:b.status||'Não iniciado',inicio:b.inicio||'',end:b.end||'TBD',q:b._q||b.q||'TBD',
-      origem:'basic',avanco:b.avanco||0,historico:b.historico||'',desc:b.desc||'',benef:b.benef||''
+      origem:'basic',avanco:b.avanco||0,historico:b.historico||'',desc:b.desc||'',benef:b.benef||'',tasks:getTasks(b),tiScores:b.tiScores
     }))
   ];
 }
@@ -1959,10 +2038,7 @@ function showTab(id,btn){
   btn.classList.add('active');
   if(id==='visao')renderCarga();
   if(id==='priorizacao')renderPrio();
-  if(id==='basico'){
-    buildAreaChecks('barea-checks',areaSets.b,allBasicAreas(),"'barea-checks'");
-    renderBasic();
-  }
+  if(id==='basico') renderTasksTab();
   if(id==='quarters')renderKanban();
 }
 
@@ -2686,7 +2762,7 @@ async function executeImport(){
 
 async function importCSV(event){showImportPreview(event);}
 
-function renderAll(){renderMetrics();renderProjetos();renderKanban();renderCarga();renderBasic();renderPrio();document.getElementById('last-update').textContent='Atualizado em '+new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
+function renderAll(){renderMetrics();renderProjetos();renderKanban();renderCarga();renderTasksTab();renderPrio();document.getElementById('last-update').textContent='Atualizado em '+new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
 }
 loadAllData();
 
