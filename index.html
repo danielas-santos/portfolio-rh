@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Portfólio RH · Soluções & Inovação · 2026 · v35 UX</title>
+<title>Portfólio RH · Soluções & Inovação · 2026 · v36 UX</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -271,7 +271,7 @@ tr:hover td{background:#fdf5f8;}
 .fi textarea::placeholder{color:#9a9a9a;}
 
 
-/* Ajustes estruturais v35 - BASIC unico, kanban utilizavel e sinalizacao */
+/* Ajustes estruturais v36 - BASIC unico, kanban utilizavel e sinalizacao */
 #tab-quarters .kwrap{overflow-x:auto;padding-bottom:12px;}
 #tab-quarters .kanban{grid-template-columns:repeat(5,minmax(245px,1fr));align-items:stretch;min-width:1260px;}
 #tab-quarters .kcol{height:calc(100vh - 190px);min-height:460px;display:flex;flex-direction:column;}
@@ -283,16 +283,24 @@ tr:hover td{background:#fdf5f8;}
 .kclass.iii{background:rgba(190,19,73,.08);color:#BE1349;border:1px solid rgba(190,19,73,.20);}
 .kclass.iv{background:rgba(100,100,100,.08);color:#666;border:1px solid rgba(100,100,100,.20);}
 .unified-note{grid-column:1/-1;background:#fff8fb;border:1px solid rgba(255,125,175,.45);border-left:3px solid var(--rosa);border-radius:var(--r);padding:8px 10px;font-size:11px;color:var(--text2);line-height:1.45;}
+.kgov{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px;align-items:center;}
+.kbasic-mini{display:inline-flex;align-items:center;border-radius:100px;border:1px dashed var(--rosa);color:var(--magenta);background:#fff7fb;padding:1px 6px;font-size:9px;font-weight:700;line-height:1.4;}
+.kclass-mini{display:inline-flex;align-items:center;border-radius:100px;padding:1px 6px;font-size:9px;font-weight:700;line-height:1.4;background:#f7f4f6;color:var(--bordo);border:1px solid rgba(46,16,30,.16);}
+.kclass-mini.i{background:rgba(45,16,30,.09);color:#2D101E;border-color:rgba(45,16,30,.2);}
+.kclass-mini.ii{background:rgba(102,31,70,.08);color:#661F46;border-color:rgba(102,31,70,.2);}
+.kclass-mini.iii{background:rgba(190,19,73,.07);color:#BE1349;border-color:rgba(190,19,73,.2);}
+.kclass-mini.iv{background:rgba(100,100,100,.08);color:#666;border-color:rgba(100,100,100,.18);}
+
 
 /* ── STATUS MULTISELECT / TASKS ── */
 .task-section{grid-column:1/-1;border:1px solid var(--border);border-radius:var(--r);background:#fff;padding:10px 12px;margin-top:4px;}
 .task-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;}
 .task-title{font-size:11px;font-weight:700;color:var(--bordo);text-transform:uppercase;letter-spacing:.06em;}
 .task-add{padding:5px 10px;border:1px solid var(--bordo-luz);border-radius:var(--r);background:transparent;color:var(--bordo-luz);font-size:11px;font-family:var(--font);cursor:pointer;}
-.task-row{display:grid;grid-template-columns:22px minmax(140px,1.35fr) minmax(95px,.8fr) 82px 120px 28px;gap:6px;align-items:center;margin-bottom:8px;max-width:100%;}
+.task-row{display:grid;grid-template-columns:minmax(170px,1.45fr) minmax(110px,.85fr) 90px 130px 32px;gap:8px;align-items:center;margin-bottom:8px;max-width:100%;}
 .task-row input,.task-row select{width:100%;min-width:0;max-width:100%;padding:7px 8px;border:1px solid var(--border2);border-radius:var(--r);font-size:12px;font-family:var(--font);background:var(--bg);height:34px;box-sizing:border-box;}
 .task-row select{appearance:auto;-webkit-appearance:auto;line-height:1.2;padding-right:4px;}
-.task-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--bordo);justify-self:center;padding:0;}
+
 .task-del{border:1px solid var(--border2);background:transparent;border-radius:var(--r);height:30px;width:28px;cursor:pointer;color:#a00;}
 .task-badge{display:inline-flex;align-items:center;gap:3px;border-radius:100px;padding:2px 6px;font-size:9px;font-weight:600;margin-left:4px;}
 .task-badge.overdue{background:#fff0f0;color:#b00020;border:1px solid #ffc4c4;}
@@ -306,7 +314,7 @@ tr:hover td{background:#fdf5f8;}
 .kstatus-item{display:flex;align-items:center;gap:8px;padding:7px 12px;cursor:pointer;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border);}
 .kstatus-item:hover{background:#fdf5f8;}
 .kstatus-item input{accent-color:var(--bordo);}
-@media(max-width:760px){.task-row{grid-template-columns:22px 1fr 28px;}.task-row .task-title-input,.task-row .task-owner-input,.task-row .task-due-input,.task-row .task-status-input{grid-column:2;}.task-row input[type=checkbox]{grid-column:1;grid-row:1;}.task-del{grid-column:3;grid-row:1;width:28px;}}
+@media(max-width:760px){.task-row{grid-template-columns:1fr 32px;}.task-row .task-title-input,.task-row .task-owner-input,.task-row .task-due-input,.task-row .task-status-input{grid-column:1;}.task-del{grid-column:2;grid-row:1;width:32px;}}
 .task-summary-cards{display:grid;grid-template-columns:repeat(5,minmax(120px,1fr));gap:10px;margin-bottom:12px;}
 .task-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:12px 14px;border-top:3px solid var(--bordo);cursor:pointer;transition:box-shadow .15s,transform .1s;}
 .task-card:hover{box-shadow:0 4px 14px rgba(46,16,30,.10);transform:translateY(-1px);}
@@ -562,14 +570,13 @@ tr:hover td{background:#fdf5f8;}
   <div class="task-summary-cards" id="task-summary-cards"></div>
   <div class="task-toolbar">
     <input id="task-search" type="text" placeholder="Buscar tarefa ou projeto..." oninput="renderTasksTab()" style="min-width:240px;flex:1;">
-    <select id="task-status-filter" onchange="renderTasksTab()">
-      <option value="">Todos os status</option>
-      <option value="Não iniciada">Não iniciada</option>
-      <option value="Em andamento">Em andamento</option>
-      <option value="Concluída">Concluída</option>
-      <option value="Atrasada">Atrasada</option>
-      <option value="Vence logo">Vence logo</option>
-    </select>
+    <div class="mdd-wrap">
+      <button class="fbtn mdd-btn" id="task-status-btn" type="button" onclick="openTaskStatusDD(event)">Todos os status ▾</button>
+      <div class="mdd" id="task-status-dd">
+        <div class="mdd-hdr"><span>Status das tarefas</span><button onclick="clearTaskStatusSet();event.stopPropagation()">Limpar</button></div>
+        <div class="mdd-list" id="task-status-list"></div>
+      </div>
+    </div>
     <select id="task-project-filter" onchange="renderTasksTab()"><option value="">Todos os projetos</option></select>
     <input id="task-owner-filter" type="text" placeholder="Responsável" oninput="renderTasksTab()" style="width:160px;">
     <select id="task-due-filter" onchange="renderTasksTab()">
@@ -672,7 +679,7 @@ tr:hover td{background:#fdf5f8;}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
 // ==================================================
-// ARQUITETURA TÉCNICA — PORTFÓLIO RH (v35)
+// ARQUITETURA TÉCNICA — PORTFÓLIO RH (v36)
 // Blocos lógicos (ordem conceitual):
 // 1. Business Rules (Governança)
 // 2. State Manager
@@ -962,11 +969,9 @@ function taskStats(item){
 }
 function taskBadges(item){
   const st=taskStats(item); if(!st.total) return '';
-  const badges=[];
-  if(st.overdue) badges.push(`<span class="task-badge overdue">⚠ ${st.overdue} atrasada${st.overdue>1?'s':''}</span>`);
-  else if(st.dueSoon) badges.push(`<span class="task-badge due">⏳ ${st.dueSoon} vence logo</span>`);
-  badges.push(`<span class="task-badge ok">📋 ${st.done}/${st.total}</span>`);
-  return `<div class="task-summary">${badges.join('')}</div>`;
+  if(st.overdue) return `<div class="task-summary"><span class="task-badge overdue">⚠ ${st.overdue} atrasada${st.overdue>1?'s':''}</span></div>`;
+  if(st.dueSoon) return `<div class="task-summary"><span class="task-badge due">⏳ ${st.dueSoon} vence logo</span></div>`;
+  return `<div class="task-summary"><span class="task-badge ok">✓ tarefas em dia</span></div>`;
 }
 function renderTaskEditor(containerId,tasks){
   const el=document.getElementById(containerId); if(!el)return;
@@ -976,11 +981,10 @@ function renderTaskEditor(containerId,tasks){
 function taskRowHTML(t){
   const status=normalizeTaskStatus(t||{});
   return `<div class="task-row">
-    <input type="checkbox" class="task-done" ${status==='Concluída'?'checked':''} title="Marcar como concluída" onchange="syncTaskDone(this)">
     <input type="text" class="task-title-input" placeholder="Tarefa" title="Tarefa" value="${esc(t.title||'')}">
     <input type="text" class="task-owner-input" placeholder="Responsável" title="Responsável" value="${esc(t.owner||'')}">
     <input type="text" class="task-due-input" placeholder="Prazo" title="Prazo" value="${esc(t.due||'')}">
-    <select class="task-status-input" title="Status da tarefa" onchange="syncTaskStatus(this)">
+    <select class="task-status-input" title="Status da tarefa">
       <option value="Não iniciada" ${status==='Não iniciada'?'selected':''}>Não iniciada</option>
       <option value="Em andamento" ${status==='Em andamento'?'selected':''}>Em andamento</option>
       <option value="Concluída" ${status==='Concluída'?'selected':''}>Concluída</option>
@@ -988,18 +992,48 @@ function taskRowHTML(t){
     <button type="button" class="task-del" title="Remover tarefa" onclick="this.closest('.task-row').remove()">×</button>
   </div>`;
 }
-function syncTaskDone(cb){const row=cb.closest('.task-row'); const sel=row?.querySelector('.task-status-input'); if(sel&&cb.checked)sel.value='Concluída'; else if(sel&&sel.value==='Concluída')sel.value='Em andamento';}
-function syncTaskStatus(sel){const row=sel.closest('.task-row'); const cb=row?.querySelector('.task-done'); if(cb)cb.checked=sel.value==='Concluída';}
 function addTaskRow(containerId){document.getElementById(containerId+'-rows')?.insertAdjacentHTML('beforeend',taskRowHTML({}));}
 function collectTasks(containerId){
-  return normalizeTasks([...document.querySelectorAll(`#${containerId}-rows .task-row`)].map(r=>({
-    done:r.querySelector('.task-done')?.checked||false,
-    title:r.querySelector('.task-title-input')?.value||'',
-    owner:r.querySelector('.task-owner-input')?.value||'',
-    due:r.querySelector('.task-due-input')?.value||'',
-    status:r.querySelector('.task-status-input')?.value||'Não iniciada'
-  })));
+  return normalizeTasks([...document.querySelectorAll(`#${containerId}-rows .task-row`)].map(r=>{
+    const status=r.querySelector('.task-status-input')?.value||'Não iniciada';
+    return {
+      done:status==='Concluída',
+      title:r.querySelector('.task-title-input')?.value||'',
+      owner:r.querySelector('.task-owner-input')?.value||'',
+      due:r.querySelector('.task-due-input')?.value||'',
+      status
+    };
+  }));
 }
+
+const taskStatusSet = new Set();
+const TASK_STATUS_FILTERS = ['Não iniciada','Em andamento','Concluída','Atrasada','Vence logo'];
+function openTaskStatusDD(event){
+  if(event) event.stopPropagation();
+  const dd=document.getElementById('task-status-dd');
+  if(!dd) return;
+  buildTaskStatusList();
+  dd.classList.toggle('open');
+}
+function buildTaskStatusList(){
+  const list=document.getElementById('task-status-list'); if(!list)return;
+  list.innerHTML=TASK_STATUS_FILTERS.map(s=>`<label class="mdd-item"><input type="checkbox" ${taskStatusSet.has(s)?'checked':''} onchange="toggleTaskStatusFilter('${s}',this.checked)">${s}</label>`).join('');
+  updateTaskStatusButton();
+}
+function toggleTaskStatusFilter(status,checked){
+  checked?taskStatusSet.add(status):taskStatusSet.delete(status);
+  updateTaskStatusButton();
+  renderTasksTab();
+}
+function updateTaskStatusButton(){
+  const btn=document.getElementById('task-status-btn'); if(!btn)return;
+  if(!taskStatusSet.size){btn.textContent='Todos os status ▾';btn.classList.remove('sel');}
+  else if(taskStatusSet.size===1){btn.textContent=[...taskStatusSet][0]+' ▾';btn.classList.add('sel');}
+  else{btn.textContent=taskStatusSet.size+' status ▾';btn.classList.add('sel');}
+}
+function clearTaskStatusSet(){taskStatusSet.clear();buildTaskStatusList();renderTasksTab();}
+document.addEventListener('click',e=>{if(!e.target.closest('#task-status-dd')&&!e.target.closest('#task-status-btn'))document.getElementById('task-status-dd')?.classList.remove('open');});
+
 function allTaskRows(){return allProjectRows().flatMap(p=>getTasks(p).map(t=>({project:p,task:t,timing:taskTiming(t)})));}
 function populateTaskProjectFilter(rows){
   const sel=document.getElementById('task-project-filter'); if(!sel)return;
@@ -1018,19 +1052,22 @@ function renderTaskSummaryCards(rows0){
   const soon=rows0.filter(r=>r.timing.key==='soon').length;
   const card=(cls,num,txt,sub,filterId,filterValue)=>`<div class="task-card ${cls}" onclick="setTaskQuickFilter('${filterId}','${filterValue}')"><div class="num">${num}</div><div class="txt">${txt}</div><div class="sub">${sub}</div></div>`;
   el.innerHTML=[
-    card('',total,'Total de tarefas','Todas as iniciativas','task-status-filter',''),
-    card('done',done,'Concluídas','Execução finalizada','task-status-filter','Concluída'),
-    card('doing',doing,'Em andamento','Em execução','task-status-filter','Em andamento'),
-    card('todo',todo,'Não iniciadas','Aguardando início','task-status-filter','Não iniciada'),
-    card('late',late,'Atrasadas','Prazo vencido','task-status-filter','Atrasada')
+    card('',total,'Total de tarefas','Todas as iniciativas','task-status',''),
+    card('done',done,'Concluídas','Execução finalizada','task-status','Concluída'),
+    card('doing',doing,'Em andamento','Em execução','task-status','Em andamento'),
+    card('todo',todo,'Não iniciadas','Aguardando início','task-status','Não iniciada'),
+    card('late',late,'Atrasadas','Prazo vencido','task-status','Atrasada')
   ].join('');
 }
-function setTaskQuickFilter(id,value){const el=document.getElementById(id); if(el){el.value=value;} renderTasksTab();}
+function setTaskQuickFilter(id,value){
+  if(id==='task-status'){taskStatusSet.clear(); if(value)taskStatusSet.add(value); updateTaskStatusButton(); buildTaskStatusList(); renderTasksTab(); return;}
+  const el=document.getElementById(id); if(el){el.value=value;} renderTasksTab();
+}
 
 function renderTasksTab(){
   const rows0=allTaskRows(); renderTaskSummaryCards(rows0); populateTaskProjectFilter(rows0);
   const q=(document.getElementById('task-search')?.value||'').toLowerCase();
-  const st=(document.getElementById('task-status-filter')?.value||'');
+  const statuses=[...taskStatusSet];
   const proj=(document.getElementById('task-project-filter')?.value||'');
   const owner=(document.getElementById('task-owner-filter')?.value||'').toLowerCase();
   const dueF=(document.getElementById('task-due-filter')?.value||'');
@@ -1039,10 +1076,13 @@ function renderTasksTab(){
     if(q && !(r.task.title.toLowerCase().includes(q)||r.project.nome.toLowerCase().includes(q))) return false;
     if(proj && r.project.nome!==proj) return false;
     if(owner && !r.task.owner.toLowerCase().includes(owner)) return false;
-    if(st){
-      if(st==='Atrasada' && r.timing.key!=='overdue') return false;
-      else if(st==='Vence logo' && r.timing.key!=='soon') return false;
-      else if(!['Atrasada','Vence logo'].includes(st) && r.task.status!==st) return false;
+    if(statuses.length){
+      const match=statuses.some(st=>{
+        if(st==='Atrasada') return r.timing.key==='overdue';
+        if(st==='Vence logo') return r.timing.key==='soon';
+        return r.task.status===st;
+      });
+      if(!match) return false;
     }
     if(dueF){
       const d=parseBRDate(r.task.due);
@@ -1071,7 +1111,7 @@ function renderTasksTab(){
     <td><button class="ibtn" onclick="${r.project.origem==='basic'?`openModalBasic(basicItems.find(x=>x.id===${r.project.id}))`:`openModal(${r.project.id})`}" title="Editar projeto">✎</button></td>
   </tr>`).join('');
 }
-function clearTaskFilters(){['task-search','task-owner-filter'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});['task-status-filter','task-project-filter','task-due-filter'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});renderTasksTab();}
+function clearTaskFilters(){['task-search','task-owner-filter'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});['task-project-filter','task-due-filter'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});taskStatusSet.clear();updateTaskStatusButton();buildTaskStatusList();renderTasksTab();}
 
 // ── CLASSIFICATION (I / II / III / IV) ───────────────────
 // Regra: mediana do Score Negócio e P40 do Score TI como limiares
@@ -1482,10 +1522,12 @@ function renderKanban(){
       <div class="kdz" id="kdz-${qk}" ondragover="event.preventDefault();this.classList.add('da')" ondragleave="this.classList.remove('da')" ondrop="dropCard(event,'${qk}')">
         ${groups[qk].map(p=>{
           const c=p.origem==='basic'?(clsMap[p.id]||{cls:'IV',clsLabel:'Aguarda TI'}):null;
-          const clsTag=c?`<span class="kclass ${String(c.cls).toLowerCase()}" title="Classificação BASIC">${c.clsLabel}</span>`:'';
+          const basicTag=p.origem==='basic'?'<span class="kbasic-mini">BASIC</span>':'';
+          const clsTag=c?`<span class="kclass-mini ${String(c.cls).toLowerCase()}" title="Classificação BASIC">● ${c.clsLabel}</span>`:'';
+          const govLine=(basicTag||clsTag)?`<div class="kgov">${basicTag}${clsTag}</div>`:'';
           return `<div class="kcard" draggable="true" data-id="${p.id}" data-orig="${p.origem}" ondragstart="dragStart(event)" ondragend="dragEnd(event)" ondblclick="${p.origem==='basic'?`openModalBasic(basicItems.find(x=>x.id===${p.id}))`:`openModal(${p.id})`}" title="Clique duplo para editar">
           <div class="kt">${p.nome}</div>
-          <div class="km">${tipoBadge(p)}<span>·</span>${p.area}${p.origem==='basic'?'<span class="badge b-b" style="font-size:9px;padding:2px 5px">BASIC</span>':''}${clsTag}</div>${taskBadges(p)}
+          <div class="km">${tipoBadge(p)}<span>·</span>${p.area}</div>${govLine}${taskBadges(p)}
         </div>`}).join('')}
       </div>
     </div>`).join('');
