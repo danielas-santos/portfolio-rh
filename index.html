@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Portfólio RH · Soluções & Inovação · 2026 · v34 UX</title>
+<title>Portfólio RH · Soluções & Inovação · 2026 · v35 UX</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -271,7 +271,7 @@ tr:hover td{background:#fdf5f8;}
 .fi textarea::placeholder{color:#9a9a9a;}
 
 
-/* Ajustes estruturais v34 - BASIC unico, kanban utilizavel e sinalizacao */
+/* Ajustes estruturais v35 - BASIC unico, kanban utilizavel e sinalizacao */
 #tab-quarters .kwrap{overflow-x:auto;padding-bottom:12px;}
 #tab-quarters .kanban{grid-template-columns:repeat(5,minmax(245px,1fr));align-items:stretch;min-width:1260px;}
 #tab-quarters .kcol{height:calc(100vh - 190px);min-height:460px;display:flex;flex-direction:column;}
@@ -289,11 +289,11 @@ tr:hover td{background:#fdf5f8;}
 .task-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;}
 .task-title{font-size:11px;font-weight:700;color:var(--bordo);text-transform:uppercase;letter-spacing:.06em;}
 .task-add{padding:5px 10px;border:1px solid var(--bordo-luz);border-radius:var(--r);background:transparent;color:var(--bordo-luz);font-size:11px;font-family:var(--font);cursor:pointer;}
-.task-row{display:grid;grid-template-columns:24px minmax(210px,1.45fr) minmax(135px,.8fr) minmax(90px,.45fr) minmax(150px,.65fr) 30px;gap:8px;align-items:center;margin-bottom:8px;}
-.task-row input,.task-row select{width:100%;min-width:0;padding:8px 9px;border:1px solid var(--border2);border-radius:var(--r);font-size:12px;font-family:var(--font);background:var(--bg);height:34px;}
-.task-row select{appearance:auto;-webkit-appearance:auto;line-height:1.2;}
-.task-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--bordo);justify-self:center;}
-.task-del{border:1px solid var(--border2);background:transparent;border-radius:var(--r);height:30px;cursor:pointer;color:#a00;}
+.task-row{display:grid;grid-template-columns:22px minmax(140px,1.35fr) minmax(95px,.8fr) 82px 120px 28px;gap:6px;align-items:center;margin-bottom:8px;max-width:100%;}
+.task-row input,.task-row select{width:100%;min-width:0;max-width:100%;padding:7px 8px;border:1px solid var(--border2);border-radius:var(--r);font-size:12px;font-family:var(--font);background:var(--bg);height:34px;box-sizing:border-box;}
+.task-row select{appearance:auto;-webkit-appearance:auto;line-height:1.2;padding-right:4px;}
+.task-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--bordo);justify-self:center;padding:0;}
+.task-del{border:1px solid var(--border2);background:transparent;border-radius:var(--r);height:30px;width:28px;cursor:pointer;color:#a00;}
 .task-badge{display:inline-flex;align-items:center;gap:3px;border-radius:100px;padding:2px 6px;font-size:9px;font-weight:600;margin-left:4px;}
 .task-badge.overdue{background:#fff0f0;color:#b00020;border:1px solid #ffc4c4;}
 .task-badge.due{background:#fff8e1;color:#7a4e00;border:1px solid #ffe3a3;}
@@ -306,7 +306,7 @@ tr:hover td{background:#fdf5f8;}
 .kstatus-item{display:flex;align-items:center;gap:8px;padding:7px 12px;cursor:pointer;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border);}
 .kstatus-item:hover{background:#fdf5f8;}
 .kstatus-item input{accent-color:var(--bordo);}
-@media(max-width:640px){.task-row{grid-template-columns:24px 1fr;}.task-row input,.task-row select,.task-del{grid-column:2;}.task-row input[type=checkbox]{grid-column:1;grid-row:1;}}
+@media(max-width:760px){.task-row{grid-template-columns:22px 1fr 28px;}.task-row .task-title-input,.task-row .task-owner-input,.task-row .task-due-input,.task-row .task-status-input{grid-column:2;}.task-row input[type=checkbox]{grid-column:1;grid-row:1;}.task-del{grid-column:3;grid-row:1;width:28px;}}
 .task-summary-cards{display:grid;grid-template-columns:repeat(5,minmax(120px,1fr));gap:10px;margin-bottom:12px;}
 .task-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:12px 14px;border-top:3px solid var(--bordo);cursor:pointer;transition:box-shadow .15s,transform .1s;}
 .task-card:hover{box-shadow:0 4px 14px rgba(46,16,30,.10);transform:translateY(-1px);}
@@ -332,7 +332,7 @@ tr:hover td{background:#fdf5f8;}
 <header>
   <div class="logo">
     <div class="logo-mark">RH</div>
-    <span class="logo-text">Portfólio RH <span class="logo-sub">· Soluções & Inovação · 2026 · v34</span></span>
+    <span class="logo-text">Portfólio RH <span class="logo-sub">· Soluções & Inovação · 2026 · v35</span></span>
   </div>
   <span class="hright" id="last-update"></span>
 </header>
@@ -672,7 +672,7 @@ tr:hover td{background:#fdf5f8;}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
 // ==================================================
-// ARQUITETURA TÉCNICA — PORTFÓLIO RH (v34)
+// ARQUITETURA TÉCNICA — PORTFÓLIO RH (v35)
 // Blocos lógicos (ordem conceitual):
 // 1. Business Rules (Governança)
 // 2. State Manager
