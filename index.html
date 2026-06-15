@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Portfólio RH · Soluções & Inovação · 2026 · v37</title>
+<title>Portfólio RH · Soluções & Inovação · 2026 · v38</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -340,6 +340,7 @@ tr:hover td{background:#fdf5f8;}
 .task-editor-chip.active{background:var(--bordo);border-color:var(--bordo);color:#fff;}
 .task-editor-chip.late{border-color:#ffc4c4;color:#b00020;background:#fff0f0;}
 .task-editor-chip.open{border-color:#ffe3a3;color:#7a4e00;background:#fff8e1;}
+.task-editor-chip.done{border-color:#bde3cf;color:#1E7A4A;background:#e8f4ee;}
 .task-editor-hint{font-size:10px;color:var(--text3);margin-top:2px;}
 .task-row.is-hidden{display:none!important;}
 
@@ -349,7 +350,7 @@ tr:hover td{background:#fdf5f8;}
 <header>
   <div class="logo">
     <div class="logo-mark">RH</div>
-    <span class="logo-text">Portfólio RH <span class="logo-sub">· Soluções & Inovação · 2026 · v37</span></span>
+    <span class="logo-text">Portfólio RH <span class="logo-sub">· Soluções & Inovação · 2026 · v38</span></span>
   </div>
   <span class="hright" id="last-update"></span>
 </header>
@@ -487,7 +488,7 @@ tr:hover td{background:#fdf5f8;}
     <div class="tsep"></div>
     <span class="flbl">Status</span>
     <div class="kstatus-wrap">
-      <button class="fbtn mdd-btn" id="kstatus-btn" onclick="openKStatusDD()">Todos ▾</button>
+      <button class="fbtn mdd-btn" id="kstatus-btn" onclick="openKStatusDD(event)">Todos ▾</button>
       <div class="kstatus-dd" id="kstatus-dd">
         <label class="kstatus-item"><input type="checkbox" value="Não iniciado" onchange="toggleKStatus(this.value,this.checked)">Não iniciado</label>
         <label class="kstatus-item"><input type="checkbox" value="Em andamento" onchange="toggleKStatus(this.value,this.checked)">Em andamento</label>
@@ -979,15 +980,18 @@ function taskIsLateFromRow(r){
   const today=new Date(); today.setHours(0,0,0,0);
   return d<today;
 }
+const taskEditorFilters = {};
 function updateTaskEditorSummary(containerId){
   const rows=[...document.querySelectorAll(`#${containerId}-rows .task-row`)];
   const open=rows.filter(r=>(r.querySelector('.task-status-input')?.value||'Não iniciada')!=='Concluída').length;
   const late=rows.filter(taskIsLateFromRow).length;
   const done=rows.filter(r=>(r.querySelector('.task-status-input')?.value||'Não iniciada')==='Concluída').length;
+  const mode=taskEditorFilters[containerId]||'all';
   const box=document.getElementById(containerId+'-summary');
-  if(box) box.innerHTML=`<button type="button" class="task-editor-chip active" onclick="filterTaskRows('${containerId}','all',this)">Todas ${rows.length}</button><button type="button" class="task-editor-chip open" onclick="filterTaskRows('${containerId}','open',this)">Pendentes ${open}</button><button type="button" class="task-editor-chip late" onclick="filterTaskRows('${containerId}','late',this)">Atrasadas ${late}</button><span class="task-editor-chip">Concluídas ${done}</span>`;
+  if(box) box.innerHTML=`<button type="button" class="task-editor-chip ${mode==='all'?'active':''}" onclick="filterTaskRows('${containerId}','all',this)">Todas ${rows.length}</button><button type="button" class="task-editor-chip open ${mode==='open'?'active':''}" onclick="filterTaskRows('${containerId}','open',this)">Pendentes ${open}</button><button type="button" class="task-editor-chip late ${mode==='late'?'active':''}" onclick="filterTaskRows('${containerId}','late',this)">Atrasadas ${late}</button><button type="button" class="task-editor-chip done ${mode==='done'?'active':''}" onclick="filterTaskRows('${containerId}','done',this)">Concluídas ${done}</button>`;
+  applyTaskEditorFilter(containerId,mode);
 }
-function filterTaskRows(containerId,mode,btn){
+function applyTaskEditorFilter(containerId,mode){
   const rows=[...document.querySelectorAll(`#${containerId}-rows .task-row`)];
   rows.forEach(r=>{
     const status=r.querySelector('.task-status-input')?.value||'Não iniciada';
@@ -995,8 +999,13 @@ function filterTaskRows(containerId,mode,btn){
     let show=true;
     if(mode==='open') show=status!=='Concluída';
     if(mode==='late') show=late;
+    if(mode==='done') show=status==='Concluída';
     r.classList.toggle('is-hidden',!show);
   });
+}
+function filterTaskRows(containerId,mode,btn){
+  taskEditorFilters[containerId]=mode;
+  applyTaskEditorFilter(containerId,mode);
   document.querySelectorAll(`#${containerId}-summary .task-editor-chip`).forEach(c=>c.classList.remove('active'));
   if(btn) btn.classList.add('active');
 }
@@ -1303,6 +1312,29 @@ const fSets={q:new Set(),s:new Set(),t:new Set(),o:new Set()};
 
 const kSets={t:new Set(),o:new Set()};
 const kStatusSet=new Set();
+function openKStatusDD(event){
+  if(event) event.stopPropagation();
+  const dd=document.getElementById('kstatus-dd');
+  if(!dd) return;
+  dd.classList.toggle('open');
+}
+function toggleKStatus(value,checked){
+  checked ? kStatusSet.add(value) : kStatusSet.delete(value);
+  updateKStatusButton();
+  renderKanban();
+}
+function updateKStatusButton(){
+  const btn=document.getElementById('kstatus-btn');
+  if(!btn) return;
+  if(!kStatusSet.size){btn.textContent='Todos ▾';btn.classList.remove('sel');}
+  else if(kStatusSet.size===1){btn.textContent=[...kStatusSet][0]+' ▾';btn.classList.add('sel');}
+  else{btn.textContent=kStatusSet.size+' status ▾';btn.classList.add('sel');}
+}
+document.addEventListener('click',function(e){
+  if(!e.target.closest('#kstatus-dd') && !e.target.closest('#kstatus-btn')){
+    document.getElementById('kstatus-dd')?.classList.remove('open');
+  }
+});
 const vSets={q:new Set()};
 const vStatusSet=new Set();
 function toggleVStatus(val,btn){
@@ -1366,6 +1398,7 @@ function clearFilters(){
 }
 function clearKFilters(){
   kSets.t.clear();kSets.o.clear();
+  kStatusSet.clear(); document.querySelectorAll('#kstatus-dd input[type=checkbox]').forEach(x=>x.checked=false); updateKStatusButton();
   areaSets.k.clear();
   const kCls=document.getElementById('k-filtro-cls');if(kCls)kCls.value='';
   document.querySelectorAll('[data-kt],[data-ko]').forEach(b=>b.classList.remove('sel'));
