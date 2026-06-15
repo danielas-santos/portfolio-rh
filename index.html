@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Portfólio RH · Soluções & Inovação · 2026 · v36 UX</title>
+<title>Portfólio RH · Soluções & Inovação · 2026 · v37</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -271,7 +271,7 @@ tr:hover td{background:#fdf5f8;}
 .fi textarea::placeholder{color:#9a9a9a;}
 
 
-/* Ajustes estruturais v36 - BASIC unico, kanban utilizavel e sinalizacao */
+/* Ajustes estruturais v25 - BASIC unico, kanban utilizavel e sinalizacao */
 #tab-quarters .kwrap{overflow-x:auto;padding-bottom:12px;}
 #tab-quarters .kanban{grid-template-columns:repeat(5,minmax(245px,1fr));align-items:stretch;min-width:1260px;}
 #tab-quarters .kcol{height:calc(100vh - 190px);min-height:460px;display:flex;flex-direction:column;}
@@ -334,13 +334,22 @@ tr:hover td{background:#fdf5f8;}
 .task-link{border:none;background:transparent;color:var(--bordo-luz);font-weight:600;cursor:pointer;font-family:var(--font);text-align:left;}
 .task-link:hover{text-decoration:underline;}
 
+
+.task-editor-summary{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:6px 0 10px;}
+.task-editor-chip{display:inline-flex;align-items:center;gap:4px;border-radius:100px;border:1px solid var(--border2);background:var(--bg);color:var(--text2);font-size:10px;font-weight:600;padding:3px 8px;cursor:pointer;font-family:var(--font);}
+.task-editor-chip.active{background:var(--bordo);border-color:var(--bordo);color:#fff;}
+.task-editor-chip.late{border-color:#ffc4c4;color:#b00020;background:#fff0f0;}
+.task-editor-chip.open{border-color:#ffe3a3;color:#7a4e00;background:#fff8e1;}
+.task-editor-hint{font-size:10px;color:var(--text3);margin-top:2px;}
+.task-row.is-hidden{display:none!important;}
+
 </style>
   </head>
 <body>
 <header>
   <div class="logo">
     <div class="logo-mark">RH</div>
-    <span class="logo-text">Portfólio RH <span class="logo-sub">· Soluções & Inovação · 2026 · v35</span></span>
+    <span class="logo-text">Portfólio RH <span class="logo-sub">· Soluções & Inovação · 2026 · v37</span></span>
   </div>
   <span class="hright" id="last-update"></span>
 </header>
@@ -679,7 +688,7 @@ tr:hover td{background:#fdf5f8;}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
 // ==================================================
-// ARQUITETURA TÉCNICA — PORTFÓLIO RH (v36)
+// ARQUITETURA TÉCNICA — PORTFÓLIO RH (v21)
 // Blocos lógicos (ordem conceitual):
 // 1. Business Rules (Governança)
 // 2. State Manager
@@ -953,6 +962,45 @@ function parseBRDate(v){
   if(m){const months={jan:0,fev:1,mar:2,abr:3,mai:4,jun:5,jul:6,ago:7,set:8,out:9,nov:10,dez:11};const y=m[3]? (m[3].length===2?2000+Number(m[3]):Number(m[3])) : 2026;return new Date(y,months[m[2]],Number(m[1]));}
   return null;
 }
+
+function formatTaskDue(v){
+  if(!v) return '';
+  const d=parseBRDate(v);
+  if(!d) return String(v).trim();
+  const mm=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  return String(d.getDate()).padStart(2,'0')+'/'+mm[d.getMonth()];
+}
+function taskIsOpen(t){return normalizeTaskStatus(t)!=='Concluída';}
+function taskIsLateFromRow(r){
+  const status=r.querySelector('.task-status-input')?.value||'Não iniciada';
+  if(status==='Concluída') return false;
+  const d=parseBRDate(r.querySelector('.task-due-input')?.value||'');
+  if(!d) return false;
+  const today=new Date(); today.setHours(0,0,0,0);
+  return d<today;
+}
+function updateTaskEditorSummary(containerId){
+  const rows=[...document.querySelectorAll(`#${containerId}-rows .task-row`)];
+  const open=rows.filter(r=>(r.querySelector('.task-status-input')?.value||'Não iniciada')!=='Concluída').length;
+  const late=rows.filter(taskIsLateFromRow).length;
+  const done=rows.filter(r=>(r.querySelector('.task-status-input')?.value||'Não iniciada')==='Concluída').length;
+  const box=document.getElementById(containerId+'-summary');
+  if(box) box.innerHTML=`<button type="button" class="task-editor-chip active" onclick="filterTaskRows('${containerId}','all',this)">Todas ${rows.length}</button><button type="button" class="task-editor-chip open" onclick="filterTaskRows('${containerId}','open',this)">Pendentes ${open}</button><button type="button" class="task-editor-chip late" onclick="filterTaskRows('${containerId}','late',this)">Atrasadas ${late}</button><span class="task-editor-chip">Concluídas ${done}</span>`;
+}
+function filterTaskRows(containerId,mode,btn){
+  const rows=[...document.querySelectorAll(`#${containerId}-rows .task-row`)];
+  rows.forEach(r=>{
+    const status=r.querySelector('.task-status-input')?.value||'Não iniciada';
+    const late=taskIsLateFromRow(r);
+    let show=true;
+    if(mode==='open') show=status!=='Concluída';
+    if(mode==='late') show=late;
+    r.classList.toggle('is-hidden',!show);
+  });
+  document.querySelectorAll(`#${containerId}-summary .task-editor-chip`).forEach(c=>c.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+}
+
 function taskTiming(t){
   if(t.status==='Concluída') return {key:'done',label:'Concluída'};
   const d=parseBRDate(t.due); if(!d) return {key:'nodue',label:'Sem prazo'};
@@ -976,23 +1024,25 @@ function taskBadges(item){
 function renderTaskEditor(containerId,tasks){
   const el=document.getElementById(containerId); if(!el)return;
   const arr=normalizeTasks(tasks);
-  el.innerHTML=`<div class="task-section"><div class="task-head"><span class="task-title">📋 Plano de ação / Próximas entregas</span><button class="task-add" type="button" onclick="addTaskRow('${containerId}')">+ Nova tarefa</button></div><div id="${containerId}-rows">${arr.map(t=>taskRowHTML(t)).join('')||taskRowHTML({})}</div><div style="font-size:10px;color:var(--text3);margin-top:4px;">Use prazo como 20/05, 20/05/26 ou 20/mai/26. Status e vencimentos aparecem nos cards e na aba Tarefas.</div></div>`;
+  el.innerHTML=`<div class="task-section"><div class="task-head"><span class="task-title">📋 Plano de ação / Próximas entregas</span><button class="task-add" type="button" onclick="addTaskRow('${containerId}')">+ Nova tarefa</button></div><div id="${containerId}-summary" class="task-editor-summary"></div><div id="${containerId}-rows">${arr.map(t=>taskRowHTML(t,containerId)).join('')||taskRowHTML({},containerId)}</div><div class="task-editor-hint">Use prazo como 20/05, 20/05/26 ou 20/mai/26. Use os chips acima para ver rapidamente tarefas pendentes ou atrasadas dentro do projeto.</div></div>`;
+  setTimeout(()=>updateTaskEditorSummary(containerId),0);
 }
-function taskRowHTML(t){
+function taskRowHTML(t,containerId){
   const status=normalizeTaskStatus(t||{});
+  const cid=containerId||'';
   return `<div class="task-row">
-    <input type="text" class="task-title-input" placeholder="Tarefa" title="Tarefa" value="${esc(t.title||'')}">
+    <input type="text" class="task-title-input" placeholder="Tarefa" title="Tarefa" value="${esc(t.title||'')}" oninput="updateTaskEditorSummary('${cid}')">
     <input type="text" class="task-owner-input" placeholder="Responsável" title="Responsável" value="${esc(t.owner||'')}">
-    <input type="text" class="task-due-input" placeholder="Prazo" title="Prazo" value="${esc(t.due||'')}">
-    <select class="task-status-input" title="Status da tarefa">
+    <input type="text" class="task-due-input" placeholder="Prazo" title="Prazo" value="${esc(formatTaskDue(t.due||''))}" onblur="this.value=formatTaskDue(this.value);updateTaskEditorSummary('${cid}')" oninput="updateTaskEditorSummary('${cid}')">
+    <select class="task-status-input" title="Status da tarefa" onchange="updateTaskEditorSummary('${cid}')">
       <option value="Não iniciada" ${status==='Não iniciada'?'selected':''}>Não iniciada</option>
       <option value="Em andamento" ${status==='Em andamento'?'selected':''}>Em andamento</option>
       <option value="Concluída" ${status==='Concluída'?'selected':''}>Concluída</option>
     </select>
-    <button type="button" class="task-del" title="Remover tarefa" onclick="this.closest('.task-row').remove()">×</button>
+    <button type="button" class="task-del" title="Remover tarefa" onclick="this.closest('.task-row').remove();updateTaskEditorSummary('${cid}')">×</button>
   </div>`;
 }
-function addTaskRow(containerId){document.getElementById(containerId+'-rows')?.insertAdjacentHTML('beforeend',taskRowHTML({}));}
+function addTaskRow(containerId){document.getElementById(containerId+'-rows')?.insertAdjacentHTML('beforeend',taskRowHTML({},containerId));updateTaskEditorSummary(containerId);}
 function collectTasks(containerId){
   return normalizeTasks([...document.querySelectorAll(`#${containerId}-rows .task-row`)].map(r=>{
     const status=r.querySelector('.task-status-input')?.value||'Não iniciada';
@@ -1000,7 +1050,7 @@ function collectTasks(containerId){
       done:status==='Concluída',
       title:r.querySelector('.task-title-input')?.value||'',
       owner:r.querySelector('.task-owner-input')?.value||'',
-      due:r.querySelector('.task-due-input')?.value||'',
+      due:formatTaskDue(r.querySelector('.task-due-input')?.value||''),
       status
     };
   }));
@@ -1105,7 +1155,7 @@ function renderTasksTab(){
     <td><button class="task-link" onclick="${r.project.origem==='basic'?`openModalBasic(basicItems.find(x=>x.id===${r.project.id}))`:`openModal(${r.project.id})`}">${esc(r.project.nome)}</button><div style="font-size:10px;color:var(--text3);">${esc(r.project.area||'')} · ${r.project.q||'TBD'}</div></td>
     <td style="font-weight:500;">${esc(r.task.title)}</td>
     <td>${esc(r.task.owner||'—')}</td>
-    <td>${esc(r.task.due||'—')}</td>
+    <td>${esc(formatTaskDue(r.task.due)||'—')}</td>
     <td>${pillStatus(r.task.status)}</td>
     <td>${pillTiming(r.timing)}</td>
     <td><button class="ibtn" onclick="${r.project.origem==='basic'?`openModalBasic(basicItems.find(x=>x.id===${r.project.id}))`:`openModal(${r.project.id})`}" title="Editar projeto">✎</button></td>
@@ -2282,7 +2332,7 @@ function showPreview(id, isBasic, event){
     content += `<div class="preview-task"><div class="preview-label">📋 Plano de ação</div>` + tasks.slice(0,6).map(t=>{
       const d=parseBRDate(t.due); const today=new Date(); today.setHours(0,0,0,0);
       const late=(!t.done&&d&&d<today);
-      return `<div class="preview-val" style="margin-top:4px;">${t.done?'✅':late?'⚠️':'☐'} ${esc(t.title||'Tarefa')}<br><span style="color:var(--text3);font-size:10px;">${esc(t.owner||'Sem responsável')} · ${esc(t.due||'Sem prazo')}</span></div>`;
+      return `<div class="preview-val" style="margin-top:4px;">${t.done?'✅':late?'⚠️':'☐'} ${esc(t.title||'Tarefa')}<br><span style="color:var(--text3);font-size:10px;">${esc(t.owner||'Sem responsável')} · ${esc(formatTaskDue(t.due)||'Sem prazo')}</span></div>`;
     }).join('') + `</div>`;
   }
   pop.innerHTML = content;
