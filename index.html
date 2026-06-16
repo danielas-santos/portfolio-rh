@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Portfólio RH · Soluções & Inovação · 2026 · v38</title>
+<title>Portfólio RH · Soluções & Inovação · 2026 · v39</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -190,6 +190,7 @@ tr:hover td{background:#fdf5f8;}
 .req{color:var(--magenta);}
 .fi input,.fi select,.fi textarea{padding:8px 10px;border:1px solid var(--border2);border-radius:var(--r);font-size:13px;font-family:var(--font);color:var(--text);background:var(--bg);outline:none;-webkit-appearance:none;}
 .fi textarea{resize:vertical;min-height:60px;}
+.fi select[multiple]{height:auto;min-height:74px;padding:6px 8px;}
 .fi input:focus,.fi select:focus,.fi textarea:focus{border-color:var(--bordo-luz);background:var(--branco);}
 .fi input.err,.fi select.err,.fi textarea.err{border-color:var(--magenta);}
 .fi input:disabled,.fi select:disabled,.fi textarea:disabled{opacity:.55;cursor:not-allowed;background:var(--bg);}
@@ -350,7 +351,7 @@ tr:hover td{background:#fdf5f8;}
 <header>
   <div class="logo">
     <div class="logo-mark">RH</div>
-    <span class="logo-text">Portfólio RH <span class="logo-sub">· Soluções & Inovação · 2026 · v38</span></span>
+    <span class="logo-text">Portfólio RH <span class="logo-sub">· Soluções & Inovação · 2026 · v39</span></span>
   </div>
   <span class="hright" id="last-update"></span>
 </header>
@@ -420,6 +421,21 @@ tr:hover td{background:#fdf5f8;}
             <div class="filter-options">
               <button class="fbtn" data-fo="priorizado" onclick="toggleF('o','priorizado',this)">Priorizados</button>
               <button class="fbtn" data-fo="basic" onclick="toggleF('o','basic',this)">BASIC</button>
+            </div>
+          </div>
+          <div class="filter-group">
+            <span class="filter-title">Domínio Técnico</span>
+            <div class="filter-options">
+              <button class="fbtn" data-fd="ERP" onclick="toggleF('d','ERP',this)">ERP</button>
+              <button class="fbtn" data-fd="Sistemas Corporativos" onclick="toggleF('d','Sistemas Corporativos',this)">Sistemas Corp.</button>
+              <button class="fbtn" data-fd="Cross" onclick="toggleF('d','Cross',this)">Cross</button>
+            </div>
+          </div>
+          <div class="filter-group">
+            <span class="filter-title">Integração</span>
+            <div class="filter-options">
+              <button class="fbtn" data-fi="Sim" onclick="toggleF('i','Sim',this)">Com integração</button>
+              <button class="fbtn" data-fi="Não" onclick="toggleF('i','Não',this)">Sem integração</button>
             </div>
           </div>
         </div>
@@ -860,6 +876,10 @@ const TI_CRITERIA=[
 const NOTAS=[0,1,3,5];
 const AREAS=['Acessos e Sistemas','Admissão e Cadastro','Afastamentos e Licenças','Atendimento','Benefícios','Business Partner','Comunicação Interna','DEI&P','Desligamento','DHO','Férias','Folha de Pagamento','Gestão de Ponto','R&S','Remuneração','Soluções e Inovação','SST'];
 const AREAS_OPT=AREAS.map(a=>`<option>${a}</option>`).join('');
+const DOMINIOS_TECNICOS=['ERP','Sistemas Corporativos','Cross'];
+const DOMINIOS_OPT=DOMINIOS_TECNICOS.map(d=>`<option>${d}</option>`).join('');
+const SISTEMAS_IMPACTADOS=['Comp','Gupy','LinkedIn Learning','MeuRH (Chatbot)','Percipio','Pipo','Portal Comunica','Protheus','RH Numbers','Salú','ServiceNow','Smartleader','Workverse','Outros'];
+const SISTEMAS_OPT=SISTEMAS_IMPACTADOS.map(s=>`<option>${s}</option>`).join('');
 const Q_COLORS={Q1:'#2E101E',Q2:'#662046',Q3:'#BF144A',Q4:'#FF7DAF',TBD:'#D9D9D9'};
 
 function calcBizScore(s){
@@ -890,6 +910,10 @@ function basicMetaFromRow(r){
     avanco: Number(meta.avanco ?? r.avanco ?? 0),
     historico: meta.historico || r.historico || '',
     tasks: normalizeTasks(meta.tasks || []),
+    dominio: meta.dominio || meta.dominioTecnico || r.dominio || '',
+    integracao: meta.integracao || r.integracao || 'Não',
+    sistemas: Array.isArray(meta.sistemas)?meta.sistemas:((meta.sistemas||'')?String(meta.sistemas).split(',').map(x=>x.trim()).filter(Boolean):[]),
+    patrocinador: meta.patrocinador || r.patrocinador || '',
     q: r.quarter_override || meta.q || meta.quarter || r.quarter || 'TBD'
   };
 }
@@ -904,12 +928,17 @@ function packBasicTIScores(data){
     avanco: Number(data.avanco || 0),
     historico: cleanHistory(data.historico || ''),
     tasks: normalizeTasks(data.tasks || clean._meta?.tasks || []),
+    dominio: data.dominio || '',
+    integracao: data.integracao || 'Não',
+    sistemas: Array.isArray(data.sistemas)?data.sistemas:[],
+    patrocinador: data.patrocinador || '',
     q: data._q || data.q || data.quarter_override || 'TBD'
   };
   return clean;
 }
 
 const TASK_MARKER='\n<!--PORTFOLIO_TASKS:';
+const META_MARKER='\n<!--PORTFOLIO_META:';
 function normalizeTaskStatus(t){
   const raw=String(t.status||'').trim();
   if(t.done || raw.toLowerCase()==='concluída' || raw.toLowerCase()==='concluida') return 'Concluída';
@@ -941,13 +970,44 @@ function extractTaskPayload(text){
   try{return {history:before,tasks:normalizeTasks(JSON.parse(decodeURIComponent(rest.slice(0,j))))};}
   catch(e){return {history:before,tasks:[]};}
 }
-function cleanHistory(text){return extractTaskPayload(text).history;}
-function historyWithTasks(history,tasks){
+function extractMetaPayload(text){
+  const s=String(text||'');
+  const i=s.indexOf(META_MARKER);
+  if(i<0) return {history:s,meta:{}};
+  const before=s.slice(0,i).trim();
+  const rest=s.slice(i+META_MARKER.length);
+  const j=rest.indexOf('-->');
+  if(j<0) return {history:before,meta:{}};
+  try{return {history:before,meta:JSON.parse(decodeURIComponent(rest.slice(0,j)))||{}};}
+  catch(e){return {history:before,meta:{}};}
+}
+function cleanHistory(text){
+  let h=extractTaskPayload(text).history;
+  h=extractMetaPayload(h).history;
+  return h;
+}
+function projectMetaFromHistory(text){return extractMetaPayload(extractTaskPayload(text).history).meta||{};}
+function cleanMeta(meta){
+  return {
+    dominio: meta?.dominio || '',
+    integracao: meta?.integracao || 'Não',
+    sistemas: Array.isArray(meta?.sistemas)?meta.sistemas:[],
+    patrocinador: meta?.patrocinador || ''
+  };
+}
+function historyWithTasksAndMeta(history,tasks,meta){
   const clean=cleanHistory(history||'');
   const arr=normalizeTasks(tasks);
-  if(!arr.length) return clean;
-  return clean + TASK_MARKER + encodeURIComponent(JSON.stringify(arr)) + '-->';
+  const m=cleanMeta(meta||{});
+  let out=clean;
+  if(arr.length) out += TASK_MARKER + encodeURIComponent(JSON.stringify(arr)) + '-->';
+  if(m.dominio || m.integracao==='Sim' || m.sistemas.length || m.patrocinador) out += META_MARKER + encodeURIComponent(JSON.stringify(m)) + '-->';
+  return out;
 }
+function historyWithTasks(history,tasks){return historyWithTasksAndMeta(history,tasks,{});}
+function selectedValues(id){return [...(document.getElementById(id)?.selectedOptions||[])].map(o=>o.value);}
+function setMultiValues(id,values){const set=new Set(Array.isArray(values)?values:[]);[...(document.getElementById(id)?.options||[])].forEach(o=>o.selected=set.has(o.value));}
+
 function getTasks(item){
   if(!item) return [];
   if(Array.isArray(item.tasks)) return normalizeTasks(item.tasks);
@@ -1308,7 +1368,7 @@ const STATUS_COLOR = {
 
 const statusSet = new Set();
 // multi-select filter sets
-const fSets={q:new Set(),s:new Set(),t:new Set(),o:new Set()};
+const fSets={q:new Set(),s:new Set(),t:new Set(),o:new Set(),d:new Set(),i:new Set()};
 
 const kSets={t:new Set(),o:new Set()};
 const kStatusSet=new Set();
@@ -1355,7 +1415,7 @@ function toggleProjectFilters(e){
 function updateProjectFilterButton(){
   const btn=document.getElementById('filter-toggle');
   if(!btn)return;
-  const active=fSets.q.size+fSets.s.size+fSets.t.size+fSets.o.size+areaSets.p.size;
+  const active=fSets.q.size+fSets.s.size+fSets.t.size+fSets.o.size+fSets.d.size+fSets.i.size+areaSets.p.size;
   btn.textContent=active?`Filtros (${active}) ▾`:'Filtros ▾';
   btn.classList.toggle('sel',active>0);
 }
@@ -1381,11 +1441,11 @@ function toggleVF(dim,val,btn){
 }
 function clearFilters(){
   // Clear all filter sets
-  fSets.q.clear();fSets.s.clear();fSets.t.clear();fSets.o.clear();
+  fSets.q.clear();fSets.s.clear();fSets.t.clear();fSets.o.clear();fSets.d.clear();fSets.i.clear();
   kSets.t.clear();kSets.o.clear();
   Object.keys(areaSets).forEach(k=>areaSets[k].clear());
   // Reset all filter buttons
-  document.querySelectorAll('[data-fq],[data-fs],[data-ft],[data-fo],[data-kt],[data-ko]').forEach(b=>b.classList.remove('sel'));
+  document.querySelectorAll('[data-fq],[data-fs],[data-ft],[data-fo],[data-fd],[data-fi],[data-kt],[data-ko]').forEach(b=>b.classList.remove('sel'));
   updateProjectFilterButton();
   // Reset search
   const sp=document.getElementById('sp');if(sp)sp.value='';
@@ -1425,6 +1485,8 @@ function matchesF(p){
   if(fSets.s.size&&!fSets.s.has(p.status))return false;
   if(fSets.t.size&&![...fSets.t].some(v=>p.tipo.toLowerCase().includes(v.toLowerCase())))return false;
   if(fSets.o.size&&!fSets.o.has(p.origem))return false;
+  if(fSets.d.size&&!fSets.d.has(p.dominio||''))return false;
+  if(fSets.i.size&&!fSets.i.has(p.integracao||'Não'))return false;
   if(areaSets.p.size&&!areaSets.p.has(p.area))return false;
   const s=(document.getElementById('sp')?.value||'').toLowerCase();
   if(s&&!p.nome.toLowerCase().includes(s))return false;
@@ -1525,7 +1587,7 @@ function allProjectRows(){
     ...basicItems.map(b=>({
       id:b.id,nome:b.nome,tipo:b.tipo||'Melhoria contínua',area:b.area,prio:b.prio||'—',
       status:b.status||'Não iniciado',inicio:b.inicio||'',end:b.end||'TBD',q:b._q||b.q||'TBD',
-      origem:'basic',avanco:b.avanco||0,historico:b.historico||'',desc:b.desc||'',benef:b.benef||'',tasks:getTasks(b),tiScores:b.tiScores
+      origem:'basic',avanco:b.avanco||0,historico:b.historico||'',desc:b.desc||'',benef:b.benef||'',tasks:getTasks(b),tiScores:b.tiScores,dominio:b.dominio||'',integracao:b.integracao||'Não',sistemas:b.sistemas||[],patrocinador:b.patrocinador||''
     }))
   ];
 }
@@ -1902,7 +1964,11 @@ function buildFormFields(type,data){
       <textarea id="f-benef" rows="3" placeholder="Ex.: redução de tempo, ganho de eficiência, padronização, qualidade dos dados ou melhoria da experiência">${esc(d.benef||'')}</textarea>
     </div>
     <div class="fi"><label>Área Solicitante <span class="req">*</span></label><select id="f-area">${AREAS_OPT}</select></div>
-    <div class="fi"><label>Prioridade <span class="req">*</span></label><select id="f-prio"><option>Alta</option><option>Média</option><option>Baixa</option></select></div>`;
+    <div class="fi"><label>Prioridade <span class="req">*</span></label><select id="f-prio"><option>Alta</option><option>Média</option><option>Baixa</option></select></div>
+    <div class="fi"><label>Domínio Técnico</label><select id="f-dominio"><option value="">Não definido</option>${DOMINIOS_OPT}</select></div>
+    <div class="fi"><label>Possui Integração?</label><select id="f-integracao"><option>Não</option><option>Sim</option></select></div>
+    <div class="fi"><label>Patrocinador Executivo</label><input type="text" id="f-patrocinador" value="${esc(d.patrocinador||'')}" placeholder="Ex.: Gerência de Remuneração"></div>
+    <div class="fi"><label>Sistemas Impactados</label><select id="f-sistemas" multiple size="4">${SISTEMAS_OPT}</select></div>`;
   if(type==='priorizado'){
     h+=`
     <div class="fi"><label>Tipo <span class="req">*</span></label><select id="f-tipo"><option>Projeto Estruturante</option><option>Melhoria contínua</option></select></div>
@@ -1947,6 +2013,9 @@ function buildFormFields(type,data){
   if(data){
     if(document.getElementById('f-area')) document.getElementById('f-area').value=d.area||AREAS[0];
     if(document.getElementById('f-prio')) document.getElementById('f-prio').value=d.prio||'Média';
+    if(document.getElementById('f-dominio')) document.getElementById('f-dominio').value=d.dominio||'';
+    if(document.getElementById('f-integracao')) document.getElementById('f-integracao').value=d.integracao||'Não';
+    setMultiValues('f-sistemas',d.sistemas||[]);
     if(document.getElementById('f-tipo')) document.getElementById('f-tipo').value=d.tipo||'Melhoria contínua';
     if(document.getElementById('f-status')) document.getElementById('f-status').value=d.status||'Não iniciado';
     if(document.getElementById('f-q')) document.getElementById('f-q').value=d.q||'TBD';
@@ -1996,6 +2065,7 @@ async function saveProjeto(){
   benef:document.getElementById('f-benef').value,
   area:document.getElementById('f-area').value,
   prio:document.getElementById('f-prio').value,
+  dominio:document.getElementById('f-dominio')?.value||'',integracao:document.getElementById('f-integracao')?.value||'Não',sistemas:selectedValues('f-sistemas'),patrocinador:document.getElementById('f-patrocinador')?.value||'',
   tipo:'Melhoria contínua',status:'Não iniciado',inicio:'',end:'TBD',q:'TBD',avanco:0,historico:'',
   bizScores:bizSc,
   tiScores:{}
@@ -2009,6 +2079,8 @@ async function saveProjeto(){
     const data={nome:document.getElementById('f-nome').value.trim(),
       desc:document.getElementById('f-desc').value,benef:document.getElementById('f-benef').value,
       area:document.getElementById('f-area').value,prio:document.getElementById('f-prio').value,
+      dominio:document.getElementById('f-dominio')?.value||'',integracao:document.getElementById('f-integracao')?.value||'Não',
+      sistemas:selectedValues('f-sistemas'),patrocinador:document.getElementById('f-patrocinador')?.value||'',
       tipo:document.getElementById('f-tipo').value,status:document.getElementById('f-status').value,
       inicio:document.getElementById('f-inicio')?.value||'',
       end:endVal,q:qVal,origem:'priorizado',
@@ -2048,6 +2120,10 @@ function openModalBasic(data){
     </div>
     <div class="fi"><label>Área Solicitante <span class="req">*</span></label><select id="bf-area">${AREAS_OPT}</select></div>
     <div class="fi"><label>Prioridade <span class="req">*</span></label><select id="bf-prio"><option>Alta</option><option>Média</option><option>Baixa</option></select></div>
+    <div class="fi"><label>Domínio Técnico</label><select id="bf-dominio"><option value="">Não definido</option>${DOMINIOS_OPT}</select></div>
+    <div class="fi"><label>Possui Integração?</label><select id="bf-integracao"><option>Não</option><option>Sim</option></select></div>
+    <div class="fi"><label>Patrocinador Executivo</label><input type="text" id="bf-patrocinador" value="${esc(d.patrocinador||'')}" placeholder="Ex.: Gerência de Remuneração"></div>
+    <div class="fi"><label>Sistemas Impactados</label><select id="bf-sistemas" multiple size="4">${SISTEMAS_OPT}</select></div>
     <div class="fi"><label>Tipo</label><select id="bf-tipo"><option>Projeto Estruturante</option><option>Melhoria contínua</option></select></div>
     <div class="fi"><label>Status</label><select id="bf-status"><option>Não iniciado</option><option>Em andamento</option><option>Em risco</option><option>Atrasado</option><option>Stand-by</option><option>Concluído</option></select></div>
     <div class="fi full"><label>% de Avanço</label>
@@ -2082,6 +2158,9 @@ function openModalBasic(data){
     document.getElementById('bf-origem').value=d.origem||'basic';
     document.getElementById('bf-area').value=d.area||AREAS[0];
     document.getElementById('bf-prio').value=d.prio||'Média';
+    document.getElementById('bf-dominio').value=d.dominio||'';
+    document.getElementById('bf-integracao').value=d.integracao||'Não';
+    setMultiValues('bf-sistemas',d.sistemas||[]);
     document.getElementById('bf-tipo').value=d.tipo||'Melhoria contínua';
     document.getElementById('bf-status').value=d.status||'Não iniciado';
     document.getElementById('bf-q').value=d._q||d.q||'TBD';
@@ -2123,6 +2202,8 @@ async function saveBasicItem(){
   const base={nome:document.getElementById('bf-nome').value.trim(),
     desc:document.getElementById('bf-desc').value,benef:document.getElementById('bf-benef').value,
     area:document.getElementById('bf-area').value,prio:document.getElementById('bf-prio').value,
+    dominio:document.getElementById('bf-dominio')?.value||'',integracao:document.getElementById('bf-integracao')?.value||'Não',
+    sistemas:selectedValues('bf-sistemas'),patrocinador:document.getElementById('bf-patrocinador')?.value||'',
     tipo:document.getElementById('bf-tipo')?.value||'Melhoria contínua',
     status:document.getElementById('bf-status')?.value||'Não iniciado',
     inicio:document.getElementById('bf-inicio')?.value||'',
@@ -2133,7 +2214,7 @@ async function saveBasicItem(){
     historico:cleanHistory(document.getElementById('bf-historico')?.value||'')};
 
   if(origemVal==='priorizado'){
-    const projData={...base,historico:historyWithTasks(base.historico,base.tasks),origem:'priorizado'};
+    const projData={...base,historico:historyWithTasksAndMeta(base.historico,base.tasks,base),origem:'priorizado'};
     if(editBasicId){
       const newId=await saveProjetoToDB(projData,null);
       projects.push({id:newId||nextId++,...projData});
@@ -2335,6 +2416,9 @@ function showPreview(id, isBasic, event){
   const benef = p.benef||p.beneficio||'';
   let content = `<h4 style="font-size:13px;font-weight:500;color:var(--bordo);margin-bottom:10px;line-height:1.4">${esc(p.nome)}</h4>`;
   content += `<div class="preview-row"><div class="preview-label">Área</div><div class="preview-val">${esc(p.area||'—')}</div></div>`;
+  if(p.dominio) content += `<div class="preview-row"><div class="preview-label">Domínio Técnico</div><div class="preview-val">${esc(p.dominio)}</div></div>`;
+  if(p.integracao) content += `<div class="preview-row"><div class="preview-label">Integração</div><div class="preview-val">${esc(p.integracao)}${(p.sistemas&&p.sistemas.length)?' · '+esc(p.sistemas.join(', ')):''}</div></div>`;
+  if(p.patrocinador) content += `<div class="preview-row"><div class="preview-label">Patrocinador</div><div class="preview-val">${esc(p.patrocinador)}</div></div>`;
   if(!isBasic){
     content += `
       <div class="preview-row"><div class="preview-label">Tipo</div><div class="preview-val">${esc(p.tipo||'—')}</div></div>
@@ -2458,12 +2542,13 @@ async function loadAllData(){
     basicItems = [];
 
     if(pData && pData.length > 0){
-      projects = pData.map(r=>({
+      projects = pData.map(r=>{const meta=projectMetaFromHistory(r.historico||'');return {
         id:r.id, nome:r.nome, desc:r.descricao||'', benef:r.beneficio||'',
         tipo:r.tipo||'Melhoria contínua', area:r.area||'', prio:r.prio||'Média',
         status:r.status||'Não iniciado', inicio:r.inicio||'', end:r.termino||'', q:r.quarter||'TBD',
-        origem:r.origem||'priorizado', avanco:r.avanco||0, historico:cleanHistory(r.historico||''), tasks:extractTaskPayload(r.historico||'').tasks
-      }));
+        origem:r.origem||'priorizado', avanco:r.avanco||0, historico:cleanHistory(r.historico||''), tasks:extractTaskPayload(r.historico||'').tasks,
+        dominio:meta.dominio||'', integracao:meta.integracao||'Não', sistemas:meta.sistemas||[], patrocinador:meta.patrocinador||''
+      }});
     } else {
       await seedInitialData();
     }
@@ -2519,7 +2604,7 @@ async function seedBasicData(){
   if(data) basicItems = data.map(r=>({
     id:r.id, nome:r.nome, desc:r.descricao||'', benef:r.beneficio||'',
     area:r.area, prio:r.prio,
-    bizScores:r.biz_scores||{}, tiScores:r.ti_scores||{}, _q:null, tasks:basicMetaFromRow(r).tasks||[]
+    bizScores:r.biz_scores||{}, tiScores:r.ti_scores||{}, _q:null, tasks:basicMetaFromRow(r).tasks||[], dominio:basicMetaFromRow(r).dominio, integracao:basicMetaFromRow(r).integracao, sistemas:basicMetaFromRow(r).sistemas, patrocinador:basicMetaFromRow(r).patrocinador
   }));
 }
 
@@ -2529,7 +2614,7 @@ async function saveProjetoToDB(data, id){
     nome:data.nome, descricao:data.desc, beneficio:data.benef,
     tipo:data.tipo, area:data.area, prio:data.prio,
     status:data.status, inicio:data.inicio||'', termino:data.end, quarter:data.q,
-    origem:data.origem, avanco:data.avanco||0, historico:historyWithTasks(data.historico||'',data.tasks||[]), updated_at:new Date().toISOString()
+    origem:data.origem, avanco:data.avanco||0, historico:historyWithTasksAndMeta(data.historico||'',data.tasks||[],data), updated_at:new Date().toISOString()
   };
   if(id){
     const { error } = await supa.from('projetos').update(row).eq('id',id);
@@ -2728,20 +2813,20 @@ function downloadTemplate(tipo){
 }
 
 function exportCSV(){
-  const cols = ['tipo','id','nome','descricao','beneficio','tipo_projeto','area','prioridade','status','inicio','termino','quarter','avanco','historico','score_negocio','score_ti'];
+  const cols = ['tipo','id','nome','descricao','beneficio','tipo_projeto','area','prioridade','status','inicio','termino','quarter','avanco','historico','dominio_tecnico','possui_integracao','sistemas_impactados','patrocinador','score_negocio','score_ti'];
   const allP = [
     ...projects.map(p=>({
       tipo:'Priorizado', id:p.id, nome:p.nome, descricao:p.desc||'',
       beneficio:p.benef||'', tipo_projeto:p.tipo, area:p.area,
       prioridade:p.prio, status:p.status, inicio:p.inicio||'',
       termino:p.end, quarter:p.q, avanco:p.avanco||0,
-      historico:p.historico||'', score_negocio:'', score_ti:''
+      historico:p.historico||'', dominio_tecnico:p.dominio||'', possui_integracao:p.integracao||'Não', sistemas_impactados:(p.sistemas||[]).join(', '), patrocinador:p.patrocinador||'', score_negocio:'', score_ti:''
     })),
     ...basicItems.map(b=>({
       tipo:'BASIC', id:b.id, nome:b.nome, descricao:b.desc||'',
       beneficio:b.benef||'', tipo_projeto:'Melhoria contínua', area:b.area,
       prioridade:b.prio, status:b.status||'Não iniciado', inicio:b.inicio||'',
-      termino:b.end||'TBD', quarter:b._q||b.q||autoQ(b.end)||'TBD', avanco:b.avanco||0, historico:b.historico||'',
+      termino:b.end||'TBD', quarter:b._q||b.q||autoQ(b.end)||'TBD', avanco:b.avanco||0, historico:b.historico||'', dominio_tecnico:b.dominio||'', possui_integracao:b.integracao||'Não', sistemas_impactados:(b.sistemas||[]).join(', '), patrocinador:b.patrocinador||'',
       score_negocio:calcBizScore(b.bizScores)||'',
       score_ti:calcTIScore(b.tiScores)||'Aguarda TI'
     }))
