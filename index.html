@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Portfólio RH · Soluções & Inovação · 2026 · v40.5</title>
+<title>Portfólio RH · Soluções & Inovação · 2026 · v40.6</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -381,7 +381,7 @@ tr:hover td{background:#fdf5f8;}
 <header>
   <div class="logo">
     <div class="logo-mark">RH</div>
-    <span class="logo-text">Portfólio RH <span class="logo-sub">· Soluções & Inovação · 2026 · v40.5</span></span>
+    <span class="logo-text">Portfólio RH <span class="logo-sub">· Soluções & Inovação · 2026 · v40.6</span></span>
   </div>
   <span class="hright" id="last-update"></span>
 </header>
@@ -1002,7 +1002,7 @@ function basicMetaFromRow(r){
     tasks: normalizeTasks(meta.tasks || []),
     dominio: meta.dominio || meta.dominioTecnico || r.dominio || '',
     integracao: meta.integracao || r.integracao || 'Não',
-    sistemas: Array.isArray(meta.sistemas)?meta.sistemas:((meta.sistemas||'')?String(meta.sistemas).split(',').map(x=>x.trim()).filter(Boolean):[]),
+    sistemas: normalizeSystems(meta.sistemas || r.sistemas || []),
     q: r.quarter_override || meta.q || meta.quarter || r.quarter || 'TBD'
   };
 }
@@ -1019,7 +1019,7 @@ function packBasicTIScores(data){
     tasks: normalizeTasks(data.tasks || clean._meta?.tasks || []),
     dominio: data.dominio || '',
     integracao: data.integracao || 'Não',
-    sistemas: Array.isArray(data.sistemas)?data.sistemas:[],
+    sistemas: normalizeSystems(data.sistemas||[]),
     q: data._q || data.q || data.quarter_override || 'TBD'
   };
   return clean;
@@ -1075,12 +1075,25 @@ function cleanHistory(text){
   return h;
 }
 function projectMetaFromHistory(text){return extractMetaPayload(extractTaskPayload(text).history).meta||{};}
-function cleanMeta(meta){
+function normalizeSystems(values){
+  const allowed=new Set(SISTEMAS_IMPACTADOS||[]);
+  const arr=Array.isArray(values)?values:((values||'')?String(values).split(','):[]);
+  const out=[];
+  arr.map(v=>String(v||'').trim()).filter(Boolean).forEach(v=>{
+    const normalized=[...allowed].find(a=>a.toLowerCase()===v.toLowerCase()) || (allowed.has(v)?v:'Outros');
+    if(!out.includes(normalized)) out.push(normalized);
+  });
+  return out;
+}
+function projectMetaObject(data){
   return {
-    dominio: meta?.dominio || '',
-    integracao: meta?.integracao || 'Não',
-    sistemas: Array.isArray(meta?.sistemas)?meta.sistemas:[]
+    dominio: data?.dominio || data?.po || '',
+    integracao: data?.integracao || 'Não',
+    sistemas: normalizeSystems(data?.sistemas || [])
   };
+}
+function cleanMeta(meta){
+  return projectMetaObject(meta||{});
 }
 function historyWithTasksAndMeta(history,tasks,meta){
   const clean=cleanHistory(history||'');
@@ -2212,7 +2225,7 @@ async function saveProjeto(){
       toast('Projeto adicionado.');
     }
   }
-  closeMo('mo');renderAll();
+  closeMo('mo');await loadAllData();
 }
 
 // ── MODAL BASIC ───────────────────────────────────────────
@@ -2353,7 +2366,7 @@ async function saveBasicItem(){
       toast('Iniciativa adicionada ao BASIC.');
     }
   }
-  closeMo('mob');renderAll();
+  closeMo('mob');await loadAllData();
 }
 
 // ── CONFIRM DELETE ────────────────────────────────────────
@@ -2662,7 +2675,7 @@ async function loadAllData(){
         tipo:r.tipo||'Melhoria contínua', area:r.area||'', prio:r.prio||'Média',
         status:r.status||'Não iniciado', inicio:r.inicio||'', end:r.termino||'', q:r.quarter||'TBD',
         origem:r.origem||'priorizado', avanco:r.avanco||0, historico:cleanHistory(r.historico||''), tasks:extractTaskPayload(r.historico||'').tasks,
-        dominio:meta.dominio||'', integracao:meta.integracao||'Não', sistemas:meta.sistemas||[]
+        dominio:meta.dominio||r.dominio||'', integracao:meta.integracao||r.integracao||'Não', sistemas:normalizeSystems(meta.sistemas||r.sistemas||[])
       }});
     } else {
       await seedInitialData();
@@ -2678,7 +2691,7 @@ async function loadAllData(){
           avanco:meta.avanco, historico:meta.historico,
           bizScores:r.biz_scores||{}, tiScores:r.ti_scores||{},
           q:meta.q, _q:meta.q,
-          dominio:meta.dominio||'', integracao:meta.integracao||'Não', sistemas:meta.sistemas||[]
+          dominio:meta.dominio||r.dominio||'', integracao:meta.integracao||r.integracao||'Não', sistemas:normalizeSystems(meta.sistemas||r.sistemas||[])
         };
       });
     } else if(!pData || pData.length === 0){
@@ -2726,23 +2739,28 @@ async function seedBasicData(){
 
 async function saveProjetoToDB(data, id){
   if(!supa) throw new Error('Supabase não configurado. Confira SUPA_URL e SUPA_KEY no index.html.');
+  const meta = projectMetaObject(data);
   const row = {
     nome:data.nome, descricao:data.desc, beneficio:data.benef,
     tipo:data.tipo, area:data.area, prio:data.prio,
     status:data.status, inicio:data.inicio||'', termino:data.end, quarter:data.q,
-    origem:data.origem, avanco:data.avanco||0, historico:historyWithTasksAndMeta(data.historico||'',data.tasks||[],data), updated_at:new Date().toISOString()
+    origem:data.origem, avanco:data.avanco||0,
+    // Raiz da persistência v40.6: PO, integração e sistemas ficam sempre dentro do histórico
+    // como metadados internos, independentemente do texto visível do histórico.
+    historico:historyWithTasksAndMeta(data.historico||'', data.tasks||[], meta),
+    updated_at:new Date().toISOString()
   };
+  let savedId=id;
   if(id){
     const { error } = await supa.from('projetos').update(row).eq('id',id);
     if(error) throw new Error('Erro ao atualizar projetos: '+error.message);
-    return id;
   } else {
     const {data:ins, error}=await supa.from('projetos').insert(row).select().single();
     if(error) throw new Error('Erro ao inserir em projetos: '+error.message);
-    return ins?.id;
+    savedId=ins?.id;
   }
+  return savedId;
 }
-
 async function deleteProjetoDB(id){
   if(!supa) throw new Error('Supabase não configurado.');
   const { error } = await supa.from('projetos').delete().eq('id',id);
@@ -2751,8 +2769,9 @@ async function deleteProjetoDB(id){
 
 async function saveBasicToDB(data, id){
   if(!supa) throw new Error('Supabase não configurado. Confira SUPA_URL e SUPA_KEY no index.html.');
-  // Compatível com o schema atual de basic_items: campos extras ficam em ti_scores._meta.
-  // Assim a importação não quebra quando a tabela ainda não possui colunas novas como avanco/historico/status.
+  // Raiz da persistência v40.6: BASIC guarda os campos extras em ti_scores._meta.
+  // Isso preserva PO, integração, sistemas, status, avanço, histórico e tarefas entre sessões.
+  const packed = packBasicTIScores({...data, ...projectMetaObject(data)});
   const row = {
     nome:data.nome,
     descricao:data.desc,
@@ -2760,7 +2779,7 @@ async function saveBasicToDB(data, id){
     area:data.area,
     prio:data.prio,
     biz_scores:data.bizScores||{},
-    ti_scores:packBasicTIScores(data),
+    ti_scores:packed,
     quarter_override:data._q||data.q||data.quarter_override||null,
     updated_at:new Date().toISOString()
   };
@@ -2774,7 +2793,6 @@ async function saveBasicToDB(data, id){
     return ins?.id;
   }
 }
-
 async function deleteBasicDB(id){
   if(!supa) throw new Error('Supabase não configurado.');
   const { error } = await supa.from('basic_items').delete().eq('id',id);
