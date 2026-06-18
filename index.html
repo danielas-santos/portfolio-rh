@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Portfólio RH · Soluções & Inovação · 2026 · v39.1</title>
+<title>Portfólio RH · Soluções & Inovação · 2026 · v40.3</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -345,18 +345,48 @@ tr:hover td{background:#fdf5f8;}
 .task-editor-hint{font-size:10px;color:var(--text3);margin-top:2px;}
 .task-row.is-hidden{display:none!important;}
 
+
+/* ── OVERVIEW EXECUTIVO v40 ── */
+.overview-hero{background:linear-gradient(135deg,#fff,#fff7fb);border:1px solid var(--border);border-left:4px solid var(--rosa);border-radius:var(--rl);padding:18px 20px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:16px;}
+.overview-hero h2{font-size:20px;font-weight:600;color:var(--bordo);margin-bottom:4px;}
+.overview-hero p{font-size:12px;color:var(--text3);}
+.overview-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px;}
+.overview-kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:14px 16px;border-top:3px solid var(--bordo);cursor:pointer;transition:.15s;}
+.overview-kpi:hover{box-shadow:0 4px 16px rgba(46,16,30,.10);transform:translateY(-1px);}
+.overview-kpi .num{font-size:26px;font-weight:300;color:var(--bordo);line-height:1;}
+.overview-kpi .label{font-size:11px;font-weight:600;color:var(--text2);margin-top:6px;}
+.overview-kpi .sub{font-size:10px;color:var(--text3);margin-top:2px;}
+.overview-kpi.risk{border-top-color:#E05A00}.overview-kpi.late{border-top-color:#BF144A}.overview-kpi.basic{border-top-color:#FF7DAF}.overview-kpi.critical{border-top-color:#2E101E}
+.overview-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+.overview-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:16px 18px;min-height:210px;}
+.overview-card h3{font-size:13px;font-weight:600;color:var(--bordo);margin-bottom:12px;}
+.ov-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+.ov-label{width:150px;min-width:110px;font-size:11px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ov-track{flex:1;height:18px;background:var(--bg);border-radius:100px;overflow:hidden;}
+.ov-fill{height:100%;border-radius:100px;background:var(--bordo);display:flex;align-items:center;justify-content:flex-end;padding-right:6px;color:#fff;font-size:10px;font-weight:600;min-width:18px;}
+.ov-count{font-size:11px;color:var(--text3);min-width:22px;text-align:right;}
+.po-text{font-size:11px;color:var(--text2);font-weight:500;white-space:nowrap;}
+.system-picker{border:1px solid var(--border2);border-radius:var(--r);background:var(--bg);padding:8px;display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:6px;max-height:none;overflow:visible;}
+.system-chip{display:flex;align-items:center;gap:7px;border:1px solid var(--border2);border-radius:var(--r);padding:7px 9px;font-size:11px;cursor:pointer;background:#fff;color:var(--text2);user-select:none;min-height:34px;}
+.system-chip input{accent-color:var(--bordo);width:14px;height:14px;margin:0;flex-shrink:0;}
+.system-chip.sel{background:#fff7fb;border-color:var(--rosa);color:var(--bordo);font-weight:600;box-shadow:0 0 0 1px rgba(255,125,175,.22) inset;}
+.system-selected{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;}
+.system-selected span{display:inline-flex;border-radius:100px;background:#f7f4f6;color:var(--bordo);font-size:10px;font-weight:600;padding:2px 7px;border:1px solid rgba(46,16,30,.12);}
+@media(max-width:900px){.overview-kpis{grid-template-columns:repeat(2,1fr)}.overview-grid{grid-template-columns:1fr}.overview-hero{align-items:flex-start;flex-direction:column}}
+
 </style>
   </head>
 <body>
 <header>
   <div class="logo">
     <div class="logo-mark">RH</div>
-    <span class="logo-text">Portfólio RH <span class="logo-sub">· Soluções & Inovação · 2026 · v39.1</span></span>
+    <span class="logo-text">Portfólio RH <span class="logo-sub">· Soluções & Inovação · 2026 · v40.3</span></span>
   </div>
   <span class="hright" id="last-update"></span>
 </header>
 <nav id="main-nav">
-  <button class="ntab active" onclick="showTab('projetos',this)">Projetos</button>
+  <button class="ntab active" onclick="showTab('overview',this)">Overview Executivo</button>
+  <button class="ntab" onclick="showTab('projetos',this)">Projetos</button>
   <button class="ntab" onclick="showTab('quarters',this)">Por Quarter</button>
   <button class="ntab" onclick="showTab('visao',this)">Capacidade & Demanda</button>
   <button class="ntab" onclick="showTab('basico',this)">Tarefas</button>
@@ -365,8 +395,26 @@ tr:hover td{background:#fdf5f8;}
 <main id="main-content">
 <div class="metrics" id="metrics"></div>
 
+<!-- OVERVIEW EXECUTIVO -->
+<div class="sec active" id="tab-overview">
+  <div class="overview-hero">
+    <div>
+      <h2>Overview Executivo</h2>
+      <p>Visão rápida para governança do portfólio RH + Tecnologia.</p>
+    </div>
+    <button class="abtn" type="button" id="btn-overview-quarter" data-overview-action="quarter">Abrir Quarter</button>
+  </div>
+  <div class="overview-kpis" id="overview-kpis"></div>
+  <div class="overview-grid">
+    <div class="overview-card"><h3>Projetos por PO</h3><div id="ov-po"></div></div>
+    <div class="overview-card"><h3>Integração</h3><div id="ov-integracao"></div></div>
+    <div class="overview-card"><h3>Sistemas mais impactados</h3><div id="ov-sistemas"></div></div>
+    <div class="overview-card"><h3>Projetos por área</h3><div id="ov-areas"></div></div>
+  </div>
+</div>
+
 <!-- PROJETOS -->
-<div class="sec active" id="tab-projetos">
+<div class="sec" id="tab-projetos">
   <div class="toolbar">
     <div class="sw">
       <svg class="si" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/></svg>
@@ -424,7 +472,7 @@ tr:hover td{background:#fdf5f8;}
             </div>
           </div>
           <div class="filter-group">
-            <span class="filter-title">Domínio Técnico</span>
+            <span class="filter-title">PO</span>
             <div class="filter-options">
               <button class="fbtn" data-fd="ERP" onclick="toggleF('d','ERP',this)">ERP</button>
               <button class="fbtn" data-fd="Sistemas Corporativos" onclick="toggleF('d','Sistemas Corporativos',this)">Sistemas Corp.</button>
@@ -464,7 +512,7 @@ tr:hover td{background:#fdf5f8;}
       <thead><tr>
         <th class="th-sort" data-sort-table="p" data-sort-col="id" onclick="sortTable('p','id')" style="width:28px">#</th>
         <th class="th-sort" data-sort-table="p" data-sort-col="nome" onclick="sortTable('p','nome')">Iniciativa</th>
-        <th class="th-sort" data-sort-table="p" data-sort-col="tipo" onclick="sortTable('p','tipo')">Tipo</th>
+        <th class="th-sort" data-sort-table="p" data-sort-col="dominio" onclick="sortTable('p','dominio')">PO</th>
         <th class="th-sort" data-sort-table="p" data-sort-col="area" onclick="sortTable('p','area')">Área</th>
         <th class="th-sort" data-sort-table="p" data-sort-col="status" onclick="sortTable('p','status')">Status</th>
         <th class="th-sort" data-sort-table="p" data-sort-col="end" onclick="sortTable('p','end')">Previsão</th>
@@ -878,7 +926,7 @@ const AREAS=['Acessos e Sistemas','Admissão e Cadastro','Afastamentos e Licenç
 const AREAS_OPT=AREAS.map(a=>`<option>${a}</option>`).join('');
 const DOMINIOS_TECNICOS=['ERP','Sistemas Corporativos','Cross'];
 const DOMINIOS_OPT=DOMINIOS_TECNICOS.map(d=>`<option>${d}</option>`).join('');
-const SISTEMAS_IMPACTADOS=['Comp','Gupy','LinkedIn Learning','MeuRH (Chatbot)','Percipio','Pipo','Portal Comunica','Protheus','RH Numbers','Salú','ServiceNow','Smartleader','Workverse','Outros'];
+const SISTEMAS_IMPACTADOS=['ServiceNow','Protheus','RH Numbers','Workverse','Outros'];
 const SISTEMAS_OPT=SISTEMAS_IMPACTADOS.map(s=>`<option>${s}</option>`).join('');
 const Q_COLORS={Q1:'#2E101E',Q2:'#662046',Q3:'#BF144A',Q4:'#FF7DAF',TBD:'#D9D9D9'};
 
@@ -1003,7 +1051,27 @@ function historyWithTasksAndMeta(history,tasks,meta){
 }
 function historyWithTasks(history,tasks){return historyWithTasksAndMeta(history,tasks,{});}
 function selectedValues(id){return [...(document.getElementById(id)?.selectedOptions||[])].map(o=>o.value);}
-function setMultiValues(id,values){const set=new Set(Array.isArray(values)?values:[]);[...(document.getElementById(id)?.options||[])].forEach(o=>o.selected=set.has(o.value));}
+function setMultiValues(id,values){
+  const el=document.getElementById(id);
+  const set=new Set(Array.isArray(values)?values:[]);
+  if(el?.classList?.contains('system-picker')){renderSystemPicker(id,values);return;}
+  [...(el?.options||[])].forEach(o=>o.selected=set.has(o.value));
+}
+function renderSystemPicker(id,values){
+  const el=document.getElementById(id); if(!el)return;
+  const raw=Array.isArray(values)?values:[];
+  const main=new Set(SISTEMAS_IMPACTADOS);
+  const set=new Set(raw.map(v=>main.has(v)?v:'Outros'));
+  el.innerHTML=SISTEMAS_IMPACTADOS.map(s=>`<label class="system-chip ${set.has(s)?'sel':''}"><input type="checkbox" value="${esc(s)}" ${set.has(s)?'checked':''} onchange="updateSystemPicker('${id}')">${esc(s)}</label>`).join('');
+  updateSystemPicker(id);
+}
+function updateSystemPicker(id){
+  const el=document.getElementById(id); if(!el)return;
+  [...el.querySelectorAll('.system-chip')].forEach(ch=>ch.classList.toggle('sel',ch.querySelector('input')?.checked));
+  const out=document.getElementById(id+'-selected');
+  if(out){const vals=selectedSystems(id);out.innerHTML=vals.length?vals.map(v=>`<span>${esc(v)}</span>`).join(''):'<span style="color:var(--text3);background:transparent;border-style:dashed;">Nenhum sistema selecionado</span>';}
+}
+function selectedSystems(id){return [...(document.getElementById(id)?.querySelectorAll('input[type=checkbox]:checked')||[])].map(i=>i.value);}
 
 function getTasks(item){
   if(!item) return [];
@@ -1518,6 +1586,10 @@ function tipoBadge(p){
   const isE=p.tipo&&p.tipo.includes('Estruturante');
   return `<span style="font-size:11px;color:var(--text2)">${isE?'Estruturante':'Melhoria'}</span>`;
 }
+function poBadge(p){
+  const v=p.dominio||'Não definido';
+  return `<span class="po-text">${esc(v)}</span>`;
+}
 function qBadge(q){return `<span style="font-size:11px;color:var(--text2)">${q==='TBD'?'Não def.':q||'—'}</span>`;}
 function matchesMetricMode(p){
   if(mMode==='andamento') return (p.status||'')==='Em andamento';
@@ -1608,7 +1680,7 @@ function renderTable(rows,groupByArea){
     return aH+`<tr class="${isB?'rb':''}">
       <td style="color:var(--text3);font-size:11px">${idx+1}</td>
       <td style="font-weight:500;max-width:220px">${p.nome}${taskBadges(p)}</td>
-      <td>${tipoBadge(p)}</td>
+      <td>${poBadge(p)}</td>
       <td style="color:var(--text2);font-size:11px">${p.area}</td>
       <td style="font-size:11px">
         <div style="display:flex;align-items:center;gap:5px;">${p.status==='Concluído'?'✅ Concluído':(`<span class=\"dot\" style=\"background:${STATUS_COLOR[p.status] || '#BDBDBD'}\"></span>${p.status}`)}</div>
@@ -1669,7 +1741,7 @@ function renderKanban(){
           const govLine=(basicTag||clsTag)?`<div class="kgov">${basicTag}${clsTag}</div>`:'';
           return `<div class="kcard" draggable="true" data-id="${p.id}" data-orig="${p.origem}" ondragstart="dragStart(event)" ondragend="dragEnd(event)" ondblclick="${p.origem==='basic'?`openModalBasic(basicItems.find(x=>x.id===${p.id}))`:`openModal(${p.id})`}" title="Clique duplo para editar">
           <div class="kt">${p.nome}</div>
-          <div class="km">${tipoBadge(p)}<span>·</span>${p.area}</div>${govLine}${taskBadges(p)}
+          <div class="km">${poBadge(p)}<span>·</span>${p.area}</div>${govLine}${taskBadges(p)}
         </div>`}).join('')}
       </div>
     </div>`).join('');
@@ -1962,9 +2034,9 @@ function buildFormFields(type,data){
     </div>
     <div class="fi"><label>Área Solicitante <span class="req">*</span></label><select id="f-area">${AREAS_OPT}</select></div>
     <div class="fi"><label>Prioridade <span class="req">*</span></label><select id="f-prio"><option>Alta</option><option>Média</option><option>Baixa</option></select></div>
-    <div class="fi"><label>Domínio Técnico</label><select id="f-dominio"><option value="">Não definido</option>${DOMINIOS_OPT}</select></div>
+    <div class="fi"><label>PO</label><select id="f-dominio"><option value="">Não definido</option>${DOMINIOS_OPT}</select></div>
     <div class="fi"><label>Possui Integração?</label><select id="f-integracao"><option>Não</option><option>Sim</option></select></div>
-    <div class="fi"><label>Sistemas Impactados</label><select id="f-sistemas" multiple size="4">${SISTEMAS_OPT}</select></div>`;
+    <div class="fi full"><label>Sistemas Impactados</label><div id="f-sistemas" class="system-picker"></div><div id="f-sistemas-selected" class="system-selected"></div></div>`;
   if(type==='priorizado'){
     h+=`
     <div class="fi"><label>Tipo <span class="req">*</span></label><select id="f-tipo"><option>Projeto Estruturante</option><option>Melhoria contínua</option></select></div>
@@ -2005,6 +2077,7 @@ function buildFormFields(type,data){
     }
   }
   document.getElementById('form-fields').innerHTML=h;
+  renderSystemPicker('f-sistemas', d.sistemas||[]);
   renderTaskEditor('f-tasks-wrap', getTasks(d));
   if(data){
     if(document.getElementById('f-area')) document.getElementById('f-area').value=d.area||AREAS[0];
@@ -2061,7 +2134,7 @@ async function saveProjeto(){
   benef:document.getElementById('f-benef').value,
   area:document.getElementById('f-area').value,
   prio:document.getElementById('f-prio').value,
-  dominio:document.getElementById('f-dominio')?.value||'',integracao:document.getElementById('f-integracao')?.value||'Não',sistemas:selectedValues('f-sistemas'),
+  dominio:document.getElementById('f-dominio')?.value||'',integracao:document.getElementById('f-integracao')?.value||'Não',sistemas:selectedSystems('f-sistemas'),
   tipo:'Melhoria contínua',status:'Não iniciado',inicio:'',end:'TBD',q:'TBD',avanco:0,historico:'',
   bizScores:bizSc,
   tiScores:{}
@@ -2076,7 +2149,7 @@ async function saveProjeto(){
       desc:document.getElementById('f-desc').value,benef:document.getElementById('f-benef').value,
       area:document.getElementById('f-area').value,prio:document.getElementById('f-prio').value,
       dominio:document.getElementById('f-dominio')?.value||'',integracao:document.getElementById('f-integracao')?.value||'Não',
-      sistemas:selectedValues('f-sistemas'),
+      sistemas:selectedSystems('f-sistemas'),
       tipo:document.getElementById('f-tipo').value,status:document.getElementById('f-status').value,
       inicio:document.getElementById('f-inicio')?.value||'',
       end:endVal,q:qVal,origem:'priorizado',
@@ -2116,9 +2189,9 @@ function openModalBasic(data){
     </div>
     <div class="fi"><label>Área Solicitante <span class="req">*</span></label><select id="bf-area">${AREAS_OPT}</select></div>
     <div class="fi"><label>Prioridade <span class="req">*</span></label><select id="bf-prio"><option>Alta</option><option>Média</option><option>Baixa</option></select></div>
-    <div class="fi"><label>Domínio Técnico</label><select id="bf-dominio"><option value="">Não definido</option>${DOMINIOS_OPT}</select></div>
+    <div class="fi"><label>PO</label><select id="bf-dominio"><option value="">Não definido</option>${DOMINIOS_OPT}</select></div>
     <div class="fi"><label>Possui Integração?</label><select id="bf-integracao"><option>Não</option><option>Sim</option></select></div>
-    <div class="fi"><label>Sistemas Impactados</label><select id="bf-sistemas" multiple size="4">${SISTEMAS_OPT}</select></div>
+    <div class="fi full"><label>Sistemas Impactados</label><div id="bf-sistemas" class="system-picker"></div><div id="bf-sistemas-selected" class="system-selected"></div></div>
     <div class="fi"><label>Tipo</label><select id="bf-tipo"><option>Projeto Estruturante</option><option>Melhoria contínua</option></select></div>
     <div class="fi"><label>Status</label><select id="bf-status"><option>Não iniciado</option><option>Em andamento</option><option>Em risco</option><option>Atrasado</option><option>Stand-by</option><option>Concluído</option></select></div>
     <div class="fi full"><label>% de Avanço</label>
@@ -2149,6 +2222,7 @@ function openModalBasic(data){
       </div>`).join('')}
       </div></div>
     </div>`;
+  renderSystemPicker('bf-sistemas', d.sistemas||[]);
   if(data){
     document.getElementById('bf-origem').value=d.origem||'basic';
     document.getElementById('bf-area').value=d.area||AREAS[0];
@@ -2198,7 +2272,7 @@ async function saveBasicItem(){
     desc:document.getElementById('bf-desc').value,benef:document.getElementById('bf-benef').value,
     area:document.getElementById('bf-area').value,prio:document.getElementById('bf-prio').value,
     dominio:document.getElementById('bf-dominio')?.value||'',integracao:document.getElementById('bf-integracao')?.value||'Não',
-    sistemas:selectedValues('bf-sistemas'),
+    sistemas:selectedSystems('bf-sistemas'),
     tipo:document.getElementById('bf-tipo')?.value||'Melhoria contínua',
     status:document.getElementById('bf-status')?.value||'Não iniciado',
     inicio:document.getElementById('bf-inicio')?.value||'',
@@ -2271,7 +2345,8 @@ function showTab(id,btn){
   document.getElementById('tab-'+id).classList.add('active');
   btn.classList.add('active');
   const metricsEl=document.getElementById('metrics');
-  if(metricsEl) metricsEl.style.display = id==='basico' ? 'none' : 'grid';
+  if(metricsEl) metricsEl.style.display = (id==='basico'||id==='overview') ? 'none' : 'grid';
+  if(id==='overview'){renderOverview();bindOverviewActions();}
   if(id==='visao')renderCarga();
   if(id==='priorizacao')renderPrio();
   if(id==='basico') renderTasksTab();
@@ -2411,7 +2486,7 @@ function showPreview(id, isBasic, event){
   const benef = p.benef||p.beneficio||'';
   let content = `<h4 style="font-size:13px;font-weight:500;color:var(--bordo);margin-bottom:10px;line-height:1.4">${esc(p.nome)}</h4>`;
   content += `<div class="preview-row"><div class="preview-label">Área</div><div class="preview-val">${esc(p.area||'—')}</div></div>`;
-  if(p.dominio) content += `<div class="preview-row"><div class="preview-label">Domínio Técnico</div><div class="preview-val">${esc(p.dominio)}</div></div>`;
+  if(p.dominio) content += `<div class="preview-row"><div class="preview-label">PO</div><div class="preview-val">${esc(p.dominio)}</div></div>`;
   if(p.integracao) content += `<div class="preview-row"><div class="preview-label">Integração</div><div class="preview-val">${esc(p.integracao)}${(p.sistemas&&p.sistemas.length)?' · '+esc(p.sistemas.join(', ')):''}</div></div>`;
   if(!isBasic){
     content += `
@@ -3002,7 +3077,132 @@ async function executeImport(){
 
 async function importCSV(event){showImportPreview(event);}
 
-function renderAll(){renderMetrics();renderProjetos();renderKanban();renderCarga();renderTasksTab();renderPrio();document.getElementById('last-update').textContent='Atualizado em '+new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
+
+function ovBarRows(containerId, data, color){
+  const el=document.getElementById(containerId); if(!el)return;
+  const entries=Object.entries(data).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
+  if(!entries.length){el.innerHTML='<div class="empty" style="padding:18px">Sem dados preenchidos</div>';return;}
+  const max=Math.max(1,...entries.map(([,v])=>v));
+  el.innerHTML=entries.slice(0,8).map(([label,val])=>`<div class="ov-row"><div class="ov-label" title="${esc(label)}">${esc(label)}</div><div class="ov-track"><div class="ov-fill" style="width:${Math.max(8,Math.round(val/max*100))}%;background:${color||'var(--bordo)'}">${val}</div></div><div class="ov-count">${val}</div></div>`).join('');
+}
+function tabButtonFor(id){
+  return [...document.querySelectorAll('.ntab')].find(b=>String(b.getAttribute('onclick')||'').includes("'"+id+"'"));
+}
+function showTabById(id){
+  const tab=document.getElementById('tab-'+id);
+  if(!tab){ console.warn('Aba não encontrada:',id); return; }
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('active'));
+  tab.classList.add('active');
+  const btn=tabButtonFor(id);
+  if(btn) btn.classList.add('active');
+  const metricsEl=document.getElementById('metrics');
+  if(metricsEl) metricsEl.style.display = (id==='basico'||id==='overview') ? 'none' : 'grid';
+  if(id==='overview'){renderOverview();bindOverviewActions();}
+  if(id==='visao')renderCarga();
+  if(id==='priorizacao')renderPrio();
+  if(id==='basico')renderTasksTab();
+  if(id==='quarters')renderKanban();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function goOverviewQuarter(){
+  // Navegação simples e segura: primeiro abre a aba, depois tenta limpar/aplicar filtros.
+  showTabById('quarters');
+  try{ clearKFilters(); }catch(err){ console.warn('Não foi possível limpar filtros do Quarter:', err); }
+  try{ renderKanban(); }catch(err){ console.warn('Não foi possível renderizar Kanban:', err); }
+  try{ toast('Visão Por Quarter aberta.'); }catch(err){}
+}
+window.goOverviewQuarter = goOverviewQuarter;
+
+function openOverviewView(type){
+  if(type==='critical'){
+    clearKFilters();
+    const cls=document.getElementById('k-filtro-cls');
+    if(cls) cls.value='I';
+    showTabById('quarters');
+    renderKanban();
+    toast('Filtro aplicado: BASIC críticos.');
+    return;
+  }
+  if(type==='risk'){
+    clearKFilters();
+    ['Em risco','Atrasado'].forEach(s=>kStatusSet.add(s));
+    document.querySelectorAll('#kstatus-dd input[type=checkbox]').forEach(x=>{x.checked=kStatusSet.has(x.value);});
+    updateKStatusButton();
+    showTabById('quarters');
+    renderKanban();
+    toast('Filtro aplicado: projetos em risco/atrasados.');
+    return;
+  }
+  if(type==='lateTasks'){
+    clearTaskFilters();
+    taskStatusSet.add('Atrasada');
+    updateTaskStatusButton();
+    buildTaskStatusList();
+    showTabById('basico');
+    renderTasksTab();
+    toast('Filtro aplicado: tarefas atrasadas.');
+    return;
+  }
+  if(type==='basic'){
+    clearKFilters();
+    kSets.o.add('basic');
+    document.querySelector('[data-ko="basic"]')?.classList.add('sel');
+    showTabById('quarters');
+    renderKanban();
+    toast('Filtro aplicado: Pipeline BASIC.');
+    return;
+  }
+  goOverviewQuarter();
+}
+
+// Garantia extra: alguns navegadores podem não executar o onclick inline quando o HTML está hospedado/cached.
+// Estes listeners reforçam a navegação contextual do Overview.
+function bindOverviewActions(){
+  const heroBtn=document.getElementById('btn-overview-quarter') || document.querySelector('#tab-overview .overview-hero .abtn');
+  if(heroBtn && !heroBtn.dataset.bound){
+    heroBtn.dataset.bound='1';
+    heroBtn.addEventListener('click',function(e){ e.preventDefault(); e.stopPropagation(); goOverviewQuarter(); }, true);
+  }
+}
+// Delegação global: garante funcionamento mesmo quando o botão é recriado ou o onclick inline é bloqueado.
+document.addEventListener('click',function(e){
+  const btn=e.target.closest('[data-overview-action="quarter"], #btn-overview-quarter');
+  if(btn){ e.preventDefault(); e.stopPropagation(); goOverviewQuarter(); }
+}, true);
+
+
+function renderOverview(){
+  const all=allProjectRows();
+  const basicScores=basicItems.map(b=>({...b,biz:calcBizScore(b.bizScores),ti:calcTIScore(b.tiScores)}));
+  const critical=classifyI_II_III(basicScores).filter(b=>b.cls==='I').length;
+  const risk=all.filter(p=>['Atrasado','Em risco'].includes(farolPrazo(p).label)).length;
+  const lateTasks=allTaskRows().filter(r=>r.timing.key==='overdue').length;
+  const basic=basicItems.length;
+  const k=document.getElementById('overview-kpis');
+  if(k) k.innerHTML=`
+    <div class="overview-kpi critical" onclick="openOverviewView('critical')"><div class="num">${critical}</div><div class="label">Projetos críticos</div><div class="sub">Clique para ver no Quarter</div></div>
+    <div class="overview-kpi risk" onclick="openOverviewView('risk')"><div class="num">${risk}</div><div class="label">Projetos em risco</div><div class="sub">Clique para ver no Quarter</div></div>
+    <div class="overview-kpi late" onclick="openOverviewView('lateTasks')"><div class="num">${lateTasks}</div><div class="label">Tarefas atrasadas</div><div class="sub">Clique para ver tarefas</div></div>
+    <div class="overview-kpi basic" onclick="openOverviewView('basic')"><div class="num">${basic}</div><div class="label">Pipeline BASIC</div><div class="sub">Clique para ver no Quarter</div></div>`;
+  const po={}, integ={'Com integração':0,'Sem integração':0}, systems={}, areas={};
+  all.forEach(p=>{
+    po[p.dominio||'Não definido']=(po[p.dominio||'Não definido']||0)+1;
+    integ[(p.integracao||'Não')==='Sim'?'Com integração':'Sem integração']++;
+    (p.sistemas||[]).forEach(s=>systems[s]=(systems[s]||0)+1);
+    areas[p.area||'Não definida']=(areas[p.area||'Não definida']||0)+1;
+  });
+  ovBarRows('ov-po',po,'var(--bordo)');
+  ovBarRows('ov-integracao',integ,'var(--magenta)');
+  ovBarRows('ov-sistemas',systems,'var(--bordo-luz)');
+  // top areas + outros
+  const sorted=Object.entries(areas).sort((a,b)=>b[1]-a[1]);
+  const top=Object.fromEntries(sorted.slice(0,5));
+  const other=sorted.slice(5).reduce((t,[,v])=>t+v,0); if(other) top['Outros']=other;
+  ovBarRows('ov-areas',top,'var(--rosa)');
+}
+
+function renderAll(){renderMetrics();const metricsEl=document.getElementById('metrics');if(metricsEl)metricsEl.style.display=(document.querySelector('.sec.active')?.id==='tab-overview'||document.querySelector('.sec.active')?.id==='tab-basico')?'none':'grid';renderOverview();bindOverviewActions();renderProjetos();renderKanban();renderCarga();renderTasksTab();renderPrio();document.getElementById('last-update').textContent='Atualizado em '+new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
 }
 loadAllData();
 
