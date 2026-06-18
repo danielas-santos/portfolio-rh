@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Portfólio RH · Soluções & Inovação · 2026 · v39</title>
+<title>Portfólio RH · Soluções & Inovação · 2026 · v39.1</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -351,7 +351,7 @@ tr:hover td{background:#fdf5f8;}
 <header>
   <div class="logo">
     <div class="logo-mark">RH</div>
-    <span class="logo-text">Portfólio RH <span class="logo-sub">· Soluções & Inovação · 2026 · v39</span></span>
+    <span class="logo-text">Portfólio RH <span class="logo-sub">· Soluções & Inovação · 2026 · v39.1</span></span>
   </div>
   <span class="hright" id="last-update"></span>
 </header>
@@ -913,7 +913,6 @@ function basicMetaFromRow(r){
     dominio: meta.dominio || meta.dominioTecnico || r.dominio || '',
     integracao: meta.integracao || r.integracao || 'Não',
     sistemas: Array.isArray(meta.sistemas)?meta.sistemas:((meta.sistemas||'')?String(meta.sistemas).split(',').map(x=>x.trim()).filter(Boolean):[]),
-    patrocinador: meta.patrocinador || r.patrocinador || '',
     q: r.quarter_override || meta.q || meta.quarter || r.quarter || 'TBD'
   };
 }
@@ -931,7 +930,6 @@ function packBasicTIScores(data){
     dominio: data.dominio || '',
     integracao: data.integracao || 'Não',
     sistemas: Array.isArray(data.sistemas)?data.sistemas:[],
-    patrocinador: data.patrocinador || '',
     q: data._q || data.q || data.quarter_override || 'TBD'
   };
   return clean;
@@ -991,8 +989,7 @@ function cleanMeta(meta){
   return {
     dominio: meta?.dominio || '',
     integracao: meta?.integracao || 'Não',
-    sistemas: Array.isArray(meta?.sistemas)?meta.sistemas:[],
-    patrocinador: meta?.patrocinador || ''
+    sistemas: Array.isArray(meta?.sistemas)?meta.sistemas:[]
   };
 }
 function historyWithTasksAndMeta(history,tasks,meta){
@@ -1001,7 +998,7 @@ function historyWithTasksAndMeta(history,tasks,meta){
   const m=cleanMeta(meta||{});
   let out=clean;
   if(arr.length) out += TASK_MARKER + encodeURIComponent(JSON.stringify(arr)) + '-->';
-  if(m.dominio || m.integracao==='Sim' || m.sistemas.length || m.patrocinador) out += META_MARKER + encodeURIComponent(JSON.stringify(m)) + '-->';
+  if(m.dominio || m.integracao==='Sim' || m.sistemas.length) out += META_MARKER + encodeURIComponent(JSON.stringify(m)) + '-->';
   return out;
 }
 function historyWithTasks(history,tasks){return historyWithTasksAndMeta(history,tasks,{});}
@@ -1587,7 +1584,7 @@ function allProjectRows(){
     ...basicItems.map(b=>({
       id:b.id,nome:b.nome,tipo:b.tipo||'Melhoria contínua',area:b.area,prio:b.prio||'—',
       status:b.status||'Não iniciado',inicio:b.inicio||'',end:b.end||'TBD',q:b._q||b.q||'TBD',
-      origem:'basic',avanco:b.avanco||0,historico:b.historico||'',desc:b.desc||'',benef:b.benef||'',tasks:getTasks(b),tiScores:b.tiScores,dominio:b.dominio||'',integracao:b.integracao||'Não',sistemas:b.sistemas||[],patrocinador:b.patrocinador||''
+      origem:'basic',avanco:b.avanco||0,historico:b.historico||'',desc:b.desc||'',benef:b.benef||'',tasks:getTasks(b),tiScores:b.tiScores,dominio:b.dominio||'',integracao:b.integracao||'Não',sistemas:b.sistemas||[]
     }))
   ];
 }
@@ -1967,7 +1964,6 @@ function buildFormFields(type,data){
     <div class="fi"><label>Prioridade <span class="req">*</span></label><select id="f-prio"><option>Alta</option><option>Média</option><option>Baixa</option></select></div>
     <div class="fi"><label>Domínio Técnico</label><select id="f-dominio"><option value="">Não definido</option>${DOMINIOS_OPT}</select></div>
     <div class="fi"><label>Possui Integração?</label><select id="f-integracao"><option>Não</option><option>Sim</option></select></div>
-    <div class="fi"><label>Patrocinador Executivo</label><input type="text" id="f-patrocinador" value="${esc(d.patrocinador||'')}" placeholder="Ex.: Gerência de Remuneração"></div>
     <div class="fi"><label>Sistemas Impactados</label><select id="f-sistemas" multiple size="4">${SISTEMAS_OPT}</select></div>`;
   if(type==='priorizado'){
     h+=`
@@ -2065,7 +2061,7 @@ async function saveProjeto(){
   benef:document.getElementById('f-benef').value,
   area:document.getElementById('f-area').value,
   prio:document.getElementById('f-prio').value,
-  dominio:document.getElementById('f-dominio')?.value||'',integracao:document.getElementById('f-integracao')?.value||'Não',sistemas:selectedValues('f-sistemas'),patrocinador:document.getElementById('f-patrocinador')?.value||'',
+  dominio:document.getElementById('f-dominio')?.value||'',integracao:document.getElementById('f-integracao')?.value||'Não',sistemas:selectedValues('f-sistemas'),
   tipo:'Melhoria contínua',status:'Não iniciado',inicio:'',end:'TBD',q:'TBD',avanco:0,historico:'',
   bizScores:bizSc,
   tiScores:{}
@@ -2080,7 +2076,7 @@ async function saveProjeto(){
       desc:document.getElementById('f-desc').value,benef:document.getElementById('f-benef').value,
       area:document.getElementById('f-area').value,prio:document.getElementById('f-prio').value,
       dominio:document.getElementById('f-dominio')?.value||'',integracao:document.getElementById('f-integracao')?.value||'Não',
-      sistemas:selectedValues('f-sistemas'),patrocinador:document.getElementById('f-patrocinador')?.value||'',
+      sistemas:selectedValues('f-sistemas'),
       tipo:document.getElementById('f-tipo').value,status:document.getElementById('f-status').value,
       inicio:document.getElementById('f-inicio')?.value||'',
       end:endVal,q:qVal,origem:'priorizado',
@@ -2122,7 +2118,6 @@ function openModalBasic(data){
     <div class="fi"><label>Prioridade <span class="req">*</span></label><select id="bf-prio"><option>Alta</option><option>Média</option><option>Baixa</option></select></div>
     <div class="fi"><label>Domínio Técnico</label><select id="bf-dominio"><option value="">Não definido</option>${DOMINIOS_OPT}</select></div>
     <div class="fi"><label>Possui Integração?</label><select id="bf-integracao"><option>Não</option><option>Sim</option></select></div>
-    <div class="fi"><label>Patrocinador Executivo</label><input type="text" id="bf-patrocinador" value="${esc(d.patrocinador||'')}" placeholder="Ex.: Gerência de Remuneração"></div>
     <div class="fi"><label>Sistemas Impactados</label><select id="bf-sistemas" multiple size="4">${SISTEMAS_OPT}</select></div>
     <div class="fi"><label>Tipo</label><select id="bf-tipo"><option>Projeto Estruturante</option><option>Melhoria contínua</option></select></div>
     <div class="fi"><label>Status</label><select id="bf-status"><option>Não iniciado</option><option>Em andamento</option><option>Em risco</option><option>Atrasado</option><option>Stand-by</option><option>Concluído</option></select></div>
@@ -2203,7 +2198,7 @@ async function saveBasicItem(){
     desc:document.getElementById('bf-desc').value,benef:document.getElementById('bf-benef').value,
     area:document.getElementById('bf-area').value,prio:document.getElementById('bf-prio').value,
     dominio:document.getElementById('bf-dominio')?.value||'',integracao:document.getElementById('bf-integracao')?.value||'Não',
-    sistemas:selectedValues('bf-sistemas'),patrocinador:document.getElementById('bf-patrocinador')?.value||'',
+    sistemas:selectedValues('bf-sistemas'),
     tipo:document.getElementById('bf-tipo')?.value||'Melhoria contínua',
     status:document.getElementById('bf-status')?.value||'Não iniciado',
     inicio:document.getElementById('bf-inicio')?.value||'',
@@ -2418,7 +2413,6 @@ function showPreview(id, isBasic, event){
   content += `<div class="preview-row"><div class="preview-label">Área</div><div class="preview-val">${esc(p.area||'—')}</div></div>`;
   if(p.dominio) content += `<div class="preview-row"><div class="preview-label">Domínio Técnico</div><div class="preview-val">${esc(p.dominio)}</div></div>`;
   if(p.integracao) content += `<div class="preview-row"><div class="preview-label">Integração</div><div class="preview-val">${esc(p.integracao)}${(p.sistemas&&p.sistemas.length)?' · '+esc(p.sistemas.join(', ')):''}</div></div>`;
-  if(p.patrocinador) content += `<div class="preview-row"><div class="preview-label">Patrocinador</div><div class="preview-val">${esc(p.patrocinador)}</div></div>`;
   if(!isBasic){
     content += `
       <div class="preview-row"><div class="preview-label">Tipo</div><div class="preview-val">${esc(p.tipo||'—')}</div></div>
@@ -2547,7 +2541,7 @@ async function loadAllData(){
         tipo:r.tipo||'Melhoria contínua', area:r.area||'', prio:r.prio||'Média',
         status:r.status||'Não iniciado', inicio:r.inicio||'', end:r.termino||'', q:r.quarter||'TBD',
         origem:r.origem||'priorizado', avanco:r.avanco||0, historico:cleanHistory(r.historico||''), tasks:extractTaskPayload(r.historico||'').tasks,
-        dominio:meta.dominio||'', integracao:meta.integracao||'Não', sistemas:meta.sistemas||[], patrocinador:meta.patrocinador||''
+        dominio:meta.dominio||'', integracao:meta.integracao||'Não', sistemas:meta.sistemas||[]
       }});
     } else {
       await seedInitialData();
@@ -2562,7 +2556,8 @@ async function loadAllData(){
           tipo:meta.tipo, status:meta.status, inicio:meta.inicio, end:meta.end,
           avanco:meta.avanco, historico:meta.historico,
           bizScores:r.biz_scores||{}, tiScores:r.ti_scores||{},
-          q:meta.q, _q:meta.q
+          q:meta.q, _q:meta.q,
+          dominio:meta.dominio||'', integracao:meta.integracao||'Não', sistemas:meta.sistemas||[]
         };
       });
     } else if(!pData || pData.length === 0){
@@ -2604,7 +2599,7 @@ async function seedBasicData(){
   if(data) basicItems = data.map(r=>({
     id:r.id, nome:r.nome, desc:r.descricao||'', benef:r.beneficio||'',
     area:r.area, prio:r.prio,
-    bizScores:r.biz_scores||{}, tiScores:r.ti_scores||{}, _q:null, tasks:basicMetaFromRow(r).tasks||[], dominio:basicMetaFromRow(r).dominio, integracao:basicMetaFromRow(r).integracao, sistemas:basicMetaFromRow(r).sistemas, patrocinador:basicMetaFromRow(r).patrocinador
+    bizScores:r.biz_scores||{}, tiScores:r.ti_scores||{}, _q:null, tasks:basicMetaFromRow(r).tasks||[], dominio:basicMetaFromRow(r).dominio, integracao:basicMetaFromRow(r).integracao, sistemas:basicMetaFromRow(r).sistemas
   }));
 }
 
@@ -2813,20 +2808,20 @@ function downloadTemplate(tipo){
 }
 
 function exportCSV(){
-  const cols = ['tipo','id','nome','descricao','beneficio','tipo_projeto','area','prioridade','status','inicio','termino','quarter','avanco','historico','dominio_tecnico','possui_integracao','sistemas_impactados','patrocinador','score_negocio','score_ti'];
+  const cols = ['tipo','id','nome','descricao','beneficio','tipo_projeto','area','prioridade','status','inicio','termino','quarter','avanco','historico','dominio_tecnico','possui_integracao','sistemas_impactados','score_negocio','score_ti'];
   const allP = [
     ...projects.map(p=>({
       tipo:'Priorizado', id:p.id, nome:p.nome, descricao:p.desc||'',
       beneficio:p.benef||'', tipo_projeto:p.tipo, area:p.area,
       prioridade:p.prio, status:p.status, inicio:p.inicio||'',
       termino:p.end, quarter:p.q, avanco:p.avanco||0,
-      historico:p.historico||'', dominio_tecnico:p.dominio||'', possui_integracao:p.integracao||'Não', sistemas_impactados:(p.sistemas||[]).join(', '), patrocinador:p.patrocinador||'', score_negocio:'', score_ti:''
+      historico:p.historico||'', dominio_tecnico:p.dominio||'', possui_integracao:p.integracao||'Não', sistemas_impactados:(p.sistemas||[]).join(', '), score_negocio:'', score_ti:''
     })),
     ...basicItems.map(b=>({
       tipo:'BASIC', id:b.id, nome:b.nome, descricao:b.desc||'',
       beneficio:b.benef||'', tipo_projeto:'Melhoria contínua', area:b.area,
       prioridade:b.prio, status:b.status||'Não iniciado', inicio:b.inicio||'',
-      termino:b.end||'TBD', quarter:b._q||b.q||autoQ(b.end)||'TBD', avanco:b.avanco||0, historico:b.historico||'', dominio_tecnico:b.dominio||'', possui_integracao:b.integracao||'Não', sistemas_impactados:(b.sistemas||[]).join(', '), patrocinador:b.patrocinador||'',
+      termino:b.end||'TBD', quarter:b._q||b.q||autoQ(b.end)||'TBD', avanco:b.avanco||0, historico:b.historico||'', dominio_tecnico:b.dominio||'', possui_integracao:b.integracao||'Não', sistemas_impactados:(b.sistemas||[]).join(', '),
       score_negocio:calcBizScore(b.bizScores)||'',
       score_ti:calcTIScore(b.tiScores)||'Aguarda TI'
     }))
