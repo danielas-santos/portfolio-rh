@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Portfólio RH · Soluções & Inovação · 2026 · v40.6</title>
+<title>Portfólio RH · Soluções & Inovação · 2026 · v40.7</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -381,7 +381,7 @@ tr:hover td{background:#fdf5f8;}
 <header>
   <div class="logo">
     <div class="logo-mark">RH</div>
-    <span class="logo-text">Portfólio RH <span class="logo-sub">· Soluções & Inovação · 2026 · v40.6</span></span>
+    <span class="logo-text">Portfólio RH <span class="logo-sub">· Soluções & Inovação · 2026 · v40.7</span></span>
   </div>
   <span class="hright" id="last-update"></span>
 </header>
@@ -1047,34 +1047,43 @@ function normalizeTasks(tasks){
     };
   }).filter(t=>t.title||t.owner||t.due);
 }
-function extractTaskPayload(text){
+function extractMarkerPayload(text, marker){
   const s=String(text||'');
-  const i=s.indexOf(TASK_MARKER);
-  if(i<0) return {history:s,tasks:[]};
-  const before=s.slice(0,i).trim();
-  const rest=s.slice(i+TASK_MARKER.length);
+  const i=s.indexOf(marker);
+  if(i<0) return null;
+  const rest=s.slice(i+marker.length);
   const j=rest.indexOf('-->');
-  if(j<0) return {history:before,tasks:[]};
-  try{return {history:before,tasks:normalizeTasks(JSON.parse(decodeURIComponent(rest.slice(0,j))))};}
-  catch(e){return {history:before,tasks:[]};}
+  if(j<0) return null;
+  try{return JSON.parse(decodeURIComponent(rest.slice(0,j))) || null;}
+  catch(e){return null;}
+}
+function removeMarkerPayload(text, marker){
+  let s=String(text||'');
+  while(true){
+    const i=s.indexOf(marker);
+    if(i<0) break;
+    const rest=s.slice(i+marker.length);
+    const j=rest.indexOf('-->');
+    if(j<0){s=s.slice(0,i);break;}
+    s=s.slice(0,i)+s.slice(i+marker.length+j+3);
+  }
+  return s;
+}
+function extractTaskPayload(text){
+  const tasks=normalizeTasks(extractMarkerPayload(text,TASK_MARKER)||[]);
+  return {history:cleanHistory(text),tasks};
 }
 function extractMetaPayload(text){
-  const s=String(text||'');
-  const i=s.indexOf(META_MARKER);
-  if(i<0) return {history:s,meta:{}};
-  const before=s.slice(0,i).trim();
-  const rest=s.slice(i+META_MARKER.length);
-  const j=rest.indexOf('-->');
-  if(j<0) return {history:before,meta:{}};
-  try{return {history:before,meta:JSON.parse(decodeURIComponent(rest.slice(0,j)))||{}};}
-  catch(e){return {history:before,meta:{}};}
+  const meta=extractMarkerPayload(text,META_MARKER)||{};
+  return {history:cleanHistory(text),meta};
 }
 function cleanHistory(text){
-  let h=extractTaskPayload(text).history;
-  h=extractMetaPayload(h).history;
-  return h;
+  let h=String(text||'');
+  h=removeMarkerPayload(h,TASK_MARKER);
+  h=removeMarkerPayload(h,META_MARKER);
+  return h.trim();
 }
-function projectMetaFromHistory(text){return extractMetaPayload(extractTaskPayload(text).history).meta||{};}
+function projectMetaFromHistory(text){return extractMetaPayload(text).meta||{};}
 function normalizeSystems(values){
   const allowed=new Set(SISTEMAS_IMPACTADOS||[]);
   const arr=Array.isArray(values)?values:((values||'')?String(values).split(','):[]);
@@ -1100,8 +1109,9 @@ function historyWithTasksAndMeta(history,tasks,meta){
   const arr=normalizeTasks(tasks);
   const m=cleanMeta(meta||{});
   let out=clean;
-  if(arr.length) out += TASK_MARKER + encodeURIComponent(JSON.stringify(arr)) + '-->';
+  // Mantém metadados antes das tarefas para facilitar leitura e evitar perda quando há checklist.
   if(m.dominio || m.integracao==='Sim' || m.sistemas.length) out += META_MARKER + encodeURIComponent(JSON.stringify(m)) + '-->';
+  if(arr.length) out += TASK_MARKER + encodeURIComponent(JSON.stringify(arr)) + '-->';
   return out;
 }
 function historyWithTasks(history,tasks){return historyWithTasksAndMeta(history,tasks,{});}
@@ -2745,7 +2755,7 @@ async function saveProjetoToDB(data, id){
     tipo:data.tipo, area:data.area, prio:data.prio,
     status:data.status, inicio:data.inicio||'', termino:data.end, quarter:data.q,
     origem:data.origem, avanco:data.avanco||0,
-    // Raiz da persistência v40.6: PO, integração e sistemas ficam sempre dentro do histórico
+    // Raiz da persistência v40.7: PO, integração e sistemas ficam sempre dentro do histórico
     // como metadados internos, independentemente do texto visível do histórico.
     historico:historyWithTasksAndMeta(data.historico||'', data.tasks||[], meta),
     updated_at:new Date().toISOString()
@@ -2769,7 +2779,7 @@ async function deleteProjetoDB(id){
 
 async function saveBasicToDB(data, id){
   if(!supa) throw new Error('Supabase não configurado. Confira SUPA_URL e SUPA_KEY no index.html.');
-  // Raiz da persistência v40.6: BASIC guarda os campos extras em ti_scores._meta.
+  // Raiz da persistência v40.7: BASIC guarda os campos extras em ti_scores._meta.
   // Isso preserva PO, integração, sistemas, status, avanço, histórico e tarefas entre sessões.
   const packed = packBasicTIScores({...data, ...projectMetaObject(data)});
   const row = {
