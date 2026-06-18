@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Portfólio RH · Soluções & Inovação · 2026 · v40.3</title>
+<title>Portfólio RH · Soluções & Inovação · 2026 · v40.5</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -372,6 +372,7 @@ tr:hover td{background:#fdf5f8;}
 .system-chip.sel{background:#fff7fb;border-color:var(--rosa);color:var(--bordo);font-weight:600;box-shadow:0 0 0 1px rgba(255,125,175,.22) inset;}
 .system-selected{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;}
 .system-selected span{display:inline-flex;border-radius:100px;background:#f7f4f6;color:var(--bordo);font-size:10px;font-weight:600;padding:2px 7px;border:1px solid rgba(46,16,30,.12);}
+.overview-toolbar{margin-bottom:12px}.overview-card{overflow:visible}.overview-card #ov-areas .ov-label{width:170px}
 @media(max-width:900px){.overview-kpis{grid-template-columns:repeat(2,1fr)}.overview-grid{grid-template-columns:1fr}.overview-hero{align-items:flex-start;flex-direction:column}}
 
 </style>
@@ -380,7 +381,7 @@ tr:hover td{background:#fdf5f8;}
 <header>
   <div class="logo">
     <div class="logo-mark">RH</div>
-    <span class="logo-text">Portfólio RH <span class="logo-sub">· Soluções & Inovação · 2026 · v40.3</span></span>
+    <span class="logo-text">Portfólio RH <span class="logo-sub">· Soluções & Inovação · 2026 · v40.5</span></span>
   </div>
   <span class="hright" id="last-update"></span>
 </header>
@@ -402,7 +403,26 @@ tr:hover td{background:#fdf5f8;}
       <h2>Overview Executivo</h2>
       <p>Visão rápida para governança do portfólio RH + Tecnologia.</p>
     </div>
-    <button class="abtn" type="button" id="btn-overview-quarter" data-overview-action="quarter">Abrir Quarter</button>
+    <button class="abtn" type="button" id="btn-overview-quarter" data-overview-action="quarter" onclick="goOverviewQuarter()">Abrir Quarter</button>
+  </div>
+  <div class="toolbar overview-toolbar">
+    <span class="flbl">PO</span>
+    <button class="fbtn" data-ovd="ERP" onclick="toggleOVF('d','ERP',this)">ERP</button>
+    <button class="fbtn" data-ovd="Sistemas Corporativos" onclick="toggleOVF('d','Sistemas Corporativos',this)">Sistemas Corp.</button>
+    <button class="fbtn" data-ovd="Cross" onclick="toggleOVF('d','Cross',this)">Cross</button>
+    <div class="tsep"></div>
+    <span class="flbl">Integração</span>
+    <button class="fbtn" data-ovi="Sim" onclick="toggleOVF('i','Sim',this)">Com integração</button>
+    <button class="fbtn" data-ovi="Não" onclick="toggleOVF('i','Não',this)">Sem integração</button>
+    <div class="tsep"></div>
+    <span class="flbl">Sistema</span>
+    <button class="fbtn" data-ovs="ServiceNow" onclick="toggleOVF('sys','ServiceNow',this)">ServiceNow</button>
+    <button class="fbtn" data-ovs="Protheus" onclick="toggleOVF('sys','Protheus',this)">Protheus</button>
+    <button class="fbtn" data-ovs="RH Numbers" onclick="toggleOVF('sys','RH Numbers',this)">RH Numbers</button>
+    <button class="fbtn" data-ovs="Workverse" onclick="toggleOVF('sys','Workverse',this)">Workverse</button>
+    <button class="fbtn" data-ovs="Outros" onclick="toggleOVF('sys','Outros',this)">Outros</button>
+    <div class="tsep"></div>
+    <button class="fbtn clr" onclick="clearOVFilters()">✕ Limpar</button>
   </div>
   <div class="overview-kpis" id="overview-kpis"></div>
   <div class="overview-grid">
@@ -567,6 +587,28 @@ tr:hover td{background:#fdf5f8;}
     <div style="display:flex;gap:4px;">
       <button class="fbtn" data-ko="priorizado" onclick="toggleKF('o','priorizado',this)">Priorizados</button>
       <button class="fbtn" data-ko="basic" onclick="toggleKF('o','basic',this)">BASIC</button>
+    </div>
+    <div class="tsep"></div>
+    <span class="flbl">PO</span>
+    <div style="display:flex;gap:4px;">
+      <button class="fbtn" data-kd="ERP" onclick="toggleKF('d','ERP',this)">ERP</button>
+      <button class="fbtn" data-kd="Sistemas Corporativos" onclick="toggleKF('d','Sistemas Corporativos',this)">Sistemas Corp.</button>
+      <button class="fbtn" data-kd="Cross" onclick="toggleKF('d','Cross',this)">Cross</button>
+    </div>
+    <div class="tsep"></div>
+    <span class="flbl">Integração</span>
+    <div style="display:flex;gap:4px;">
+      <button class="fbtn" data-ki="Sim" onclick="toggleKF('i','Sim',this)">Com integração</button>
+      <button class="fbtn" data-ki="Não" onclick="toggleKF('i','Não',this)">Sem integração</button>
+    </div>
+    <div class="tsep"></div>
+    <span class="flbl">Sistema</span>
+    <div style="display:flex;gap:4px;">
+      <button class="fbtn" data-ksys="ServiceNow" onclick="toggleKF('sys','ServiceNow',this)">ServiceNow</button>
+      <button class="fbtn" data-ksys="Protheus" onclick="toggleKF('sys','Protheus',this)">Protheus</button>
+      <button class="fbtn" data-ksys="RH Numbers" onclick="toggleKF('sys','RH Numbers',this)">RH Numbers</button>
+      <button class="fbtn" data-ksys="Workverse" onclick="toggleKF('sys','Workverse',this)">Workverse</button>
+      <button class="fbtn" data-ksys="Outros" onclick="toggleKF('sys','Outros',this)">Outros</button>
     </div>
     <div class="tsep"></div>
     <span class="flbl">Classificação</span>
@@ -1435,7 +1477,7 @@ const statusSet = new Set();
 // multi-select filter sets
 const fSets={q:new Set(),s:new Set(),t:new Set(),o:new Set(),d:new Set(),i:new Set()};
 
-const kSets={t:new Set(),o:new Set()};
+const kSets={t:new Set(),o:new Set(),d:new Set(),i:new Set(),sys:new Set()};
 const kStatusSet=new Set();
 function openKStatusDD(event){
   if(event) event.stopPropagation();
@@ -1460,6 +1502,7 @@ document.addEventListener('click',function(e){
     document.getElementById('kstatus-dd')?.classList.remove('open');
   }
 });
+const ovSets={d:new Set(),i:new Set(),sys:new Set()};
 const vSets={q:new Set()};
 const vStatusSet=new Set();
 function toggleVStatus(val,btn){
@@ -1507,7 +1550,7 @@ function toggleVF(dim,val,btn){
 function clearFilters(){
   // Clear all filter sets
   fSets.q.clear();fSets.s.clear();fSets.t.clear();fSets.o.clear();fSets.d.clear();fSets.i.clear();
-  kSets.t.clear();kSets.o.clear();
+  kSets.t.clear();kSets.o.clear();kSets.d.clear();kSets.i.clear();kSets.sys.clear();
   Object.keys(areaSets).forEach(k=>areaSets[k].clear());
   // Reset all filter buttons
   document.querySelectorAll('[data-fq],[data-fs],[data-ft],[data-fo],[data-fd],[data-fi],[data-kt],[data-ko]').forEach(b=>b.classList.remove('sel'));
@@ -1522,11 +1565,11 @@ function clearFilters(){
   ['p','k','v','b'].forEach(k=>updMDDBtn(k));
 }
 function clearKFilters(){
-  kSets.t.clear();kSets.o.clear();
+  kSets.t.clear();kSets.o.clear();kSets.d.clear();kSets.i.clear();kSets.sys.clear();
   kStatusSet.clear(); document.querySelectorAll('#kstatus-dd input[type=checkbox]').forEach(x=>x.checked=false); updateKStatusButton();
   areaSets.k.clear();
   const kCls=document.getElementById('k-filtro-cls');if(kCls)kCls.value='';
-  document.querySelectorAll('[data-kt],[data-ko]').forEach(b=>b.classList.remove('sel'));
+  document.querySelectorAll('[data-kt],[data-ko],[data-kd],[data-ki],[data-ksys]').forEach(b=>b.classList.remove('sel'));
   updMDDBtn('k');rebuildMDD('k');
   renderKanban();
 }
@@ -1719,6 +1762,9 @@ function renderKanban(){
     if(areaSets.k.size&&!areaSets.k.has(p.area))return false;
     if(kSets.t.size&&![...kSets.t].some(v=>(p.tipo||'').toLowerCase().includes(v.toLowerCase())))return false;
     if(kSets.o.size&&!kSets.o.has(p.origem))return false;
+    if(kSets.d.size&&!kSets.d.has(p.dominio||''))return false;
+    if(kSets.i.size&&!kSets.i.has(p.integracao||'Não'))return false;
+    if(kSets.sys.size&&!((p.sistemas||[]).some(s=>kSets.sys.has(s))))return false;
     if(kStatusSet.size&&!kStatusSet.has(p.status||'Não iniciado'))return false;
     if(clsFilter){
       if(p.origem!=='basic') return false;
@@ -3078,12 +3124,12 @@ async function executeImport(){
 async function importCSV(event){showImportPreview(event);}
 
 
-function ovBarRows(containerId, data, color){
+function ovBarRows(containerId, data, color, limit=8){
   const el=document.getElementById(containerId); if(!el)return;
   const entries=Object.entries(data).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
   if(!entries.length){el.innerHTML='<div class="empty" style="padding:18px">Sem dados preenchidos</div>';return;}
   const max=Math.max(1,...entries.map(([,v])=>v));
-  el.innerHTML=entries.slice(0,8).map(([label,val])=>`<div class="ov-row"><div class="ov-label" title="${esc(label)}">${esc(label)}</div><div class="ov-track"><div class="ov-fill" style="width:${Math.max(8,Math.round(val/max*100))}%;background:${color||'var(--bordo)'}">${val}</div></div><div class="ov-count">${val}</div></div>`).join('');
+  el.innerHTML=entries.slice(0,limit).map(([label,val])=>`<div class="ov-row"><div class="ov-label" title="${esc(label)}">${esc(label)}</div><div class="ov-track"><div class="ov-fill" style="width:${Math.max(8,Math.round(val/max*100))}%;background:${color||'var(--bordo)'}">${val}</div></div><div class="ov-count">${val}</div></div>`).join('');
 }
 function tabButtonFor(id){
   return [...document.querySelectorAll('.ntab')].find(b=>String(b.getAttribute('onclick')||'').includes("'"+id+"'"));
@@ -3172,8 +3218,25 @@ document.addEventListener('click',function(e){
 }, true);
 
 
+function toggleOVF(dim,val,btn){
+  if(ovSets[dim].has(val)){ovSets[dim].delete(val);btn.classList.remove('sel');}
+  else{ovSets[dim].add(val);btn.classList.add('sel');}
+  renderOverview();
+}
+function clearOVFilters(){
+  ovSets.d.clear();ovSets.i.clear();ovSets.sys.clear();
+  document.querySelectorAll('[data-ovd],[data-ovi],[data-ovs]').forEach(b=>b.classList.remove('sel'));
+  renderOverview();
+}
+function matchesOV(p){
+  if(ovSets.d.size&&!ovSets.d.has(p.dominio||'')) return false;
+  if(ovSets.i.size&&!ovSets.i.has(p.integracao||'Não')) return false;
+  if(ovSets.sys.size&&!((p.sistemas||[]).some(s=>ovSets.sys.has(s)))) return false;
+  return true;
+}
+
 function renderOverview(){
-  const all=allProjectRows();
+  const all=allProjectRows().filter(matchesOV);
   const basicScores=basicItems.map(b=>({...b,biz:calcBizScore(b.bizScores),ti:calcTIScore(b.tiScores)}));
   const critical=classifyI_II_III(basicScores).filter(b=>b.cls==='I').length;
   const risk=all.filter(p=>['Atrasado','Em risco'].includes(farolPrazo(p).label)).length;
@@ -3195,11 +3258,8 @@ function renderOverview(){
   ovBarRows('ov-po',po,'var(--bordo)');
   ovBarRows('ov-integracao',integ,'var(--magenta)');
   ovBarRows('ov-sistemas',systems,'var(--bordo-luz)');
-  // top areas + outros
-  const sorted=Object.entries(areas).sort((a,b)=>b[1]-a[1]);
-  const top=Object.fromEntries(sorted.slice(0,5));
-  const other=sorted.slice(5).reduce((t,[,v])=>t+v,0); if(other) top['Outros']=other;
-  ovBarRows('ov-areas',top,'var(--rosa)');
+  // Todas as áreas aparecem individualmente para evitar perda de leitura executiva
+  ovBarRows('ov-areas',areas,'var(--rosa)',99);
 }
 
 function renderAll(){renderMetrics();const metricsEl=document.getElementById('metrics');if(metricsEl)metricsEl.style.display=(document.querySelector('.sec.active')?.id==='tab-overview'||document.querySelector('.sec.active')?.id==='tab-basico')?'none':'grid';renderOverview();bindOverviewActions();renderProjetos();renderKanban();renderCarga();renderTasksTab();renderPrio();document.getElementById('last-update').textContent='Atualizado em '+new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
