@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <title>Portfólio RH · Governança de Iniciativas · v41</title>
+  <title>Portfólio RH · Governança de Iniciativas · v41.1</title>
   <meta name="description" content="Governança do Portfólio de RH: visão executiva, planejamento, priorização e alertas.">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
@@ -45,6 +45,25 @@
 [hidden]{display:none!important}
 .area-label{border:0;background:transparent;padding:0}
 .stack-segment{border:0;padding:0}
+
+/* Alertas v41.1: prioridade para tarefas, filtros por KPI e listas recolhíveis */
+.alert-kpi{cursor:pointer;transition:border-color .15s,box-shadow .15s,transform .15s;background:var(--surface)}
+.alert-kpi:hover{border-color:#c9b8b8;box-shadow:0 4px 14px rgba(45,20,25,.07);transform:translateY(-1px)}
+.alert-kpi.active{border-color:var(--primary);background:var(--primary-soft);box-shadow:0 0 0 2px rgba(141,38,56,.09)}
+.alert-filter-bar{margin-top:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #e6cbd1;background:var(--primary-soft);border-radius:9px;padding:9px 12px;font-size:10.5px;color:var(--primary-strong)}
+.alert-filter-bar button{border:0;background:transparent;color:var(--primary);font-size:10px;font-weight:600;padding:3px 0}
+.alert-group{padding:0;overflow:hidden}
+.alert-group-head{width:100%;border:0;background:#fff;text-align:left;padding:15px 18px 12px;cursor:pointer;display:flex;align-items:flex-start;gap:9px}
+.alert-group-head:hover{background:var(--surface-soft)}
+.alert-group.collapsed .alert-group-head{padding-bottom:15px}
+.alert-group-body{padding:0 18px 5px}
+.alert-group-body[hidden]{display:none!important}
+.alert-group-count{margin-left:auto;align-self:center;min-width:24px;text-align:center;border-radius:99px;background:var(--surface-soft);padding:3px 7px;color:var(--muted);font-size:9.5px}
+.alert-chevron{align-self:center;width:20px;height:20px;display:grid;place-items:center;border-radius:5px;color:var(--muted);font-size:13px}
+.alert-group-head:hover .alert-chevron{background:#fff;color:var(--text)}
+#alerts-collapse-btn{min-width:124px}
+@media(max-width:480px){#page-alerts .page-actions{display:grid;grid-template-columns:1fr 1fr;width:100%}#page-alerts .page-actions .btn{width:auto;min-width:0;padding-left:8px;padding-right:8px}.alert-filter-bar{align-items:flex-start}}
+
 </style>
 </head>
 <body>
@@ -137,8 +156,9 @@
     </section>
 
     <section class="page" id="page-alerts">
-      <div class="page-heading"><div><h1>Alertas &amp; Pendências</h1><p>Central de acompanhamento das exceções que precisam de ação.</p></div><div class="page-actions"><button id="alerts-mode-btn" class="btn secondary" onclick="toggleResolvedAlerts()">Mostrar resolvidos</button></div></div>
+      <div class="page-heading"><div><h1>Alertas &amp; Pendências</h1><p>Central de acompanhamento das exceções que precisam de ação.</p></div><div class="page-actions"><button id="alerts-collapse-btn" class="btn secondary" onclick="toggleAllAlertGroups()">Recolher listas</button><button id="alerts-mode-btn" class="btn secondary" onclick="toggleResolvedAlerts()">Mostrar resolvidos</button></div></div>
       <div class="kpi-grid" id="alert-kpis"></div>
+      <div id="alert-filter-bar" class="alert-filter-bar" hidden></div>
       <div id="alert-groups" class="alert-groups"></div>
     </section>
   </main>
@@ -164,7 +184,7 @@
   <script>'use strict';
 
 // ============================================================
-// Portfólio RH v41 · HTML único
+// Portfólio RH v41.1 · HTML único
 // Camadas: configuração → regras → dados → render → eventos
 // ============================================================
 
@@ -205,6 +225,8 @@ let alertActions=[];
 let currentTab='overview';
 let currentPortfolioView='all';
 let showResolvedAlerts=false;
+let currentAlertFilter='all';
+const alertCollapsedGroups=new Set(['risk','stale']);
 let currentProjectRef=null;
 let currentProjectDraft=null;
 let currentProjectModalTab='view';
@@ -342,7 +364,7 @@ function escJs(value){return String(value??'').replace(/\\/g,'\\\\').replace(/'/
 function openPortfolioArea(area){showTab('portfolio');document.getElementById('portfolio-area').value=area;renderPortfolio();}
 function openPlanningSegment(area,q){showTab('planning');document.getElementById('planning-area').value=area;planningFilters.status.clear();renderPlanning();setTimeout(()=>document.getElementById(`kanban-${q}`)?.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'}),50);}
 function openPortfolioFromKpi(mode){showTab('portfolio');setPortfolioView('all');portfolioFilters.status.clear();if(mode==='execution')portfolioFilters.status.add('Em andamento');renderPortfolioFilters();renderPortfolio();}
-function openAlertsFromKpi(mode){showResolvedAlerts=false;showTab('alerts');setTimeout(()=>document.getElementById(`alert-group-${mode}`)?.scrollIntoView({behavior:'smooth',block:'start'}),60);}
+function openAlertsFromKpi(mode){showResolvedAlerts=false;currentAlertFilter=mode||'all';if(mode)alertCollapsedGroups.delete(mode);showTab('alerts');setTimeout(()=>document.getElementById(`alert-group-${mode}`)?.scrollIntoView({behavior:'smooth',block:'start'}),60);}
 function openOverviewFilters(event){event?.stopPropagation();const pop=document.getElementById('overview-filter-pop');renderOverviewFilters();pop.classList.toggle('open');}
 function renderOverviewFilters(){const pop=document.getElementById('overview-filter-pop');pop.innerHTML=`<div class="filter-grid">${filterBlock('PO',POS,overviewFilters.po,'toggleOverviewFilter','po')}${filterBlock('Integração',['Sim','Não'],overviewFilters.integration,'toggleOverviewFilter','integration')}${filterBlock('Sistema',SYSTEMS,overviewFilters.system,'toggleOverviewFilter','system')}</div><div class="filter-footer"><button class="btn ghost small" onclick="clearOverviewFilters()">Limpar filtros</button></div>`;}
 function filterBlock(title,values,set,fn,dimension){return `<div class="filter-block"><h4>${title}</h4><div class="filter-options">${values.map(v=>`<button class="filter-chip ${set.has(v)?'selected':''}" onclick="${fn}('${dimension}','${escJs(v)}')">${esc(v)}</button>`).join('')}</div></div>`;}
@@ -383,9 +405,55 @@ function renderPriorityChart(items){const canvas=document.getElementById('priori
 function buildAlerts(){const items=getAllItems();const alerts=[];for(const item of items){const reasons=riskReasons(item);if(reasons.length)alerts.push({key:`risk:${itemRef(item)}`,type:'risk',projectRef:itemRef(item),item,title:item.nome,meta:`${item.area||'—'} · ${item.q||'TBD'}`,detail:reasons.join(' · '),severity:reasons.includes('Prazo vencido')?3:2});if(semAtualizacaoAtiva(item)){const days=daysSince(item.updatedAt);alerts.push({key:`stale:${itemRef(item)}`,type:'stale',projectRef:itemRef(item),item,title:item.nome,meta:`${item.area||'—'} · ${item.q||'TBD'}`,detail:`Atualizado há ${days} dias`,severity:2});}}
   for(const row of allTaskRows()){if(row.timing.key==='overdue')alerts.push({key:`task:${itemRef(row.item)}:${row.task.id}`,type:'tasks',projectRef:itemRef(row.item),item:row.item,title:row.task.title,meta:`${row.item.nome} · ${row.task.owner||'Sem responsável'}`,detail:`Prazo vencido há ${row.timing.days} dia${row.timing.days===1?'':'s'}`,severity:3});if(row.timing.key==='soon')alerts.push({key:`soon:${itemRef(row.item)}:${row.task.id}`,type:'soon',projectRef:itemRef(row.item),item:row.item,title:row.task.title,meta:`${row.item.nome} · ${row.task.owner||'Sem responsável'}`,detail:`Vence em ${row.timing.days} dia${row.timing.days===1?'':'s'}`,severity:1});}
   const currentKeys=new Set(alerts.map(a=>a.key));for(const action of alertActions){if(action.status!=='resolvido'||currentKeys.has(action.alertKey))continue;const item=findByRef(action.projectRef);alerts.push({key:action.alertKey,type:action.type||'risk',projectRef:action.projectRef,item,title:item?.nome||'Alerta resolvido',meta:item?`${item.area||'—'} · ${item.q||'TBD'}`:'Registro histórico',detail:action.note||'Tratativa concluída',severity:1,historical:true});}return alerts.map(alert=>{const action=alertActions.find(a=>a.alertKey===alert.key);return{...alert,action,status:action?.status||'aberto'};});}
-function renderAlerts(){const alerts=buildAlerts();const active=alerts.filter(a=>a.status!=='resolvido');const resolved=alerts.filter(a=>a.status==='resolvido');const shown=showResolvedAlerts?resolved:active;const counts={risk:active.filter(a=>a.type==='risk').length,stale:active.filter(a=>a.type==='stale').length,tasks:active.filter(a=>a.type==='tasks').length,soon:active.filter(a=>a.type==='soon').length};document.getElementById('nav-alert-count').hidden=!active.length;document.getElementById('nav-alert-count').textContent=active.length;document.getElementById('alerts-mode-btn').textContent=showResolvedAlerts?'Mostrar ativos':`Mostrar resolvidos${resolved.length?` (${resolved.length})`:''}`;const cards=[{icon:'△',label:'Em risco',value:counts.risk,tone:'danger'},{icon:'◷',label:'Sem atualização',value:counts.stale,tone:'warning'},{icon:'☷',label:'Tarefas atrasadas',value:counts.tasks,tone:'danger'},{icon:'◴',label:'Próximos 7 dias',value:counts.soon,tone:''}];document.getElementById('alert-kpis').innerHTML=cards.map(c=>`<div class="kpi-card ${c.tone}"><div class="kpi-label"><span class="kpi-icon">${c.icon}</span>${c.label}</div><div class="kpi-value">${c.value}</div></div>`).join('');const groupDefs=[{type:'risk',id:'risk',title:'Em risco',desc:'Prazo vencido, avanço abaixo do esperado ou projeto parado no quarter vigente.',icon:'△'},{type:'stale',id:'stale',title:'Sem atualização',desc:'Mais de 30 dias sem atualização; concluídos, quarters futuros e TBD ficam de fora.',icon:'◷'},{type:'tasks',id:'tasks',title:'Tarefas atrasadas',desc:'Pendências abertas com prazo já vencido.',icon:'☷'},{type:'soon',id:'soon',title:'Próximos vencimentos',desc:'Tarefas abertas com vencimento nos próximos sete dias.',icon:'◴'}];const container=document.getElementById('alert-groups');const groups=groupDefs.map(def=>{const rows=shown.filter(a=>a.type===def.type).sort((a,b)=>b.severity-a.severity);if(!rows.length)return'';return `<section class="alert-group" id="alert-group-${def.id}"><header class="alert-group-head"><span>${def.icon}</span><div><h2>${def.title}</h2><p>${def.desc}</p></div><span class="alert-group-count">${rows.length}</span></header>${rows.map(renderAlertRow).join('')}</section>`;}).join('');container.innerHTML=groups||`<div class="panel empty-state"><strong>${showResolvedAlerts?'Nenhum alerta resolvido':'Tudo em ordem'}</strong>${showResolvedAlerts?'As tratativas resolvidas aparecerão aqui.':'Nenhuma pendência ativa no momento.'}</div>`;}
+function alertGroupDefinitions(){return[
+  {type:'tasks',id:'tasks',title:'Tarefas atrasadas',desc:'Pendências abertas com prazo já vencido.',icon:'☷'},
+  {type:'soon',id:'soon',title:'Próximos vencimentos',desc:'Tarefas abertas com vencimento nos próximos sete dias.',icon:'◴'},
+  {type:'risk',id:'risk',title:'Em risco',desc:'Prazo vencido, avanço abaixo do esperado ou projeto parado no quarter vigente.',icon:'△'},
+  {type:'stale',id:'stale',title:'Sem atualização',desc:'Mais de 30 dias sem atualização; concluídos, quarters futuros e TBD ficam de fora.',icon:'◷'}
+];}
+function setAlertFilter(type){currentAlertFilter=currentAlertFilter===type?'all':type;if(currentAlertFilter!=='all')alertCollapsedGroups.delete(currentAlertFilter);renderAlerts();}
+function clearAlertFilter(){currentAlertFilter='all';renderAlerts();}
+function toggleAlertGroup(id){alertCollapsedGroups.has(id)?alertCollapsedGroups.delete(id):alertCollapsedGroups.add(id);renderAlerts();}
+function toggleAllAlertGroups(){const sections=[...document.querySelectorAll('.alert-group[data-alert-group]')];if(!sections.length)return;const ids=sections.map(s=>s.dataset.alertGroup);const allCollapsed=ids.every(id=>alertCollapsedGroups.has(id));ids.forEach(id=>allCollapsed?alertCollapsedGroups.delete(id):alertCollapsedGroups.add(id));renderAlerts();}
+function renderAlerts(){
+  const alerts=buildAlerts();
+  const active=alerts.filter(a=>a.status!=='resolvido');
+  const resolved=alerts.filter(a=>a.status==='resolvido');
+  const baseShown=showResolvedAlerts?resolved:active;
+  const shown=currentAlertFilter==='all'?baseShown:baseShown.filter(a=>a.type===currentAlertFilter);
+  const counts={tasks:active.filter(a=>a.type==='tasks').length,soon:active.filter(a=>a.type==='soon').length,risk:active.filter(a=>a.type==='risk').length,stale:active.filter(a=>a.type==='stale').length};
+  const navCount=document.getElementById('nav-alert-count');navCount.hidden=!active.length;navCount.textContent=active.length;
+  document.getElementById('alerts-mode-btn').textContent=showResolvedAlerts?'Mostrar ativos':`Mostrar resolvidos${resolved.length?` (${resolved.length})`:''}`;
+  const cards=[
+    {type:'tasks',icon:'☷',label:'Tarefas atrasadas',value:counts.tasks,tone:'danger'},
+    {type:'soon',icon:'◴',label:'Próximos 7 dias',value:counts.soon,tone:''},
+    {type:'risk',icon:'△',label:'Em risco',value:counts.risk,tone:'danger'},
+    {type:'stale',icon:'◷',label:'Sem atualização',value:counts.stale,tone:'warning'}
+  ];
+  document.getElementById('alert-kpis').innerHTML=cards.map(c=>`<button type="button" class="kpi-card alert-kpi ${c.tone} ${currentAlertFilter===c.type?'active':''}" onclick="setAlertFilter('${c.type}')" aria-pressed="${currentAlertFilter===c.type}"><div class="kpi-label"><span class="kpi-icon">${c.icon}</span>${c.label}</div><div class="kpi-value">${c.value}</div><div class="kpi-hint">Clique para ${currentAlertFilter===c.type?'voltar a todos':'filtrar a lista'}</div></button>`).join('');
+  const groupDefs=alertGroupDefinitions();
+  const activeDef=groupDefs.find(d=>d.type===currentAlertFilter);
+  const filterBar=document.getElementById('alert-filter-bar');
+  filterBar.hidden=currentAlertFilter==='all';
+  filterBar.innerHTML=currentAlertFilter==='all'?'':`<span>Exibindo somente: <strong>${esc(activeDef?.title||currentAlertFilter)}</strong></span><button type="button" onclick="clearAlertFilter()">Limpar filtro</button>`;
+  const visibleDefs=groupDefs.filter(def=>currentAlertFilter==='all'||def.type===currentAlertFilter);
+  const container=document.getElementById('alert-groups');
+  const renderedTypes=[];
+  const groups=visibleDefs.map(def=>{
+    const rows=shown.filter(a=>a.type===def.type).sort((a,b)=>b.severity-a.severity||String(a.title).localeCompare(String(b.title),'pt-BR'));
+    if(!rows.length)return'';
+    renderedTypes.push(def.id);
+    const collapsed=alertCollapsedGroups.has(def.id);
+    return `<section class="alert-group ${collapsed?'collapsed':''}" id="alert-group-${def.id}" data-alert-group="${def.id}"><button type="button" class="alert-group-head" onclick="toggleAlertGroup('${def.id}')" aria-expanded="${!collapsed}"><span>${def.icon}</span><div><h2>${def.title}</h2><p>${def.desc}</p></div><span class="alert-group-count">${rows.length}</span><span class="alert-chevron" aria-hidden="true">${collapsed?'⌄':'⌃'}</span></button><div class="alert-group-body" ${collapsed?'hidden':''}>${rows.map(renderAlertRow).join('')}</div></section>`;
+  }).join('');
+  container.innerHTML=groups||`<div class="panel empty-state"><strong>${showResolvedAlerts?'Nenhum alerta resolvido':'Tudo em ordem'}</strong>${currentAlertFilter!=='all'?'Não há itens nesta categoria para o recorte atual.':showResolvedAlerts?'As tratativas resolvidas aparecerão aqui.':'Nenhuma pendência ativa no momento.'}</div>`;
+  const collapseBtn=document.getElementById('alerts-collapse-btn');
+  collapseBtn.hidden=!renderedTypes.length;
+  const allCollapsed=renderedTypes.length&&renderedTypes.every(id=>alertCollapsedGroups.has(id));
+  collapseBtn.textContent=allCollapsed?'Expandir listas':'Recolher listas';
+}
 function renderAlertRow(alert){const action=alert.action||{};const followed=alert.status==='acompanhado';return `<div class="alert-row"><span class="farol-dot" style="background:${alert.severity>=3?'var(--red)':alert.severity===2?'var(--yellow)':'var(--gray)'}"></span><div class="alert-info"><div class="alert-title">${esc(alert.title)}</div><div class="alert-meta">${esc(alert.meta)} · ${esc(alert.detail)}${action.owner?` · responsável: ${esc(action.owner)}`:''}${action.note?` · ${esc(action.note)}`:''}</div></div><div class="alert-actions"><button class="alert-action" onclick="openProjectModal('${alert.projectRef}')">Abrir projeto</button><button class="alert-action strong" onclick="openAlertTreatment('${escJs(alert.key)}')">Registrar tratativa</button>${showResolvedAlerts?`<button class="alert-action" onclick="setAlertStatus('${escJs(alert.key)}','aberto')">Reabrir</button>`:`<button class="alert-action" onclick="setAlertStatus('${escJs(alert.key)}','${followed?'aberto':'acompanhado'}')">${followed?'Retirar acompanhamento':'Acompanhar'}</button><button class="alert-action" onclick="setAlertStatus('${escJs(alert.key)}','resolvido')">Resolver</button>`}</div></div>`;}
-function toggleResolvedAlerts(){showResolvedAlerts=!showResolvedAlerts;renderAlerts();}
+function toggleResolvedAlerts(){showResolvedAlerts=!showResolvedAlerts;currentAlertFilter='all';renderAlerts();}
 async function setAlertStatus(key,status){const alert=buildAlerts().find(a=>a.key===key);if(!alert)return;await upsertAlertAction({alertKey:key,projectRef:alert.projectRef,type:alert.type,status,owner:alert.action?.owner||'',note:alert.action?.note||''});toast(status==='resolvido'?'Alerta marcado como resolvido.':'Status do alerta atualizado.','success');renderAlerts();}
 function openAlertTreatment(key){const alert=buildAlerts().find(a=>a.key===key);if(!alert)return;currentAlertKey=key;document.getElementById('alert-modal-project').textContent=`${alert.title} · ${alert.detail}`;document.getElementById('alert-owner').value=alert.action?.owner||'';document.getElementById('alert-note').value=alert.action?.note||'';openModal('alert-modal');}
 async function saveAlertTreatment(){const alert=buildAlerts().find(a=>a.key===currentAlertKey);if(!alert)return;await upsertAlertAction({alertKey:alert.key,projectRef:alert.projectRef,type:alert.type,status:'acompanhado',owner:document.getElementById('alert-owner').value.trim(),note:document.getElementById('alert-note').value.trim()});closeModal('alert-modal');toast('Tratativa registrada.','success');renderAlerts();}
