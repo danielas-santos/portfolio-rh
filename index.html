@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <title>Portfólio RH · Governança & Resultados · v42.2.6</title>
+  <title>Portfólio RH · Governança & Resultados · v42.2.8</title>
   <meta name="description" content="Governança do Portfólio de RH: visão executiva, priorização, planejamento, resultados e alertas.">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
@@ -140,7 +140,7 @@ body{background-color:var(--soft,#f4f2f4);background-image:repeating-linear-grad
 .results-empty{padding:34px 14px;text-align:center;color:var(--muted);font-size:11px}
 /* v42.2.5 · leitura mais limpa para Resultados */
 .results-table th{padding:8px 10px}.results-table td{padding:10px 10px}.results-table tbody tr:hover{background:#fbf9fa}.result-plain{color:var(--text);font-weight:500}.result-plain.muted{color:var(--muted);font-weight:500}.result-status-clean{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:600;color:var(--text);white-space:nowrap}.result-status-clean i{width:6px;height:6px;border-radius:50%;background:#9a9397;display:inline-block}.result-status-clean.measured i{background:#2f8f65}.result-status-clean.measuring i{background:#786c73}.result-status-clean.pending i{background:#b97a18}.results-kpis .kpi-card{box-shadow:none}.results-kpis .kpi-card.good,.results-kpis .kpi-card.warning{background:#fff;border-color:var(--border)}.results-kpis .kpi-card.good .kpi-value,.results-kpis .kpi-card.warning .kpi-value{color:var(--primary)}
-/* v42.2.6 · Resultados com leitura executiva e filtros consistentes */
+/* v42.2.8 · Resultados com leitura executiva e filtros consistentes */
 .results-kpis{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
 .results-kpi-card{appearance:none;text-align:left;cursor:pointer;color:inherit;width:100%;font:inherit;transition:border-color .15s ease,background .15s ease,transform .15s ease}
 .results-kpi-card:hover{border-color:#cfc3ca;background:#fcfbfb}
@@ -221,6 +221,10 @@ body{background-color:var(--soft,#f4f2f4);background-image:repeating-linear-grad
   .area-row{grid-template-columns:170px 1fr 24px}
 }
 
+.auth-code-input{font-size:22px!important;font-weight:700;letter-spacing:.34em;text-align:center;font-variant-numeric:tabular-nums}
+.auth-code-input::placeholder{letter-spacing:.18em;color:#b9b1af}
+#auth-otp-view .auth-message{font-size:11px;line-height:1.45}
+@media(max-width:480px){.auth-links{flex-wrap:wrap;justify-content:flex-start;row-gap:9px}.auth-links button{margin-right:10px}}
 .modal-tab[hidden]{display:none!important}
 </style>
 </head>
@@ -235,7 +239,7 @@ body{background-color:var(--soft,#f4f2f4);background-image:repeating-linear-grad
           <label class="auth-field"><span>Senha</span><input id="login-password" type="password" autocomplete="current-password" placeholder="Sua senha" onkeydown="if(event.key==='Enter')loginUser()"></label>
           <button id="login-btn" class="btn primary auth-submit" onclick="loginUser()">Entrar</button>
         </div>
-        <div class="auth-links"><button onclick="showAuthView('request')">Solicitar acesso</button><button onclick="forgotPassword()">Esqueci minha senha</button></div>
+        <div class="auth-links"><button onclick="showAuthView('request')">Solicitar acesso</button><button onclick="forgotPassword()">Esqueci minha senha</button><button onclick="startCodeEntry()">Confirmar código</button></div>
       </div>
       <div id="auth-request-view" class="auth-view" hidden>
         <h1>Solicitar acesso</h1><p>Crie seu cadastro. Novas solicitações ficam pendentes até a aprovação de um administrador.</p>
@@ -248,6 +252,17 @@ body{background-color:var(--soft,#f4f2f4);background-image:repeating-linear-grad
         </div>
         <div class="auth-links"><button onclick="showAuthView('login')">← Voltar ao login</button></div>
       </div>
+      <div id="auth-otp-view" class="auth-view" hidden>
+        <h1 id="auth-otp-title">Confirmar código</h1>
+        <p id="auth-otp-copy">Digite o código recebido no seu e-mail.</p>
+        <div class="auth-form">
+          <label class="auth-field"><span>E-mail</span><input id="otp-email" type="email" autocomplete="email" placeholder="seu.email@empresa.com.br"></label>
+          <label class="auth-field"><span>Código</span><input id="otp-code" class="auth-code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="000000" onkeydown="if(event.key==='Enter')verifyAuthOtp()"></label>
+          <button id="otp-btn" class="btn primary auth-submit" onclick="verifyAuthOtp()">Validar código</button>
+        </div>
+        <div class="auth-links"><button id="otp-resend-btn" onclick="resendAuthOtp()">Reenviar código</button><button onclick="cancelOtpFlow()">← Voltar ao login</button></div>
+        <div id="otp-helper" class="auth-message warning" style="margin-top:12px" hidden></div>
+      </div>
       <div id="auth-status-view" class="auth-view" hidden>
         <span id="auth-status-badge" class="auth-status-badge">Aguardando aprovação</span>
         <h1 id="auth-status-title">Solicitação recebida</h1>
@@ -255,12 +270,13 @@ body{background-color:var(--soft,#f4f2f4);background-image:repeating-linear-grad
         <button class="btn secondary auth-submit" onclick="logoutUser()">Sair</button>
       </div>
       <div id="auth-recovery-view" class="auth-view" hidden>
-        <h1>Definir nova senha</h1><p>Escolha uma nova senha para continuar acessando o Portfólio RH.</p>
+        <h1 id="recovery-title">Definir nova senha</h1><p id="recovery-copy">Escolha uma nova senha para continuar acessando o Portfólio RH.</p>
         <div class="auth-form">
           <label class="auth-field"><span>Nova senha</span><input id="recovery-password" type="password" autocomplete="new-password" placeholder="Mínimo de 8 caracteres"></label>
           <label class="auth-field"><span>Confirmar senha</span><input id="recovery-password-confirm" type="password" autocomplete="new-password" placeholder="Repita a senha"></label>
           <button id="recovery-btn" class="btn primary auth-submit" onclick="updateRecoveredPassword()">Salvar nova senha</button>
         </div>
+        <div class="auth-links"><button onclick="cancelOtpFlow()">← Voltar ao login</button></div>
       </div>
     </div>
   </section>
@@ -428,7 +444,7 @@ body{background-color:var(--soft,#f4f2f4);background-image:repeating-linear-grad
   <script>'use strict';
 
 // ============================================================
-// Portfólio RH v42.2.6 · Resultados clean + filtros · HTML único
+// Portfólio RH v42.2.8 · Resultados clean + filtros · HTML único
 // Camadas: configuração → regras → dados → render → eventos
 // ============================================================
 
@@ -447,6 +463,9 @@ let accessPreapprovals=[];
 let accessFilter='all';
 let authWatchTimer=null;
 let recoveryMode=false;
+let otpFlow=null; // signup | invite | recovery
+let otpEmail='';
+let passwordPurpose='recovery'; // recovery | invite
 function isAdmin(){return currentProfile?.status==='active'&&currentProfile?.role==='admin';}
 function isGovernance(){return currentProfile?.status==='active'&&['admin','projects','editor'].includes(currentProfile?.role);}
 function isRequester(){return currentProfile?.status==='active'&&currentProfile?.role==='requester';}
@@ -627,7 +646,7 @@ function classifiedBasicMap(){const rows=basicItems.filter(b=>!b.archived).map(b
 function showAuthView(view,{status=null,message=null}={}){
   document.getElementById('auth-shell').hidden=false;
   document.getElementById('app-shell').hidden=true;
-  ['login','request','status','recovery'].forEach(v=>{const el=document.getElementById(`auth-${v}-view`);if(el)el.hidden=v!==view;});
+  ['login','request','otp','status','recovery'].forEach(v=>{const el=document.getElementById(`auth-${v}-view`);if(el)el.hidden=v!==view;});
   if(view==='status'){const blocked=status==='blocked';const badge=document.getElementById('auth-status-badge');badge.textContent=blocked?'Acesso bloqueado':'Aguardando aprovação';badge.style.background=blocked?'#fff0f0':'var(--primary-soft)';badge.style.color=blocked?'#b12638':'var(--primary)';document.getElementById('auth-status-title').textContent=blocked?'Seu acesso está bloqueado':'Solicitação recebida';const email=currentUser?.email||currentProfile?.email||'';document.getElementById('auth-status-message').className=`auth-message ${blocked?'danger':'warning'}`;document.getElementById('auth-status-message').innerHTML=message|| (blocked?`O acesso de <strong>${esc(email)}</strong> está bloqueado. Procure um administrador do Portfólio RH.`:`O cadastro de <strong>${esc(email)}</strong> foi criado e está aguardando aprovação. Assim que um administrador liberar o perfil, o acesso ao portfólio será habilitado.`);}
 }
 function showAppShell(){document.getElementById('auth-shell').hidden=true;document.getElementById('app-shell').hidden=false;applyPermissionsUI();}
@@ -639,15 +658,192 @@ function authRedirectUrl(){
     return window.location.origin+window.location.pathname;
   }
 }
-function authErrorMessage(error){const msg=String(error?.message||error||'Erro desconhecido');if(/invalid login credentials/i.test(msg))return'E-mail ou senha inválidos.';if(/email not confirmed/i.test(msg))return'Confirme seu e-mail antes de entrar.';if(/user already registered/i.test(msg))return'Este e-mail já possui cadastro. Use o login ou redefina a senha.';return msg;}
+function cleanAuthUrl(){
+  try{const url=new URL(window.location.href);url.searchParams.delete('auth');url.searchParams.delete('email');history.replaceState({},'',url.pathname+url.search+url.hash);}catch{}
+}
+function setOtpFlow(type,email=''){
+  otpFlow=type;
+  otpEmail=String(email||'').trim().toLowerCase();
+  const title=document.getElementById('auth-otp-title');
+  const copy=document.getElementById('auth-otp-copy');
+  const helper=document.getElementById('otp-helper');
+  const resend=document.getElementById('otp-resend-btn');
+  const emailInput=document.getElementById('otp-email');
+  const codeInput=document.getElementById('otp-code');
+  if(emailInput)emailInput.value=otpEmail;
+  if(codeInput)codeInput.value='';
+  if(helper){helper.hidden=true;helper.textContent='';}
+  if(type==='signup'){
+    if(title)title.textContent='Confirmar e-mail';
+    if(copy)copy.textContent='Digite o código enviado para confirmar seu cadastro no Portfólio RH.';
+    if(resend){resend.hidden=false;resend.textContent='Reenviar código';}
+  }else if(type==='invite'){
+    if(title)title.textContent='Aceitar convite';
+    if(copy)copy.textContent='Digite o código recebido no convite. Depois, você criará sua senha de acesso.';
+    if(resend)resend.hidden=true;
+    if(helper){helper.hidden=false;helper.textContent='Se o código do convite expirar, solicite um novo convite ao administrador do Portfólio RH.';}
+  }else{
+    if(title)title.textContent='Redefinir senha';
+    if(copy)copy.textContent='Digite o código enviado ao seu e-mail para continuar a redefinição da senha.';
+    if(resend){resend.hidden=false;resend.textContent='Reenviar código';}
+  }
+  showAuthView('otp');
+  setTimeout(()=>document.getElementById('otp-code')?.focus(),0);
+}
+function startCodeEntry(){
+  const params=new URLSearchParams(window.location.search);
+  const mode=params.get('auth');
+  const email=params.get('email')||document.getElementById('login-email')?.value||'';
+  setOtpFlow(mode==='invite'?'invite':mode==='recovery'?'recovery':'signup',email);
+}
+function cancelOtpFlow(){
+  otpFlow=null;otpEmail='';passwordPurpose='recovery';recoveryMode=false;cleanAuthUrl();
+  const code=document.getElementById('otp-code');if(code)code.value='';
+  const p1=document.getElementById('recovery-password');if(p1)p1.value='';
+  const p2=document.getElementById('recovery-password-confirm');if(p2)p2.value='';
+  showAuthView('login');
+}
+async function verifyAuthOtp(){
+  const email=(document.getElementById('otp-email')?.value||otpEmail||'').trim().toLowerCase();
+  const token=(document.getElementById('otp-code')?.value||'').replace(/\s+/g,'');
+  const btn=document.getElementById('otp-btn');
+  if(!email||!token){toast('Informe o e-mail e o código recebido.','error');return;}
+  if(!otpFlow)otpFlow='signup';
+  setLoading(btn,true,'Validando...');
+  try{
+    const {data,error}=await supa.auth.verifyOtp({email,token,type:otpFlow});
+    if(error)throw error;
+    otpEmail=email;
+    if(otpFlow==='recovery'||otpFlow==='invite'){
+      recoveryMode=true;
+      currentUser=data?.user||data?.session?.user||null;
+      passwordPurpose=otpFlow==='invite'?'invite':'recovery';
+      const title=document.getElementById('recovery-title');
+      const copy=document.getElementById('recovery-copy');
+      const save=document.getElementById('recovery-btn');
+      if(passwordPurpose==='invite'){
+        if(title)title.textContent='Criar sua senha';
+        if(copy)copy.textContent='Convite validado. Defina uma senha para concluir seu primeiro acesso.';
+        if(save)save.textContent='Criar acesso';
+      }else{
+        if(title)title.textContent='Definir nova senha';
+        if(copy)copy.textContent='Código validado. Escolha uma nova senha para o Portfólio RH.';
+        if(save)save.textContent='Salvar nova senha';
+      }
+      showAuthView('recovery');
+      setTimeout(()=>document.getElementById('recovery-password')?.focus(),0);
+      return;
+    }
+    recoveryMode=false;
+    cleanAuthUrl();
+    toast('E-mail confirmado com sucesso.','success');
+    await handleAuthenticatedSession(data?.session);
+  }catch(error){toast(authErrorMessage(error),'error');}
+  finally{setLoading(btn,false);}
+}
+async function resendAuthOtp(){
+  const email=(document.getElementById('otp-email')?.value||otpEmail||'').trim().toLowerCase();
+  if(!email){toast('Informe o e-mail.','error');return;}
+  try{
+    if(otpFlow==='signup'){
+      const {error}=await supa.auth.resend({type:'signup',email});if(error)throw error;
+    }else if(otpFlow==='recovery'){
+      const {error}=await supa.auth.resetPasswordForEmail(email);if(error)throw error;
+    }else{
+      toast('Solicite um novo convite ao administrador.','error');return;
+    }
+    otpEmail=email;toast('Novo código enviado.','success');
+  }catch(error){toast(authErrorMessage(error),'error');}
+}
+function authErrorMessage(error){const msg=String(error?.message||error||'Erro desconhecido');if(/invalid login credentials/i.test(msg))return'E-mail ou senha inválidos.';if(/email not confirmed/i.test(msg))return'Confirme seu e-mail antes de entrar.';if(/user already registered/i.test(msg))return'Este e-mail já possui cadastro. Use o login ou redefina a senha.';if(/token has expired|otp_expired|expired/i.test(msg))return'O código expirou. Solicite um novo código.';if(/token.*invalid|invalid.*token|otp/i.test(msg))return'Código inválido. Confira os números recebidos no e-mail.';return msg;}
 async function loadCurrentProfile({quiet=false}={}){if(!supa||!currentUser)return null;const {data,error}=await supa.from('user_profiles').select('*').eq('id',currentUser.id).maybeSingle();if(error){if(!quiet)console.error('Erro ao carregar perfil:',error);throw error;}currentProfile=data||null;return currentProfile;}
 async function handleAuthenticatedSession(session,{quiet=false}={}){if(!session?.user){currentUser=null;currentProfile=null;showAuthView('login');return;}currentUser=session.user;let profile=null;try{profile=await loadCurrentProfile({quiet});}catch(error){showAuthView('status',{status:'blocked',message:'A estrutura de acessos da v41.3 ainda não está disponível ou não pôde ser consultada. Execute o arquivo SQL de configuração no Supabase antes de publicar esta versão.'});return;}if(!profile){showAuthView('status',{message:'Seu usuário existe no Supabase Auth, mas o perfil de acesso ainda não foi criado. Peça ao administrador para revisar a configuração da v41.3.'});return;}if(profile.status!=='active'){showAuthView('status',{status:profile.status});return;}showAppShell();if(!quiet)await loadAllData();else applyPermissionsUI();}
-async function bootstrapAuth(){if(!supa){showAuthView('status',{status:'blocked',message:'Supabase não configurado neste arquivo.'});return;}supa.auth.onAuthStateChange((event,session)=>{setTimeout(async()=>{if(event==='PASSWORD_RECOVERY'){recoveryMode=true;currentUser=session?.user||null;showAuthView('recovery');return;}if(event==='SIGNED_OUT'){currentUser=null;currentProfile=null;projects=[];basicItems=[];showAuthView('login');return;}if(['SIGNED_IN','TOKEN_REFRESHED','USER_UPDATED','INITIAL_SESSION'].includes(event)&&session&&!recoveryMode){await handleAuthenticatedSession(session);}},0);});const {data:{session}}=await supa.auth.getSession();if(session&&!recoveryMode)await handleAuthenticatedSession(session);else if(!recoveryMode)showAuthView('login');document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&currentUser&&!recoveryMode)checkAccessStillActive();});authWatchTimer=setInterval(()=>{if(currentUser&&!recoveryMode)checkAccessStillActive();},60000);}
+async function bootstrapAuth(){
+  if(!supa){showAuthView('status',{status:'blocked',message:'Supabase não configurado neste arquivo.'});return;}
+  // v42.2.8: rotas ?auth=confirm|invite|recovery têm prioridade sobre o login padrão.
+  const params=new URLSearchParams(window.location.search);
+  const requestedMode=params.get('auth');
+  const requestedEmail=params.get('email')||'';
+  supa.auth.onAuthStateChange((event,session)=>{setTimeout(async()=>{
+    // Compatibilidade com links antigos durante a transição para OTP.
+    if(event==='PASSWORD_RECOVERY'){
+      recoveryMode=true;currentUser=session?.user||null;passwordPurpose='recovery';
+      document.getElementById('recovery-title').textContent='Definir nova senha';
+      document.getElementById('recovery-copy').textContent='Escolha uma nova senha para continuar acessando o Portfólio RH.';
+      document.getElementById('recovery-btn').textContent='Salvar nova senha';
+      showAuthView('recovery');return;
+    }
+    if(event==='SIGNED_OUT'){currentUser=null;currentProfile=null;projects=[];basicItems=[];showAuthView('login');return;}
+    if(['SIGNED_IN','TOKEN_REFRESHED','USER_UPDATED','INITIAL_SESSION'].includes(event)&&session&&!recoveryMode&&!requestedMode){await handleAuthenticatedSession(session);}
+  },0);});
+  if(['confirm','invite','recovery'].includes(requestedMode)){
+    setOtpFlow(requestedMode==='confirm'?'signup':requestedMode,requestedEmail);
+  }else{
+    const {data:{session}}=await supa.auth.getSession();
+    if(session&&!recoveryMode)await handleAuthenticatedSession(session);else if(!recoveryMode)showAuthView('login');
+  }
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&currentUser&&!recoveryMode)checkAccessStillActive();});
+  authWatchTimer=setInterval(()=>{if(currentUser&&!recoveryMode)checkAccessStillActive();},60000);
+}
 async function checkAccessStillActive(){try{const oldStatus=currentProfile?.status;const oldRole=currentProfile?.role;await loadCurrentProfile({quiet:true});if(currentProfile?.status!=='active'){showAuthView('status',{status:currentProfile?.status||'blocked'});return;}if(oldRole!==currentProfile.role||oldStatus!==currentProfile.status)applyPermissionsUI();}catch{}}
 async function loginUser(){const email=document.getElementById('login-email').value.trim().toLowerCase();const password=document.getElementById('login-password').value;const btn=document.getElementById('login-btn');if(!email||!password){toast('Informe e-mail e senha.','error');return;}setLoading(btn,true,'Entrando...');try{const {data,error}=await supa.auth.signInWithPassword({email,password});if(error)throw error;await handleAuthenticatedSession(data.session);}catch(error){toast(authErrorMessage(error),'error');}finally{setLoading(btn,false);}}
-async function requestAccess(){const name=document.getElementById('request-name').value.trim();const email=document.getElementById('request-email').value.trim().toLowerCase();const password=document.getElementById('request-password').value;const confirmPassword=document.getElementById('request-password-confirm').value;const btn=document.getElementById('request-btn');if(!name||!email||!password){toast('Preencha nome, e-mail e senha.','error');return;}if(password.length<8){toast('A senha deve ter pelo menos 8 caracteres.','error');return;}if(password!==confirmPassword){toast('As senhas não coincidem.','error');return;}setLoading(btn,true,'Enviando...');try{const {data,error}=await supa.auth.signUp({email,password,options:{data:{full_name:name},emailRedirectTo:authRedirectUrl()}});if(error)throw error;if(data?.session){currentUser=data.user;await handleAuthenticatedSession(data.session);}else{document.getElementById('login-email').value=email;showAuthView('login');toast('Solicitação criada. Se o Supabase pedir confirmação de e-mail, confirme antes de entrar.','success');}}catch(error){toast(authErrorMessage(error),'error');}finally{setLoading(btn,false);}}
-async function forgotPassword(){const email=(document.getElementById('login-email').value||'').trim().toLowerCase();if(!email){toast('Informe seu e-mail no campo de login.','error');return;}try{const redirectTo=authRedirectUrl();const {error}=await supa.auth.resetPasswordForEmail(email,{redirectTo});if(error)throw error;toast('Se o e-mail estiver cadastrado, você receberá o link para redefinir a senha.','success');}catch(error){toast(authErrorMessage(error),'error');}}
-async function updateRecoveredPassword(){const password=document.getElementById('recovery-password').value;const confirmPassword=document.getElementById('recovery-password-confirm').value;const btn=document.getElementById('recovery-btn');if(password.length<8){toast('A senha deve ter pelo menos 8 caracteres.','error');return;}if(password!==confirmPassword){toast('As senhas não coincidem.','error');return;}setLoading(btn,true,'Salvando...');try{const {error}=await supa.auth.updateUser({password});if(error)throw error;recoveryMode=false;const {data:{session}}=await supa.auth.getSession();toast('Senha atualizada.','success');await handleAuthenticatedSession(session);}catch(error){toast(authErrorMessage(error),'error');}finally{setLoading(btn,false);}}
+async function requestAccess(){
+  const name=document.getElementById('request-name').value.trim();
+  const email=document.getElementById('request-email').value.trim().toLowerCase();
+  const password=document.getElementById('request-password').value;
+  const confirmPassword=document.getElementById('request-password-confirm').value;
+  const btn=document.getElementById('request-btn');
+  if(!name||!email||!password){toast('Preencha nome, e-mail e senha.','error');return;}
+  if(password.length<8){toast('A senha deve ter pelo menos 8 caracteres.','error');return;}
+  if(password!==confirmPassword){toast('As senhas não coincidem.','error');return;}
+  setLoading(btn,true,'Enviando...');
+  try{
+    const {data,error}=await supa.auth.signUp({email,password,options:{data:{full_name:name}}});
+    if(error)throw error;
+    if(data?.session){currentUser=data.user;await handleAuthenticatedSession(data.session);}
+    else{
+      document.getElementById('login-email').value=email;
+      setOtpFlow('signup',email);
+      toast('Cadastro criado. Digite o código enviado ao seu e-mail para confirmar.','success');
+    }
+  }catch(error){toast(authErrorMessage(error),'error');}
+  finally{setLoading(btn,false);}
+}
+async function forgotPassword(){
+  const email=(document.getElementById('login-email').value||'').trim().toLowerCase();
+  if(!email){toast('Informe seu e-mail no campo de login.','error');return;}
+  try{
+    const {error}=await supa.auth.resetPasswordForEmail(email);
+    if(error)throw error;
+    setOtpFlow('recovery',email);
+    toast('Se o e-mail estiver cadastrado, você receberá um código para redefinir a senha.','success');
+  }catch(error){toast(authErrorMessage(error),'error');}
+}
+async function updateRecoveredPassword(){
+  const password=document.getElementById('recovery-password').value;
+  const confirmPassword=document.getElementById('recovery-password-confirm').value;
+  const btn=document.getElementById('recovery-btn');
+  if(password.length<8){toast('A senha deve ter pelo menos 8 caracteres.','error');return;}
+  if(password!==confirmPassword){toast('As senhas não coincidem.','error');return;}
+  setLoading(btn,true,passwordPurpose==='invite'?'Criando acesso...':'Salvando...');
+  try{
+    const {error}=await supa.auth.updateUser({password});if(error)throw error;
+    const wasInvite=passwordPurpose==='invite';
+    recoveryMode=false;cleanAuthUrl();
+    if(wasInvite){
+      const {data:{session}}=await supa.auth.getSession();
+      toast('Senha criada com sucesso.','success');
+      await handleAuthenticatedSession(session);
+    }else{
+      await supa.auth.signOut();
+      document.getElementById('login-email').value=otpEmail||'';
+      showAuthView('login');
+      toast('Senha atualizada. Entre novamente com a nova senha.','success');
+    }
+    otpFlow=null;passwordPurpose='recovery';
+  }catch(error){toast(authErrorMessage(error),'error');}
+  finally{setLoading(btn,false);}
+}
 async function logoutUser(){closeMenus();try{await supa?.auth.signOut();}finally{currentUser=null;currentProfile=null;projects=[];basicItems=[];showAuthView('login');}}
 function toggleUserMenu(event){event?.stopPropagation();const menu=document.getElementById('user-menu');const open=!menu.classList.contains('open');menu.classList.toggle('open',open);document.getElementById('user-menu-btn')?.setAttribute('aria-expanded',String(open));if(open&&isAdmin())refreshPendingAccessCount();}
 function closeUserMenu(){document.getElementById('user-menu')?.classList.remove('open');document.getElementById('user-menu-btn')?.setAttribute('aria-expanded','false');}
@@ -669,7 +865,7 @@ async function loadAccessManagement(){if(!isAdmin())return;try{const [{data:user
 function renderAccessManagement(){const filters=[['all','Todos'],['pending','Pendentes'],['active','Ativos'],['blocked','Bloqueados']];document.getElementById('access-filters').innerHTML=filters.map(([key,label])=>`<button class="access-filter ${accessFilter===key?'active':''}" onclick="setAccessFilter('${key}')">${label}${key==='pending'?` (${accessUsers.filter(u=>u.status==='pending').length})`:''}</button>`).join('');const rows=accessUsers.filter(u=>accessFilter==='all'||u.status===accessFilter);const body=document.getElementById('access-users-body');if(!rows.length){body.innerHTML='<tr><td colspan="5"><div class="empty-state"><strong>Nenhum usuário neste filtro</strong></div></td></tr>';}else body.innerHTML=rows.map(user=>{const self=user.id===currentUser?.id;const status=user.status||'pending';return `<tr><td><div class="access-name">${esc(user.full_name||user.email?.split('@')[0]||'Usuário')}</div><div class="access-email">${esc(user.email||'')}</div></td><td><span class="access-status ${status}">${ACCESS_STATUSES[status]||status}</span></td><td><select class="access-role" ${self?'title="Seu próprio perfil"':''} onchange="adminSetUserRole('${user.id}',this.value)" ${self?'disabled':''}>${Object.entries({...ACCESS_ROLE_OPTIONS,...(user.role==='editor'?{editor:'Projetos (legado)'}:{})}).map(([value,label])=>`<option value="${value}" ${user.role===value?'selected':''}>${label}</option>`).join('')}</select></td><td>${user.created_at?new Date(user.created_at).toLocaleDateString('pt-BR'):'—'}</td><td><div class="access-actions">${status==='pending'?`<button onclick="adminSetUserStatus('${user.id}','active')">Aprovar</button>`:''}${status==='active'&&!self?`<button onclick="adminSetUserStatus('${user.id}','blocked')">Bloquear</button>`:''}${status==='blocked'?`<button onclick="adminSetUserStatus('${user.id}','active')">Reativar</button>`:''}<button onclick="adminSendPasswordReset('${escJs(user.email||'')}')">Redefinir senha</button></div></td></tr>`;}).join('');const pre=document.getElementById('preapproval-body');if(!accessPreapprovals.length)pre.innerHTML='<div class="empty-state" style="padding:18px"><strong>Nenhum e-mail aguardando cadastro</strong>Você pode liberar um e-mail acima antes de a pessoa solicitar acesso.</div>';else pre.innerHTML=accessPreapprovals.map(item=>`<div class="preapproval-row"><div><strong>${esc(item.full_name||item.email)}</strong><br><small>${esc(item.email)} · ${roleLabel(item.role)}</small></div><button class="btn ghost small" onclick="disablePreapproval('${item.id}')">Cancelar liberação</button></div>`).join('');}
 async function adminSetUserStatus(id,status){if(!isAdmin())return;try{const payload={status,updated_at:new Date().toISOString()};if(status==='active'){payload.approved_at=new Date().toISOString();payload.approved_by=currentUser.id;}const {error}=await supa.from('user_profiles').update(payload).eq('id',id);if(error)throw error;toast(status==='active'?'Acesso liberado.':'Acesso bloqueado.','success');await loadAccessManagement();}catch(error){toast(`Erro ao atualizar acesso: ${error.message}`,'error');}}
 async function adminSetUserRole(id,role){if(!isAdmin())return;try{const {error}=await supa.from('user_profiles').update({role,updated_at:new Date().toISOString()}).eq('id',id);if(error)throw error;toast('Perfil atualizado.','success');await loadAccessManagement();}catch(error){toast(`Erro ao atualizar perfil: ${error.message}`,'error');}}
-async function adminSendPasswordReset(email){if(!isAdmin()||!email)return;try{const redirectTo=authRedirectUrl();const {error}=await supa.auth.resetPasswordForEmail(email,{redirectTo});if(error)throw error;toast('E-mail de redefinição enviado.','success');}catch(error){toast(`Erro ao enviar redefinição: ${error.message}`,'error');}}
+async function adminSendPasswordReset(email){if(!isAdmin()||!email)return;try{const {error}=await supa.auth.resetPasswordForEmail(email);if(error)throw error;toast('Código de redefinição enviado por e-mail.','success');}catch(error){toast(`Erro ao enviar redefinição: ${error.message}`,'error');}}
 async function preapproveAccess(){if(!isAdmin())return;const full_name=document.getElementById('preapprove-name').value.trim();const email=document.getElementById('preapprove-email').value.trim().toLowerCase();const role=document.getElementById('preapprove-role').value;const btn=document.getElementById('preapprove-btn');if(!email){toast('Informe o e-mail.','error');return;}setLoading(btn,true,'Salvando...');try{const existing=accessUsers.find(u=>norm(u.email)===norm(email));if(existing){const {error}=await supa.from('user_profiles').update({full_name:full_name||existing.full_name,role,status:'active',approved_at:new Date().toISOString(),approved_by:currentUser.id,updated_at:new Date().toISOString()}).eq('id',existing.id);if(error)throw error;toast('Usuário existente aprovado e atualizado.','success');}else{const {error}=await supa.from('access_preapprovals').upsert({email,full_name:full_name||null,role,active:true,created_by:currentUser.id,updated_at:new Date().toISOString()},{onConflict:'email'});if(error)throw error;toast('E-mail pré-aprovado. A pessoa deverá criar a própria senha em “Solicitar acesso”.','success');}document.getElementById('preapprove-name').value='';document.getElementById('preapprove-email').value='';await loadAccessManagement();}catch(error){toast(`Erro ao liberar e-mail: ${error.message}`,'error');}finally{setLoading(btn,false);}}
 async function disablePreapproval(id){if(!isAdmin())return;try{const {error}=await supa.from('access_preapprovals').update({active:false,updated_at:new Date().toISOString()}).eq('id',id);if(error)throw error;await loadAccessManagement();toast('Liberação cancelada.','success');}catch(error){toast(`Erro: ${error.message}`,'error');}}
 
